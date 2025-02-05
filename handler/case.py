@@ -25,6 +25,7 @@ from constants import (
     CREATE_CASE_SUBMIT,
     END,
 )
+from src.utils.twilio import generate_tac, send_sms, verify_tac
 from wallet import load_user_wallet
 
 
@@ -50,18 +51,29 @@ async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     """Handle the user's mobile number input."""
     user_id = update.effective_user.id
     mobile = update.message.text.strip()
-    context.user_data["case"]["mobile"] = mobile
-    await update.message.reply_text(get_text(user_id, "enter_tac"))
-    # You might want to call an async SMS-sending function here.
-    return CREATE_CASE_TAC
+
+    # Generate and send TAC
+    tac = generate_tac()
+    success = send_sms(mobile, tac)
+    if success:
+        context.user_data["mobile"] = mobile
+        await update.message.reply_text(get_text(user_id, "enter_tac"))
+        return CREATE_CASE_TAC
+    else:
+        await update.message.reply_text(
+            "Failed to send verification code. Please try again."
+        )
+        return CREATE_CASE_MOBILE
 
 
 async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle TAC verification."""
     user_id = update.effective_user.id
-    tac = update.message.text.strip()
-    # Simulate TAC verification (replace with your actual logic)
-    if tac == "123456":
+    user_tac = update.message.text.strip()
+    mobile = context.user_data.get("mobile")
+
+    # Verify TAC
+    if verify_tac(mobile, user_tac):
         await update.message.reply_text(get_text(user_id, "tac_verified"))
         await show_disclaimer_2(update, context)
         return CREATE_CASE_DISCLAIMER
