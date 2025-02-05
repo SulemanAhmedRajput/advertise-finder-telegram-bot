@@ -1,7 +1,29 @@
-# Conversation states
+import logging
+from telegram import (
+    Update,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+)
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    CallbackQueryHandler,
+    MessageHandler,
+    ConversationHandler,
+    filters,
+    ContextTypes,
+)
+
+# ======================
+# Conversation States
+# ======================
+
+# (Note: The original conversation states from your snippet have been extended
+# to separate the steps for creating a case. You may adjust the numbering as needed.)
+
 SELECT_LANG = 0
-CHOOSE_COUNTRY = 1
-SHOW_DISCLAIMER = 2
+SHOW_DISCLAIMER = 1
+CHOOSE_COUNTRY = 2
 CHOOSE_CITY = 3
 CHOOSE_ACTION = 4
 CHOOSE_WALLET_TYPE = 5
@@ -11,14 +33,29 @@ CREATE_CASE_MOBILE = 8
 CREATE_CASE_TAC = 9
 CREATE_CASE_DISCLAIMER = 10
 CREATE_CASE_REWARD_AMOUNT = 11
-CREATE_CASE_PERSON_DETAILS = 12
-CREATE_CASE_SUBMIT = 13
-END = 14
-WALLET_MENU = 8
-WAITING_FOR_MOBILE = 9
-SETTINGS_MENU = 10
+CREATE_CASE_PERSON_NAME = 12
+CREATE_CASE_RELATIONSHIP = 13
+CREATE_CASE_PHOTO = 14
+CREATE_CASE_LAST_SEEN_LOCATION = 15
+CREATE_CASE_SEX = 16
+CREATE_CASE_AGE = 17
+CREATE_CASE_HAIR_COLOR = 18
+CREATE_CASE_EYE_COLOR = 19
+CREATE_CASE_HEIGHT = 20
+CREATE_CASE_WEIGHT = 21
+CREATE_CASE_DISTINCTIVE_FEATURES = 22
+CREATE_CASE_SUBMIT = 23
+END = 24
 
-# Language data
+# Additional states for Wallet and Settings flows
+WALLET_MENU = 25
+WAITING_FOR_MOBILE = 26
+SETTINGS_MENU = 27
+
+# ======================
+# Language Data & Constants
+# ======================
+
 LANG_DATA = {
     "en": {
         "lang_choice": "English",
@@ -95,8 +132,6 @@ LANG_DATA = {
             "3. All information provided will be publicly visible.\n\n"
             "Do you agree?"
         ),
-        "agree_btn": "I Agree ✅",
-        "disagree_btn": "I Disagree ❌",
         "enter_reward_amount": "Enter the reward amount (Min. 2 SOL or USD400):",
         "insufficient_funds": "Insufficient funds. Please top up your wallet.",
         "top_up_tutorial": (
@@ -197,8 +232,6 @@ LANG_DATA = {
             "3. 提供的所有信息将公开可见。\n\n"
             "您是否同意？"
         ),
-        "agree_btn": "我同意 ✅",
-        "disagree_btn": "我不同意 ❌",
         "enter_reward_amount": "请输入赏金金额（最低 2 SOL 或 USD400）：",
         "insufficient_funds": "余额不足，请充值钱包。",
         "top_up_tutorial": (
@@ -226,9 +259,9 @@ LANG_DATA = {
     },
 }
 
-# Other constants
 ITEMS_PER_PAGE = 10
 WALLETS_DIR = "wallets"
+# A simple in-memory data store for user preferences (language, etc.)
 user_data_store = {}
 
 
