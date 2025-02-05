@@ -13,7 +13,7 @@ from constants import (
     CREATE_CASE_REWARD_AMOUNT,
     CREATE_CASE_PERSON_NAME,
     CREATE_CASE_RELATIONSHIP,
-    CREATE_CASE_PHOTO,
+    # CREATE_CASE_PHOTO,
     CREATE_CASE_LAST_SEEN_LOCATION,
     CREATE_CASE_SEX,
     CREATE_CASE_AGE,
@@ -143,23 +143,26 @@ async def handle_relationship(
     relationship = update.message.text.strip()
     context.user_data["case"]["relationship"] = relationship
     logger.info(f"User {user_id} entered relationship: {relationship}")
-    await update.message.reply_text(get_text(user_id, "send_photo"))
-    return CREATE_CASE_PHOTO
+    # await update.message.reply_text(get_text(user_id, "send_photo"))
 
-
-async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle photo upload."""
-    user_id = update.effective_user.id
-    if not update.message.photo:
-        await update.message.reply_text(get_text(user_id, "no_photo_found"))
-        return CREATE_CASE_PHOTO
-    photo_file = await update.message.photo[-1].get_file()
-    photo_path = f"photos/{user_id}_photo.jpg"
-    await photo_file.download_to_drive(photo_path)
-    context.user_data["case"]["photo_path"] = photo_path
-    logger.info(f"User {user_id} uploaded photo: {photo_path}")
     await update.message.reply_text(get_text(user_id, "last_seen_location"))
+    # return CREATE_CASE_PHOTO
     return CREATE_CASE_LAST_SEEN_LOCATION
+
+
+# async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+#     """Handle photo upload."""
+#     user_id = update.effective_user.id
+#     if not update.message.photo:
+#         await update.message.reply_text(get_text(user_id, "no_photo_found"))
+#         return CREATE_CASE_PHOTO
+#     photo_file = await update.message.photo[-1].get_file()
+#     photo_path = f"photos/{user_id}_photo.jpg"
+#     await photo_file.download_to_drive(photo_path)
+#     context.user_data["case"]["photo_path"] = photo_path
+#     logger.info(f"User {user_id} uploaded photo: {photo_path}")
+#     await update.message.reply_text(get_text(user_id, "last_seen_location"))
+#     return CREATE_CASE_LAST_SEEN_LOCATION
 
 
 async def handle_last_seen_location(
