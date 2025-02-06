@@ -12,6 +12,7 @@ import logging
 
 # Import your text-getting function and other constants
 from constants import (
+    CREATE_CASE_PHOTO,
     CREATE_CASE_REWARD_TYPE,
     get_text,
     SELECT_LANG,
@@ -70,6 +71,7 @@ from handler.case import (
     handle_name,
     handle_mobile,
     handle_person_name,
+    handle_photo,
     handle_relationship,
     handle_reward_type,
     handle_sex,
@@ -77,6 +79,7 @@ from handler.case import (
     handle_weight,
     disclaimer_2_callback,
     handle_reward_amount,
+    handle_withdraw_request,
     submit_case,
 )
 from settings import settings_command, settings_menu_callback, mobile_number_handler
@@ -131,13 +134,10 @@ conv_handler = ConversationHandler(
             CallbackQueryHandler(disclaimer_2_callback, pattern="^(agree|disagree)$")
         ],
         CREATE_CASE_REWARD_TYPE: [
-            MessageHandler(
-                filters.TEXT & ~filters.COMMAND,
-                CallbackQueryHandler(handle_reward_type, pattern="^(SOL|BTC)$"),
-            )
+            CallbackQueryHandler(handle_reward_type, pattern="^(SOL|BTC)$"),
         ],
         CREATE_CASE_REWARD_AMOUNT: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reward_amount)
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reward_amount),
         ],
         CREATE_CASE_PERSON_NAME: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_person_name)
@@ -145,10 +145,7 @@ conv_handler = ConversationHandler(
         CREATE_CASE_RELATIONSHIP: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_relationship)
         ],
-        # CREATE_CASE_PHOTO: [MessageHandler(filters.PHOTO, handle_photo)],
-        (CREATE_CASE_LAST_SEEN_LOCATION - 1): [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_last_seen_location)
-        ],
+        CREATE_CASE_PHOTO: [MessageHandler(filters.PHOTO, handle_photo)],
         CREATE_CASE_LAST_SEEN_LOCATION: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_last_seen_location)
         ],
@@ -170,7 +167,7 @@ conv_handler = ConversationHandler(
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_distinctive_features)
         ],
         CREATE_CASE_SUBMIT: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, submit_case)
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_withdraw_request)
         ],
         END: [CommandHandler("start", start)],
     },

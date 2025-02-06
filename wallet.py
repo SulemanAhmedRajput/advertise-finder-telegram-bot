@@ -4,7 +4,15 @@ import base58
 from solders.keypair import Keypair
 from solana.rpc.api import Client
 from solders.pubkey import Pubkey
-from constants import WALLETS_DIR, user_data_store, get_text
+from telegram import Update
+from constants import CREATE_CASE_SUBMIT, WALLETS_DIR, user_data_store, get_text
+from solders.transaction import Transaction
+from solders.system_program import transfer
+from solders.signature import Signature
+from solana.rpc.types import TxOpts
+from telegram.ext import (
+    ContextTypes,
+)
 
 # Initialize Solana client
 try:
@@ -12,6 +20,50 @@ try:
     client = Client(SOLANA_NETWORK)
 except ImportError:
     client = None
+
+
+async def transfer_solana_funds(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+    from_wallet: dict,
+    to_pubkey: str,
+    amount: float,
+):
+    """Transfer funds from one wallet to another."""
+    user_id = update.effective_user.id
+
+    # Extract public key and secret key from wallet
+    from_public_key = Pubkey.from_string(from_wallet["public_key"])
+    secret_key = base58.b58decode(from_wallet["secret_key"])
+
+    # Create the transaction
+    transaction = Transaction()
+    transfer_ix = transfer(
+        from_pubkey=from_public_key,
+        to_pubkey=Pubkey.from_string(to_pubkey),
+        lamports=int(amount * 1e9),  # Convert SOL to lamports (1 SOL = 1e9 lamports)
+    )
+    transaction.add(transfer_ix)
+
+    # Sign the transaction
+    keypair = Keypair.from_secret_key(secret_key)
+    transaction.sign(keypair)
+
+    # Send the transaction to the network
+    try:
+        tx_response = client.send_transaction(
+            transaction, keypair, opts=TxOpts(skip_preflight=True)
+        )
+        if tx_response["result"]:
+            await update.message.reply_text(
+                f"Successfully transferred {amount} SOL to {to_pubkey}!"
+            )
+        else:
+            await update.message.reply_text(f"Failed to transfer {amount} SOL.")
+    except Exception as e:
+        await update.message.reply_text(
+            f"An error occurred during the transfer: {str(e)}"
+        )
 
 
 def create_sol_wallet(wallet_name):

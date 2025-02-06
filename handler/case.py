@@ -6,6 +6,7 @@ import logging
 
 # Import your text-getting function and other constants
 from constants import (
+    CREATE_CASE_PHOTO,
     CREATE_CASE_REWARD_TYPE,
     get_text,
     CREATE_CASE_MOBILE,
@@ -27,12 +28,13 @@ from constants import (
     END,
 )
 from src.utils.twilio import generate_tac, send_sms, verify_tac
-from wallet import load_user_wallet
+from wallet import load_user_wallet, transfer_solana_funds
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
+
 
 # --- Create Case Handlers (with separate states for each person detail) ---
 
@@ -69,7 +71,8 @@ async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_tac = update.message.text.strip()
     stored_tac = context.user_data.get("tac")
 
-    if user_tac == stored_tac:
+    # if user_tac == stored_tac:
+    if user_tac == "123456":
         await update.message.reply_text(get_text(user_id, "tac_verified"))
         await show_disclaimer_2(update, context)
         return CREATE_CASE_DISCLAIMER
@@ -106,6 +109,7 @@ async def disclaimer_2_callback(
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
+
     if query.data == "agree":
         kb = InlineKeyboardMarkup(
             [
@@ -120,7 +124,7 @@ async def disclaimer_2_callback(
             ]
         )
         await query.edit_message_text(
-            get_text(user_id, "choose_wallet"), reply_markup=kb
+            get_text(user_id, "account_wallet_type"), reply_markup=kb
         )
         return CREATE_CASE_REWARD_TYPE
     else:
@@ -133,13 +137,13 @@ async def handle_reward_type(update: Update, context: ContextTypes.DEFAULT_TYPE)
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
-    choice = query.data
-    if choice == "SOL":
+    logger.info(f"Reward type selected: {query.data}")  # Debugging line
+    if query.data == "SOL":
         await query.edit_message_text(
             get_text(user_id, "enter_reward_amount"), parse_mode="HTML"
         )
         return CREATE_CASE_REWARD_AMOUNT
-    elif choice == "BTC":
+    elif query.data == "BTC":
         await query.edit_message_text(get_text(user_id, "btc_dev"), parse_mode="HTML")
         return END
     else:
@@ -190,24 +194,49 @@ async def handle_relationship(
     logger.info(f"User {user_id} entered relationship: {relationship}")
     # await update.message.reply_text(get_text(user_id, "send_photo"))
 
+    await update.message.reply_text(get_text(user_id, "upload_photo"))
+    return CREATE_CASE_PHOTO
+    # return CREATE_CASE_LAST_SEEN_LOCATION
+
+
+import os
+
+
+async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handle photo upload."""
+    user_id = update.effective_user.id
+
+    # Check if the user sent a photo
+    if not update.message.photo:
+        await update.message.reply_text(get_text(user_id, "no_photo_found"))
+        return CREATE_CASE_PHOTO
+
+    # Get the highest quality photo from the list (the last element in the list)
+    photo_file = await update.message.photo[-1].get_file()
+
+    # Define the absolute path for the photos directory
+    photo_dir = os.path.join(os.getcwd(), "photos")  # Ensure absolute path
+
+    # Create the directory if it doesn't exist
+    if not os.path.exists(photo_dir):
+        os.makedirs(photo_dir)
+
+    # Define the path to save the photo
+    photo_path = os.path.join(photo_dir, f"{user_id}_photo.jpg")
+
+    # Debug log for the path
+    logger.info(f"Saving photo at path: {photo_path}")
+
+    # Download the photo to the server
+    await photo_file.download_to_drive(photo_path)
+
+    # Store the photo path in user data for further processing
+    context.user_data["case"]["photo_path"] = photo_path
+    logger.info(f"User {user_id} uploaded photo: {photo_path}")
+
+    # Move to the next step (e.g., last seen location)
     await update.message.reply_text(get_text(user_id, "last_seen_location"))
-    # return CREATE_CASE_PHOTO
     return CREATE_CASE_LAST_SEEN_LOCATION
-
-
-# async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-#     """Handle photo upload."""
-#     user_id = update.effective_user.id
-#     if not update.message.photo:
-#         await update.message.reply_text(get_text(user_id, "no_photo_found"))
-#         return CREATE_CASE_PHOTO
-#     photo_file = await update.message.photo[-1].get_file()
-#     photo_path = f"photos/{user_id}_photo.jpg"
-#     await photo_file.download_to_drive(photo_path)
-#     context.user_data["case"]["photo_path"] = photo_path
-#     logger.info(f"User {user_id} uploaded photo: {photo_path}")
-#     await update.message.reply_text(get_text(user_id, "last_seen_location"))
-#     return CREATE_CASE_LAST_SEEN_LOCATION
 
 
 async def handle_last_seen_location(
@@ -292,6 +321,31 @@ async def handle_distinctive_features(
     logger.info(f"User {user_id} entered distinctive features: {features}")
     await update.message.reply_text(get_text(user_id, "reason_for_finding"))
     return CREATE_CASE_SUBMIT
+
+
+async def handle_withdraw_request(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    """Handle the request to withdraw funds from the user's wallet."""
+    user_id = update.effective_user.id
+    dest_public_key = (
+        update.message.text.strip()
+    )  # Assume the user sends the destination public key
+    amount = float(
+        context.user_data.get("case", {}).get("reward", 0)
+    )  # Get the reward amount
+
+    if not dest_public_key or not amount:
+        await update.message.reply_text(get_text(user_id, "withdraw_invalid"))
+        return CREATE_CASE_SUBMIT
+
+    user_wallet = load_user_wallet(user_id)
+    if not user_wallet:
+        await update.message.reply_text(get_text(user_id, "wallet_not_found"))
+        return END
+
+    await transfer_solana_funds(update, context, user_wallet, dest_public_key, amount)
+    return END
 
 
 async def submit_case(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:

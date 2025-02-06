@@ -83,6 +83,7 @@ LANG_DATA = {
         "cancel_msg": "Operation cancelled. Use /start to begin again.",
         "invalid_choice": "Invalid choice. Conversation ended.",
         # ---------------- Milestone 2 Additions ----------------
+        "account_wallet_type": "Account Wallet Type (SOL | BTC)",
         "menu_wallet_title": "Wallet Menu",
         "btn_refresh": "🔄 Refresh",
         "btn_sol": "SOL",
@@ -183,6 +184,7 @@ LANG_DATA = {
         "cancel_msg": "操作已取消。输入 /start 重新开始。",
         "invalid_choice": "无效选择，结束对话。",
         # ---------------- Milestone 2 Additions ----------------
+        "account_wallet_type": "Account Wallet Type (SOL | BTC)",
         "menu_wallet_title": "钱包菜单",
         "btn_refresh": "🔄 刷新",
         "btn_sol": "SOL",

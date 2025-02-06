@@ -1,27 +1,20 @@
 import logging
+import asyncio
+from beanie import init_beanie
 from telegram.ext import ApplicationBuilder
 from handlers import conv_handler, wallet_conv_handler, settings_conv_handler
 from utils import error_handler, setup_logging
 from src.utils.db_utils import get_mongo_client, get_database, get_collection
+from motor.motor_asyncio import AsyncIOMotorClient
 
 # Setup logging
 setup_logging()
 
 
-# Main function to start the bot
-def main():
-    TOKEN = "7333467475:AAE-S2Hom4XZI_sfyCbrFrLkmXy6aQpL_GI"
+# Main setup function for the bot
+async def main_setup():
+    TOKEN = "8012413981:AAG-nklE6dsD_RU4bicbF0jJ-Zjrmbab3oM"
     application = ApplicationBuilder().token(TOKEN).build()
-
-    # MongoDB setup
-    mongo_client = get_mongo_client()
-    db = get_database(mongo_client)
-    users_collection = get_collection(db, "users")
-
-    # Pass the MongoDB collection to handlers if needed
-    application.bot_data["users_collection"] = users_collection
-
-    print("MongoDB connection established.")
 
     # Add conversation handlers
     application.add_handler(conv_handler)
@@ -34,8 +27,34 @@ def main():
     # Start the bot
     logger = logging.getLogger(__name__)
     logger.info("Bot is starting...")
-    application.run_polling()
+    await application.run_polling()
 
 
+# MongoDB initialization
+async def init_db():
+    try:
+        client = AsyncIOMotorClient("mongodb://localhost:27017/myproject")
+        await init_beanie(database=client["myproject"], document_models=[])
+        print("Database initialized successfully.")
+    except Exception as e:
+        print(f"Error initializing database: {e}")
+
+
+# Main function (entry point)
+async def main():
+    # Initialize MongoDB and then start the bot
+    await init_db()
+    await main_setup()
+
+
+# Running the event loop correctly
 if __name__ == "__main__":
-    main()
+    import nest_asyncio
+
+    nest_asyncio.apply()
+
+    try:
+        loop = asyncio.get_running_loop()
+        loop.run_until_complete(main())
+    except RuntimeError:
+        asyncio.run(main())
