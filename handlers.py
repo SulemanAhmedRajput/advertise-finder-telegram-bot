@@ -12,6 +12,7 @@ import logging
 
 # Import your text-getting function and other constants
 from constants import (
+    CREATE_CASE_REWARD_TYPE,
     get_text,
     SELECT_LANG,
     CHOOSE_COUNTRY,
@@ -70,6 +71,7 @@ from handler.case import (
     handle_mobile,
     handle_person_name,
     handle_relationship,
+    handle_reward_type,
     handle_sex,
     handle_tac,
     handle_weight,
@@ -127,6 +129,12 @@ conv_handler = ConversationHandler(
         CREATE_CASE_TAC: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_tac)],
         CREATE_CASE_DISCLAIMER: [
             CallbackQueryHandler(disclaimer_2_callback, pattern="^(agree|disagree)$")
+        ],
+        CREATE_CASE_REWARD_TYPE: [
+            MessageHandler(
+                filters.TEXT & ~filters.COMMAND,
+                CallbackQueryHandler(handle_reward_type, pattern="^(SOL|BTC)$"),
+            )
         ],
         CREATE_CASE_REWARD_AMOUNT: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reward_amount)

@@ -6,6 +6,7 @@ import logging
 
 # Import your text-getting function and other constants
 from constants import (
+    CREATE_CASE_REWARD_TYPE,
     get_text,
     CREATE_CASE_MOBILE,
     CREATE_CASE_TAC,
@@ -28,8 +29,6 @@ from constants import (
 from src.utils.twilio import generate_tac, send_sms, verify_tac
 from wallet import load_user_wallet
 
-
-# Setup logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
@@ -53,27 +52,24 @@ async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     mobile = update.message.text.strip()
 
     # Generate and send TAC
-    tac = generate_tac()
-    success = send_sms(mobile, tac)
-    if success:
-        context.user_data["mobile"] = mobile
-        await update.message.reply_text(get_text(user_id, "enter_tac"))
-        return CREATE_CASE_TAC
-    else:
-        await update.message.reply_text(
-            "Failed to send verification code. Please try again."
-        )
-        return CREATE_CASE_MOBILE
+    tac = generate_tac()  # Implement this function to generate a random TAC
+    context.user_data["tac"] = tac
+    context.user_data["mobile"] = mobile
+
+    # Send TAC via Twilio
+    message = send_sms(mobile, tac)
+
+    await update.message.reply_text(get_text(user_id, "enter_tac"))
+    return CREATE_CASE_TAC
 
 
 async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle TAC verification."""
     user_id = update.effective_user.id
     user_tac = update.message.text.strip()
-    mobile = context.user_data.get("mobile")
+    stored_tac = context.user_data.get("tac")
 
-    # Verify TAC
-    if verify_tac(mobile, user_tac):
+    if user_tac == stored_tac:
         await update.message.reply_text(get_text(user_id, "tac_verified"))
         await show_disclaimer_2(update, context)
         return CREATE_CASE_DISCLAIMER
@@ -111,29 +107,66 @@ async def disclaimer_2_callback(
     await query.answer()
     user_id = query.from_user.id
     if query.data == "agree":
-        await query.edit_message_text(get_text(user_id, "enter_reward_amount"))
-        return CREATE_CASE_REWARD_AMOUNT
+        kb = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        get_text(user_id, "sol_wallet"), callback_data="SOL"
+                    ),
+                    InlineKeyboardButton(
+                        get_text(user_id, "btc_wallet"), callback_data="BTC"
+                    ),
+                ]
+            ]
+        )
+        await query.edit_message_text(
+            get_text(user_id, "choose_wallet"), reply_markup=kb
+        )
+        return CREATE_CASE_REWARD_TYPE
     else:
         await query.edit_message_text(get_text(user_id, "disagree_end"))
         return END
 
 
+# First handler to ask for the type (Solana or BTC)
+async def handle_reward_type(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    await query.answer()
+    user_id = query.from_user.id
+    choice = query.data
+    if choice == "SOL":
+        await query.edit_message_text(
+            get_text(user_id, "enter_reward_amount"), parse_mode="HTML"
+        )
+        return CREATE_CASE_REWARD_AMOUNT
+    elif choice == "BTC":
+        await query.edit_message_text(get_text(user_id, "btc_dev"), parse_mode="HTML")
+        return END
+    else:
+        await query.edit_message_text(
+            get_text(user_id, "invalid_choice"), parse_mode="HTML"
+        )
+        return END
+
+
+# Handler for reward amount
 async def handle_reward_amount(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
-    """Handle the reward amount input."""
     user_id = update.effective_user.id
     try:
         reward = float(update.message.text.strip())
     except ValueError:
-        await update.message.reply_text(get_text(user_id, "invalid_reward"))
+        await update.message.reply_text("Invalid amount, please enter a valid number.")
         return CREATE_CASE_REWARD_AMOUNT
 
     if reward < 2:
-        await update.message.reply_text(get_text(user_id, "insufficient_funds"))
+        await update.message.reply_text("The amount must be at least 2.")
         return CREATE_CASE_REWARD_AMOUNT
+
     context.user_data["case"]["reward"] = reward
-    await update.message.reply_text(get_text(user_id, "enter_person_name"))
+
+    await update.message.reply_text("Please enter the person's name.")
     return CREATE_CASE_PERSON_NAME
 
 
