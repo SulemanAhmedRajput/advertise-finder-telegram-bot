@@ -15,8 +15,11 @@ from telegram.ext import (
 )
 
 # Initialize Solana client
-SOLANA_NETWORK = "https://api.devnet.solana.com"
-client = Client(SOLANA_NETWORK)
+try:
+    SOLANA_NETWORK = "https://api.devnet.solana.com"
+    client = Client(SOLANA_NETWORK)
+except ImportError:
+    client = None
 
 
 async def transfer_solana_funds(
@@ -29,30 +32,44 @@ async def transfer_solana_funds(
     """Transfer funds from one wallet to another."""
     user_id = update.effective_user.id
 
+    # Extract public key and secret key from wallet
+    from_public_key = Pubkey.from_string(from_wallet["public_key"])
+    secret_key = base58.b58decode(from_wallet["secret_key"])
+
+    # Create the transaction
+    transaction = Transaction()
+    transfer_ix = transfer(
+        from_pubkey=from_public_key,
+        to_pubkey=Pubkey.from_string(to_pubkey),
+        lamports=int(amount * 1e9),  # Convert SOL to lamports (1 SOL = 1e9 lamports)
+    )
+    transaction.add(transfer_ix)
+
+    # Sign the transaction
     try:
-        from_keypair = Keypair.from_secret_key(bytes.fromhex(from_wallet["secret_key"]))
-        to_pubkey = Pubkey.from_string(to_pubkey)
-
-        # Create the transaction
-        transaction = Transaction().add(
-            transfer(
-                from_pubkey=from_keypair.pubkey(),
-                to_pubkey=to_pubkey,
-                lamports=int(amount * 1e9),  # Convert SOL to lamports
-            )
-        )
-
-        # Send the transaction
-        response = client.send_transaction(
-            transaction, from_keypair, opts=TxOpts(skip_preflight=True)
-        )
-
-        if response["result"]:
-            await update.message.reply_text(get_text(user_id, "transfer_success"))
-        else:
-            await update.message.reply_text(get_text(user_id, "transfer_failed"))
+        keypair = Keypair.from_secret_key(secret_key)
     except Exception as e:
-        await update.message.reply_text(f"{get_text(user_id, 'transfer_error')}: {e}")
+        await update.message.reply_text(
+            f"An error occurred while creating keypair: {str(e)}"
+        )
+        return
+    transaction.sign(keypair)
+
+    # Send the transaction to the network
+    try:
+        tx_response = client.send_transaction(
+            transaction, keypair, opts=TxOpts(skip_preflight=True)
+        )
+        if tx_response["result"]:
+            await update.message.reply_text(
+                f"Successfully transferred {amount} SOL to {to_pubkey}!"
+            )
+        else:
+            await update.message.reply_text(f"Failed to transfer {amount} SOL.")
+    except Exception as e:
+        await update.message.reply_text(
+            f"An error occurred during the transfer: {str(e)}"
+        )
 
 
 def create_sol_wallet(wallet_name):
@@ -89,12 +106,20 @@ def create_sol_wallet(wallet_name):
         return None
 
 
-def load_user_wallet(user_id: int):
+def load_user_wallet(user_id):
     """Load wallet info from user_data_store or from file if needed."""
-    wallet_data = user_data_store.get(user_id, {}).get("wallet")
-    if wallet_data:
-        return wallet_data
-    return None
+    user_wallet = user_data_store[user_id].get("wallet")
+    if not user_wallet:
+        return None
+    # Optionally re-check balance from the chain
+    if client:
+        pubkey = user_wallet.get("public_key")
+        if pubkey:
+            balance_response = client.get_balance(Pubkey.from_string(pubkey))
+            balance_lamports = balance_response.value if balance_response else 0
+            balance_sol = balance_lamports / 1e9
+            user_wallet["balance_sol"] = balance_sol
+    return user_wallet
 
 
 def delete_user_wallet(user_id):
