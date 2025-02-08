@@ -1,3 +1,4 @@
+from src.models.case_model import Case
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
     ContextTypes,
@@ -8,6 +9,9 @@ import logging
 from constants import (
     CREATE_CASE_PHOTO,
     CREATE_CASE_REWARD_TYPE,
+    CREATE_CASE_SUBMIT,
+    ENTER_PRIVATE_KEY,
+    TRANSFER_CONFIRMATION,
     get_text,
     CREATE_CASE_MOBILE,
     CREATE_CASE_TAC,
@@ -24,11 +28,20 @@ from constants import (
     CREATE_CASE_HEIGHT,
     CREATE_CASE_WEIGHT,
     CREATE_CASE_DISTINCTIVE_FEATURES,
-    CREATE_CASE_SUBMIT,
     END,
 )
 from src.utils.twilio import generate_tac, send_sms, verify_tac
 from wallet import load_user_wallet, transfer_solana_funds
+
+from solders.keypair import Keypair
+from solders.pubkey import Pubkey
+from solana.rpc.api import Client
+from solders.system_program import transfer, TransferParams
+from solders.transaction import Transaction
+from solders.message import Message
+
+client = Client("https://api.devnet.solana.com")
+
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -200,6 +213,7 @@ async def handle_relationship(
 
 
 import os
+from test_sol_transfer import recent_blockhash
 
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -320,32 +334,93 @@ async def handle_distinctive_features(
     context.user_data["case"]["distinctive_features"] = features
     logger.info(f"User {user_id} entered distinctive features: {features}")
     await update.message.reply_text(get_text(user_id, "reason_for_finding"))
-    return CREATE_CASE_SUBMIT
+    return CREATE_CASE_SUBMIT  # Transition to the next state
 
 
-async def handle_withdraw_request(
+async def handle_reason_for_finding(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
-    """Handle the request to withdraw funds from the user's wallet."""
+    """Handle input for reason for finding."""
     user_id = update.effective_user.id
-    dest_public_key = (
-        update.message.text.strip()
-    )  # Assume the user sends the destination public key
-    amount = float(
-        context.user_data.get("case", {}).get("reward", 0)
-    )  # Get the reward amount
+    reason = update.message.text.strip()
+    # context.user_data["case"]["reason_for_finding"] = reason
+    # logger.info(f"User {user_id} entered reason for finding: {reason}")
 
-    if not dest_public_key or not amount:
-        await update.message.reply_text(get_text(user_id, "withdraw_invalid"))
-        return CREATE_CASE_SUBMIT
+    # Submit the case and notify the user
+    case_no = "CASE123456"  # Replace with actual case submission logic
+    await update.message.reply_text(
+        get_text(user_id, "case_submitted").format(case_no=case_no)
+    )
 
-    user_wallet = load_user_wallet(user_id)
-    if not user_wallet:
-        await update.message.reply_text(get_text(user_id, "wallet_not_found"))
-        return END
+    return await transfer_sol(update, context)
 
-    await transfer_solana_funds(update, context, user_wallet, dest_public_key, amount)
-    return END
+
+async def transfer_sol(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    user_id = update.effective_user.id
+    # Ask the user for their private key to initiate the transaction
+    await update.message.reply_text(
+        "⚠️ Warning: Entering your private key here is insecure. "
+        "Please ensure you trust this service before proceeding.\n\n"
+        "To complete the transfer, please provide your Solana private key."
+    )
+    # Change the state to enter the private key
+    return ENTER_PRIVATE_KEY
+
+
+async def handle_private_key(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    user_id = update.effective_user.id
+    private_key = update.message.text.strip()
+    try:
+        print("Getting the private key", private_key)
+        # Validate the private key
+        sender = Keypair.from_base58_string(private_key)
+        # Load the recipient's public key
+        to_pubkey = Pubkey.from_string("8RjkX9qRpwE3zaXPzvo88veZeCRUKAqanUChEXGhJG9o")
+        # Fetch the latest blockhash
+        instruction = transfer(
+            TransferParams(
+                from_pubkey=sender.pubkey(),
+                to_pubkey=to_pubkey,
+                lamports=1_000_000,  # Convert SOL to lamports
+            )
+        )
+        blockhash_response = client.get_latest_blockhash()
+        recent_blockhash = blockhash_response.value.blockhash
+        logger.info(f"Latest blockhash fetched: {recent_blockhash}")
+        # Create a message and transaction
+        message = Message(instructions=[instruction], payer=sender.pubkey())
+        transaction = Transaction(
+            from_keypairs=[sender], message=message, recent_blockhash=recent_blockhash
+        )
+        # Sign the transaction
+        transaction.sign([sender], recent_blockhash=recent_blockhash)
+        # Send the transaction
+        send_response = client.send_transaction(transaction)
+        print(f"Transaction sent! Response: {send_response}")
+
+        await update.message.reply_text(
+            f"✅ Transfer of 1 SOL successful!\n\nTransaction ID: {send_response}\nDo you want to confirm the transaction?"
+        )
+        # Provide confirmation options (Confirm / Cancel)
+        keyboard = [
+            [
+                InlineKeyboardButton("Confirm", callback_data="confirm"),
+                InlineKeyboardButton("Cancel", callback_data="cancel"),
+            ]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text(
+            "Confirm the transaction.", reply_markup=reply_markup
+        )
+        return TRANSFER_CONFIRMATION
+
+    except Exception as e:
+        # Log and notify the user of the error
+        logger.error(f"Error during transaction: {str(e)}")
+        await update.message.reply_text(
+            f"❌ Error: {str(e)}. Please check your private key and try again."
+        )
+        return ENTER_PRIVATE_KEY
 
 
 async def submit_case(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -373,4 +448,54 @@ async def submit_case(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     await update.message.reply_text(
         get_text(user_id, "case_submitted").format(case_no=case_no)
     )
+
+    return END
+
+
+async def handle_transfer_confirmation(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    query = update.callback_query
+    await query.answer()  # Acknowledge the callback query
+
+    if query.data == "confirm":
+        # Confirm the transaction and notify the user
+
+        """Submit the case."""
+        user_id = update.effective_user.id
+        case_data = context.user_data.get("case", {})
+
+        # Generate a unique case number (you can improve this logic)
+        case_no = f"CASE-{user_id}-{len(context.user_data)}"
+
+        # Create a new Case document
+        case = Case(
+            user_id=user_id,
+            case_no=case_no,
+            name=case_data.get("name", ""),
+            mobile=case_data.get("mobile", ""),
+            person_name=case_data.get("person_name", ""),
+            relationship=case_data.get("relationship", ""),
+            photo_path=case_data.get("photo_path", ""),
+            last_seen_location=case_data.get("last_seen_location", ""),
+            sex=case_data.get("sex", ""),
+            age=case_data.get("age", ""),
+            hair_color=case_data.get("hair_color", ""),
+            eye_color=case_data.get("eye_color", ""),
+            height=case_data.get("height", ""),
+            weight=case_data.get("weight", ""),
+            distinctive_features=case_data.get("distinctive_features", ""),
+            reward=case_data.get("reward", 0),
+            reward_type=case_data.get("reward_type", "SOL"),
+        )
+
+        # Save the case to the database
+        await case.insert()
+
+        await query.message.reply_text("Your transaction has been confirmed.")
+
+    else:
+        # If canceled, notify the user
+        await query.message.reply_text("Transaction has been canceled.")
+
     return END

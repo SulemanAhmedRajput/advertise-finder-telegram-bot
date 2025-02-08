@@ -1,8 +1,14 @@
 import logging
 import asyncio
 from beanie import init_beanie
+from src.models.case_model import Case
 from telegram.ext import ApplicationBuilder
-from handlers import conv_handler, wallet_conv_handler, settings_conv_handler
+from handlers import (
+    conv_handler,
+    wallet_conv_handler,
+    settings_conv_handler,
+    case_listing_handler,
+)
 from utils import error_handler, setup_logging
 from src.utils.db_utils import get_mongo_client, get_database, get_collection
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -20,6 +26,7 @@ async def main_setup():
     application.add_handler(conv_handler)
     application.add_handler(wallet_conv_handler)
     application.add_handler(settings_conv_handler)
+    application.add_handler(case_listing_handler)
 
     # Add error handler
     application.add_error_handler(error_handler)
@@ -34,7 +41,7 @@ async def main_setup():
 async def init_db():
     try:
         client = AsyncIOMotorClient("mongodb://localhost:27017/myproject")
-        await init_beanie(database=client["myproject"], document_models=[])
+        await init_beanie(database=client["myproject"], document_models=[Case])
         print("Database initialized successfully.")
     except Exception as e:
         print(f"Error initializing database: {e}")

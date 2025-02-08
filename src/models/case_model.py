@@ -1,17 +1,28 @@
-from beanie import Document
-from pydantic import BaseModel
+from beanie import Document, Indexed
+from pydantic import BaseModel, Field
+from typing import Optional, List
 from datetime import datetime
-from typing import Optional
 
 
 class Case(Document):
-    title: str
-    description: Optional[str] = None
-    created_at: datetime = datetime.utcnow()
-    updated_at: datetime = datetime.utcnow()
+    user_id: int
+    case_no: str
+    name: str
+    mobile: str
+    person_name: str
+    relationship: str
+    photo_path: Optional[str]
+    last_seen_location: str
+    sex: str
+    age: str
+    hair_color: str
+    eye_color: str
+    height: str
+    weight: str
+    distinctive_features: str
+    reward: float
+    reward_type: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Settings:
-        collection = "cases"
-
-    def __repr__(self):
-        return f"<Case(id={self.id}, title={self.title}, created_at={self.created_at})>"
+        name = "cases"  # The name of the collection in MongoDB

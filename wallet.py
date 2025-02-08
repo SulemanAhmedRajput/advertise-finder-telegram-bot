@@ -5,7 +5,7 @@ from solders.keypair import Keypair
 from solana.rpc.api import Client
 from solders.pubkey import Pubkey
 from telegram import Update
-from constants import CREATE_CASE_SUBMIT, WALLETS_DIR, user_data_store, get_text
+from constants import WALLETS_DIR, user_data_store, get_text
 from solders.transaction import Transaction
 from solders.system_program import transfer
 from solders.signature import Signature

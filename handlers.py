@@ -1,3 +1,5 @@
+from handler.listing import case_details_callback, listing_command, pagination_callback
+import solders.message
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
     Application,
@@ -6,14 +8,18 @@ from telegram.ext import (
     MessageHandler,
     ConversationHandler,
     filters,
-    ContextTypes,
 )
 import logging
 
 # Import your text-getting function and other constants
 from constants import (
+    CASE_DETAILS,
+    CASE_LIST,
     CREATE_CASE_PHOTO,
     CREATE_CASE_REWARD_TYPE,
+    CREATE_CASE_SUBMIT,
+    ENTER_PRIVATE_KEY,
+    TRANSFER_CONFIRMATION,
     get_text,
     SELECT_LANG,
     CHOOSE_COUNTRY,
@@ -39,7 +45,6 @@ from constants import (
     CREATE_CASE_HEIGHT,
     CREATE_CASE_WEIGHT,
     CREATE_CASE_DISTINCTIVE_FEATURES,
-    CREATE_CASE_SUBMIT,
     END,
     WAITING_FOR_MOBILE,
     WALLET_MENU,
@@ -72,15 +77,16 @@ from handler.case import (
     handle_mobile,
     handle_person_name,
     handle_photo,
+    handle_private_key,
+    handle_reason_for_finding,
     handle_relationship,
     handle_reward_type,
     handle_sex,
     handle_tac,
+    handle_transfer_confirmation,
     handle_weight,
     disclaimer_2_callback,
     handle_reward_amount,
-    handle_withdraw_request,
-    submit_case,
 )
 from settings import settings_command, settings_menu_callback, mobile_number_handler
 
@@ -167,7 +173,15 @@ conv_handler = ConversationHandler(
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_distinctive_features)
         ],
         CREATE_CASE_SUBMIT: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_withdraw_request)
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reason_for_finding)
+        ],
+        ENTER_PRIVATE_KEY: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_private_key),
+        ],
+        TRANSFER_CONFIRMATION: [
+            CallbackQueryHandler(
+                handle_transfer_confirmation, pattern="^(confirm|cancel)$"
+            ),
         ],
         END: [CommandHandler("start", start)],
     },
@@ -191,6 +205,22 @@ wallet_conv_handler = ConversationHandler(
         END: [CommandHandler("wallet", wallet_command)],
     },
     fallbacks=[CommandHandler("cancel", cancel)],
+)
+
+
+# Define ConversationHandler
+# Define ConversationHandler
+case_listing_handler = ConversationHandler(
+    entry_points=[CommandHandler("listing", listing_command)],
+    states={
+        CASE_DETAILS: [
+            CallbackQueryHandler(case_details_callback, pattern="^case_.*$"),
+            CallbackQueryHandler(
+                pagination_callback, pattern="^(page_previous|page_next)$"
+            ),
+        ]
+    },
+    fallbacks=[CommandHandler("cancel", lambda update, context: END)],
 )
 
 # Settings conversation handler
@@ -220,6 +250,7 @@ def main() -> None:
 
     # Add conversation handlers
     application.add_handler(conv_handler)
+    application.add_handler(case_listing_handler)
     application.add_handler(wallet_conv_handler)
     application.add_handler(settings_conv_handler)
 

@@ -30,13 +30,19 @@ CREATE_CASE_HEIGHT = 20
 CREATE_CASE_WEIGHT = 21
 CREATE_CASE_DISTINCTIVE_FEATURES = 22
 CREATE_CASE_SUBMIT = 23
-END = 24
+ENTER_PRIVATE_KEY = 24
+TRANSFER_CONFIRMATION = 25
+END = 26
 
 # Additional states for Wallet and Settings flows
-WALLET_MENU = 25
-WAITING_FOR_MOBILE = 26
-SETTINGS_MENU = 27
+WALLET_MENU = 80
+WAITING_FOR_MOBILE = 81
+SETTINGS_MENU = 92
 
+
+# Additional flow of the listing command
+CASE_DETAILS = 100
+CASE_LIST = 101
 # ======================
 # Language Data & Constants
 # ======================
