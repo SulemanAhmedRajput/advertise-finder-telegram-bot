@@ -1,4 +1,4 @@
-from src.models.case_model import Case
+from models.case_model import Case
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
     ContextTypes,
@@ -30,8 +30,8 @@ from constants import (
     CREATE_CASE_DISTINCTIVE_FEATURES,
     END,
 )
-from src.utils.twilio import generate_tac, send_sms, verify_tac
-from wallet import load_user_wallet, transfer_solana_funds
+from utils.twilio import generate_tac, send_sms, verify_tac
+from utils.wallet import load_user_wallet, transfer_solana_funds
 
 from solders.keypair import Keypair
 from solders.pubkey import Pubkey

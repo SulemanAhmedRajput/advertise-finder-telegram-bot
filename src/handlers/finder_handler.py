@@ -14,8 +14,8 @@ from telegram.ext import (
     ContextTypes,
 )
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from handler.listing import ITEMS_PER_PAGE
-from src.models.case_model import Case
+from handlers.listing import ITEMS_PER_PAGE
+from models.case_model import Case
 
 
 def get_provinces_for_country(country):

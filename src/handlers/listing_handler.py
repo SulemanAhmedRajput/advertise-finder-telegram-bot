@@ -1,4 +1,4 @@
-from src.models.case_model import Case
+from models.case_model import Case
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
     ContextTypes,

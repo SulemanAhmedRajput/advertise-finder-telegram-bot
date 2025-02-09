@@ -1,4 +1,4 @@
-import handler.finder
+import handlers.finder
 import logging
 import math
 import pycountry
@@ -35,7 +35,7 @@ from constants import (
     user_data_store,
     WALLETS_DIR,
 )
-from wallet import create_sol_wallet
+from utils.wallet import create_sol_wallet
 
 
 gc = geonamescache.GeonamesCache()
@@ -410,7 +410,7 @@ async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         return CHOOSE_WALLET_TYPE
     elif choice == "find_people":
         await query.edit_message_text("Select a province:", parse_mode="HTML")
-        return await handler.finder.choose_province(update, context)
+        return await handlers.finder.choose_province(update, context)
     else:
         await query.edit_message_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"

@@ -1,10 +1,7 @@
-from handler.finder import (
+from handlers.finder import (
     choose_province,
-    # handle_proof,
-    # notify_advertiser,
-    # show_advertisements,
 )
-from handler.listing import case_details_callback, listing_command, pagination_callback
+from handlers.listing import case_details_callback, listing_command, pagination_callback
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
     Application,
@@ -58,8 +55,8 @@ from constants import (
     WALLET_MENU,
     SETTINGS_MENU,
 )
-from wallet import load_user_wallet
-from utils import (
+from utils.wallet import load_user_wallet
+from handlers.utils import (
     start,
     select_lang_callback,
     choose_country,
@@ -73,8 +70,8 @@ from utils import (
     cancel,
     error_handler,
 )
-from handler.wallet import wallet_command, wallet_menu_callback
-from handler.case import (
+from handlers.wallet import wallet_command, wallet_menu_callback
+from handlers.case import (
     handle_age,
     handle_distinctive_features,
     handle_eye_color,
@@ -96,7 +93,11 @@ from handler.case import (
     disclaimer_2_callback,
     handle_reward_amount,
 )
-from settings import settings_command, settings_menu_callback, mobile_number_handler
+from handlers.settings import (
+    settings_command,
+    settings_menu_callback,
+    mobile_number_handler,
+)
 
 # Setup logging
 logging.basicConfig(

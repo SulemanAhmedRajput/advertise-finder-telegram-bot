@@ -1,16 +1,24 @@
+# Setup the Root directory to be src
+import sys
+import os
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
+
+
 import logging
 import asyncio
 from beanie import init_beanie
-from src.models.case_model import Case
+from models.case_model import Case
 from telegram.ext import ApplicationBuilder
-from handlers import (
+from handlers.handlers import (
     conv_handler,
     wallet_conv_handler,
     settings_conv_handler,
     case_listing_handler,
 )
-from utils import error_handler, setup_logging
+from handlers.utils import error_handler, setup_logging
 from motor.motor_asyncio import AsyncIOMotorClient
+from config.config_manager import MONGODB_NAME, MONGODB_URI
 
 setup_logging()
 
@@ -33,8 +41,8 @@ async def main_setup():
 
 async def init_db():
     try:
-        client = AsyncIOMotorClient("mongodb://localhost:27017/myproject")
-        await init_beanie(database=client["myproject"], document_models=[Case])
+        client = AsyncIOMotorClient(MONGODB_URI)
+        await init_beanie(database=client[MONGODB_NAME], document_models=[Case])
         print("Database Connected Successfully 🚀.")
         await main_setup()
     except Exception as e:

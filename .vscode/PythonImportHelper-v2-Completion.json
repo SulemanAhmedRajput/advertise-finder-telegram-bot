@@ -1,34 +1,140 @@
 [
     {
-        "label": "Case",
-        "importPath": "src.models.case_model",
-        "description": "src.models.case_model",
+        "label": "os",
+        "kind": 6,
         "isExtraImport": true,
-        "detail": "src.models.case_model",
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "load_dotenv",
+        "importPath": "dotenv",
+        "description": "dotenv",
+        "isExtraImport": true,
+        "detail": "dotenv",
+        "documentation": {}
+    },
+    {
+        "label": "Optional",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Optional",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "List",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "init_beanie",
+        "importPath": "beanie",
+        "description": "beanie",
+        "isExtraImport": true,
+        "detail": "beanie",
+        "documentation": {}
+    },
+    {
+        "label": "Document",
+        "importPath": "beanie",
+        "description": "beanie",
+        "isExtraImport": true,
+        "detail": "beanie",
+        "documentation": {}
+    },
+    {
+        "label": "Indexed",
+        "importPath": "beanie",
+        "description": "beanie",
+        "isExtraImport": true,
+        "detail": "beanie",
+        "documentation": {}
+    },
+    {
+        "label": "init_beanie",
+        "importPath": "beanie",
+        "description": "beanie",
+        "isExtraImport": true,
+        "detail": "beanie",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncIOMotorClient",
+        "importPath": "motor.motor_asyncio",
+        "description": "motor.motor_asyncio",
+        "isExtraImport": true,
+        "detail": "motor.motor_asyncio",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncIOMotorClient",
+        "importPath": "motor.motor_asyncio",
+        "description": "motor.motor_asyncio",
+        "isExtraImport": true,
+        "detail": "motor.motor_asyncio",
+        "documentation": {}
+    },
+    {
+        "label": "BaseSettings",
+        "importPath": "pydantic_settings",
+        "description": "pydantic_settings",
+        "isExtraImport": true,
+        "detail": "pydantic_settings",
+        "documentation": {}
+    },
+    {
+        "label": "src.models",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "src.models",
+        "description": "src.models",
+        "detail": "src.models",
         "documentation": {}
     },
     {
         "label": "Case",
-        "importPath": "src.models.case_model",
-        "description": "src.models.case_model",
+        "importPath": "models.case_model",
+        "description": "models.case_model",
         "isExtraImport": true,
-        "detail": "src.models.case_model",
+        "detail": "models.case_model",
         "documentation": {}
     },
     {
         "label": "Case",
-        "importPath": "src.models.case_model",
-        "description": "src.models.case_model",
+        "importPath": "models.case_model",
+        "description": "models.case_model",
         "isExtraImport": true,
-        "detail": "src.models.case_model",
+        "detail": "models.case_model",
         "documentation": {}
     },
     {
         "label": "Case",
-        "importPath": "src.models.case_model",
-        "description": "src.models.case_model",
+        "importPath": "models.case_model",
+        "description": "models.case_model",
         "isExtraImport": true,
-        "detail": "src.models.case_model",
+        "detail": "models.case_model",
+        "documentation": {}
+    },
+    {
+        "label": "Case",
+        "importPath": "models.case_model",
+        "description": "models.case_model",
+        "isExtraImport": true,
+        "detail": "models.case_model",
         "documentation": {}
     },
     {
@@ -82,30 +188,6 @@
     },
     {
         "label": "Update",
-        "importPath": "telegram",
-        "description": "telegram",
-        "isExtraImport": true,
-        "detail": "telegram",
-        "documentation": {}
-    },
-    {
-        "label": "Update",
-        "importPath": "telegram",
-        "description": "telegram",
-        "isExtraImport": true,
-        "detail": "telegram",
-        "documentation": {}
-    },
-    {
-        "label": "InlineKeyboardMarkup",
-        "importPath": "telegram",
-        "description": "telegram",
-        "isExtraImport": true,
-        "detail": "telegram",
-        "documentation": {}
-    },
-    {
-        "label": "InlineKeyboardButton",
         "importPath": "telegram",
         "description": "telegram",
         "isExtraImport": true,
@@ -225,71 +307,31 @@
         "documentation": {}
     },
     {
-        "label": "ContextTypes",
-        "importPath": "telegram.ext",
-        "description": "telegram.ext",
+        "label": "InlineKeyboardMarkup",
+        "importPath": "telegram",
+        "description": "telegram",
         "isExtraImport": true,
-        "detail": "telegram.ext",
+        "detail": "telegram",
+        "documentation": {}
+    },
+    {
+        "label": "InlineKeyboardButton",
+        "importPath": "telegram",
+        "description": "telegram",
+        "isExtraImport": true,
+        "detail": "telegram",
+        "documentation": {}
+    },
+    {
+        "label": "Update",
+        "importPath": "telegram",
+        "description": "telegram",
+        "isExtraImport": true,
+        "detail": "telegram",
         "documentation": {}
     },
     {
         "label": "ContextTypes",
-        "importPath": "telegram.ext",
-        "description": "telegram.ext",
-        "isExtraImport": true,
-        "detail": "telegram.ext",
-        "documentation": {}
-    },
-    {
-        "label": "ContextTypes",
-        "importPath": "telegram.ext",
-        "description": "telegram.ext",
-        "isExtraImport": true,
-        "detail": "telegram.ext",
-        "documentation": {}
-    },
-    {
-        "label": "ConversationHandler",
-        "importPath": "telegram.ext",
-        "description": "telegram.ext",
-        "isExtraImport": true,
-        "detail": "telegram.ext",
-        "documentation": {}
-    },
-    {
-        "label": "CommandHandler",
-        "importPath": "telegram.ext",
-        "description": "telegram.ext",
-        "isExtraImport": true,
-        "detail": "telegram.ext",
-        "documentation": {}
-    },
-    {
-        "label": "CallbackQueryHandler",
-        "importPath": "telegram.ext",
-        "description": "telegram.ext",
-        "isExtraImport": true,
-        "detail": "telegram.ext",
-        "documentation": {}
-    },
-    {
-        "label": "MessageHandler",
-        "importPath": "telegram.ext",
-        "description": "telegram.ext",
-        "isExtraImport": true,
-        "detail": "telegram.ext",
-        "documentation": {}
-    },
-    {
-        "label": "filters",
-        "importPath": "telegram.ext",
-        "description": "telegram.ext",
-        "isExtraImport": true,
-        "detail": "telegram.ext",
-        "documentation": {}
-    },
-    {
-        "label": "ConversationHandler",
         "importPath": "telegram.ext",
         "description": "telegram.ext",
         "isExtraImport": true,
@@ -353,7 +395,47 @@
         "documentation": {}
     },
     {
-        "label": "ApplicationBuilder",
+        "label": "ContextTypes",
+        "importPath": "telegram.ext",
+        "description": "telegram.ext",
+        "isExtraImport": true,
+        "detail": "telegram.ext",
+        "documentation": {}
+    },
+    {
+        "label": "ConversationHandler",
+        "importPath": "telegram.ext",
+        "description": "telegram.ext",
+        "isExtraImport": true,
+        "detail": "telegram.ext",
+        "documentation": {}
+    },
+    {
+        "label": "CommandHandler",
+        "importPath": "telegram.ext",
+        "description": "telegram.ext",
+        "isExtraImport": true,
+        "detail": "telegram.ext",
+        "documentation": {}
+    },
+    {
+        "label": "CallbackQueryHandler",
+        "importPath": "telegram.ext",
+        "description": "telegram.ext",
+        "isExtraImport": true,
+        "detail": "telegram.ext",
+        "documentation": {}
+    },
+    {
+        "label": "MessageHandler",
+        "importPath": "telegram.ext",
+        "description": "telegram.ext",
+        "isExtraImport": true,
+        "detail": "telegram.ext",
+        "documentation": {}
+    },
+    {
+        "label": "filters",
         "importPath": "telegram.ext",
         "description": "telegram.ext",
         "isExtraImport": true,
@@ -425,7 +507,31 @@
         "documentation": {}
     },
     {
+        "label": "ConversationHandler",
+        "importPath": "telegram.ext",
+        "description": "telegram.ext",
+        "isExtraImport": true,
+        "detail": "telegram.ext",
+        "documentation": {}
+    },
+    {
         "label": "ContextTypes",
+        "importPath": "telegram.ext",
+        "description": "telegram.ext",
+        "isExtraImport": true,
+        "detail": "telegram.ext",
+        "documentation": {}
+    },
+    {
+        "label": "ContextTypes",
+        "importPath": "telegram.ext",
+        "description": "telegram.ext",
+        "isExtraImport": true,
+        "detail": "telegram.ext",
+        "documentation": {}
+    },
+    {
+        "label": "ApplicationBuilder",
         "importPath": "telegram.ext",
         "description": "telegram.ext",
         "isExtraImport": true,
@@ -667,54 +773,6 @@
     },
     {
         "label": "UPLOAD_PROOF",
-        "importPath": "constants",
-        "description": "constants",
-        "isExtraImport": true,
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CASE_DETAILS",
-        "importPath": "constants",
-        "description": "constants",
-        "isExtraImport": true,
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "END",
-        "importPath": "constants",
-        "description": "constants",
-        "isExtraImport": true,
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "NAME_WALLET",
-        "importPath": "constants",
-        "description": "constants",
-        "isExtraImport": true,
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "WALLET_MENU",
-        "importPath": "constants",
-        "description": "constants",
-        "isExtraImport": true,
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "get_text",
-        "importPath": "constants",
-        "description": "constants",
-        "isExtraImport": true,
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "user_data_store",
         "importPath": "constants",
         "description": "constants",
         "isExtraImport": true,
@@ -1026,6 +1084,22 @@
         "documentation": {}
     },
     {
+        "label": "CASE_DETAILS",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "END",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
         "label": "END",
         "importPath": "constants",
         "description": "constants",
@@ -1210,6 +1284,38 @@
         "documentation": {}
     },
     {
+        "label": "NAME_WALLET",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "WALLET_MENU",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "get_text",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "user_data_store",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
         "label": "WALLETS_DIR",
         "importPath": "constants",
         "description": "constants",
@@ -1235,74 +1341,58 @@
     },
     {
         "label": "generate_tac",
-        "importPath": "src.utils.twilio",
-        "description": "src.utils.twilio",
+        "importPath": "utils.twilio",
+        "description": "utils.twilio",
         "isExtraImport": true,
-        "detail": "src.utils.twilio",
+        "detail": "utils.twilio",
         "documentation": {}
     },
     {
         "label": "send_sms",
-        "importPath": "src.utils.twilio",
-        "description": "src.utils.twilio",
+        "importPath": "utils.twilio",
+        "description": "utils.twilio",
         "isExtraImport": true,
-        "detail": "src.utils.twilio",
+        "detail": "utils.twilio",
         "documentation": {}
     },
     {
         "label": "verify_tac",
-        "importPath": "src.utils.twilio",
-        "description": "src.utils.twilio",
+        "importPath": "utils.twilio",
+        "description": "utils.twilio",
         "isExtraImport": true,
-        "detail": "src.utils.twilio",
+        "detail": "utils.twilio",
         "documentation": {}
     },
     {
         "label": "load_user_wallet",
-        "importPath": "wallet",
-        "description": "wallet",
+        "importPath": "utils.wallet",
+        "description": "utils.wallet",
         "isExtraImport": true,
-        "detail": "wallet",
+        "detail": "utils.wallet",
         "documentation": {}
     },
     {
         "label": "transfer_solana_funds",
-        "importPath": "wallet",
-        "description": "wallet",
+        "importPath": "utils.wallet",
+        "description": "utils.wallet",
         "isExtraImport": true,
-        "detail": "wallet",
-        "documentation": {}
-    },
-    {
-        "label": "delete_user_wallet",
-        "importPath": "wallet",
-        "description": "wallet",
-        "isExtraImport": true,
-        "detail": "wallet",
+        "detail": "utils.wallet",
         "documentation": {}
     },
     {
         "label": "load_user_wallet",
-        "importPath": "wallet",
-        "description": "wallet",
+        "importPath": "utils.wallet",
+        "description": "utils.wallet",
         "isExtraImport": true,
-        "detail": "wallet",
-        "documentation": {}
-    },
-    {
-        "label": "load_user_wallet",
-        "importPath": "wallet",
-        "description": "wallet",
-        "isExtraImport": true,
-        "detail": "wallet",
+        "detail": "utils.wallet",
         "documentation": {}
     },
     {
         "label": "create_sol_wallet",
-        "importPath": "wallet",
-        "description": "wallet",
+        "importPath": "utils.wallet",
+        "description": "utils.wallet",
         "isExtraImport": true,
-        "detail": "wallet",
+        "detail": "utils.wallet",
         "documentation": {}
     },
     {
@@ -1402,14 +1492,6 @@
         "documentation": {}
     },
     {
-        "label": "TransferParams",
-        "importPath": "solders.system_program",
-        "description": "solders.system_program",
-        "isExtraImport": true,
-        "detail": "solders.system_program",
-        "documentation": {}
-    },
-    {
         "label": "transfer",
         "importPath": "solders.system_program",
         "description": "solders.system_program",
@@ -1418,6 +1500,14 @@
         "documentation": {}
     },
     {
+        "label": "TransferParams",
+        "importPath": "solders.system_program",
+        "description": "solders.system_program",
+        "isExtraImport": true,
+        "detail": "solders.system_program",
+        "documentation": {}
+    },
+    {
         "label": "Transaction",
         "importPath": "solders.transaction",
         "description": "solders.transaction",
@@ -1455,15 +1545,6 @@
         "description": "solders.message",
         "isExtraImport": true,
         "detail": "solders.message",
-        "documentation": {}
-    },
-    {
-        "label": "os",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "os",
-        "description": "os",
-        "detail": "os",
         "documentation": {}
     },
     {
@@ -1485,34 +1566,363 @@
     },
     {
         "label": "ITEMS_PER_PAGE",
-        "importPath": "handler.listing",
-        "description": "handler.listing",
+        "importPath": "handlers.listing",
+        "description": "handlers.listing",
         "isExtraImport": true,
-        "detail": "handler.listing",
+        "detail": "handlers.listing",
         "documentation": {}
     },
     {
         "label": "case_details_callback",
-        "importPath": "handler.listing",
-        "description": "handler.listing",
+        "importPath": "handlers.listing",
+        "description": "handlers.listing",
         "isExtraImport": true,
-        "detail": "handler.listing",
+        "detail": "handlers.listing",
         "documentation": {}
     },
     {
         "label": "listing_command",
-        "importPath": "handler.listing",
-        "description": "handler.listing",
+        "importPath": "handlers.listing",
+        "description": "handlers.listing",
         "isExtraImport": true,
-        "detail": "handler.listing",
+        "detail": "handlers.listing",
         "documentation": {}
     },
     {
         "label": "pagination_callback",
-        "importPath": "handler.listing",
-        "description": "handler.listing",
+        "importPath": "handlers.listing",
+        "description": "handlers.listing",
         "isExtraImport": true,
-        "detail": "handler.listing",
+        "detail": "handlers.listing",
+        "documentation": {}
+    },
+    {
+        "label": "handlers.finder",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "handlers.finder",
+        "description": "handlers.finder",
+        "detail": "handlers.finder",
+        "documentation": {}
+    },
+    {
+        "label": "choose_province",
+        "importPath": "handlers.finder",
+        "description": "handlers.finder",
+        "isExtraImport": true,
+        "detail": "handlers.finder",
+        "documentation": {}
+    },
+    {
+        "label": "start",
+        "importPath": "handlers.utils",
+        "description": "handlers.utils",
+        "isExtraImport": true,
+        "detail": "handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "select_lang_callback",
+        "importPath": "handlers.utils",
+        "description": "handlers.utils",
+        "isExtraImport": true,
+        "detail": "handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "choose_country",
+        "importPath": "handlers.utils",
+        "description": "handlers.utils",
+        "isExtraImport": true,
+        "detail": "handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "country_callback",
+        "importPath": "handlers.utils",
+        "description": "handlers.utils",
+        "isExtraImport": true,
+        "detail": "handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "disclaimer_callback",
+        "importPath": "handlers.utils",
+        "description": "handlers.utils",
+        "isExtraImport": true,
+        "detail": "handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "choose_city",
+        "importPath": "handlers.utils",
+        "description": "handlers.utils",
+        "isExtraImport": true,
+        "detail": "handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "city_callback",
+        "importPath": "handlers.utils",
+        "description": "handlers.utils",
+        "isExtraImport": true,
+        "detail": "handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "action_callback",
+        "importPath": "handlers.utils",
+        "description": "handlers.utils",
+        "isExtraImport": true,
+        "detail": "handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "wallet_type_callback",
+        "importPath": "handlers.utils",
+        "description": "handlers.utils",
+        "isExtraImport": true,
+        "detail": "handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "wallet_name_handler",
+        "importPath": "handlers.utils",
+        "description": "handlers.utils",
+        "isExtraImport": true,
+        "detail": "handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "cancel",
+        "importPath": "handlers.utils",
+        "description": "handlers.utils",
+        "isExtraImport": true,
+        "detail": "handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "error_handler",
+        "importPath": "handlers.utils",
+        "description": "handlers.utils",
+        "isExtraImport": true,
+        "detail": "handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "error_handler",
+        "importPath": "handlers.utils",
+        "description": "handlers.utils",
+        "isExtraImport": true,
+        "detail": "handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "setup_logging",
+        "importPath": "handlers.utils",
+        "description": "handlers.utils",
+        "isExtraImport": true,
+        "detail": "handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "wallet_command",
+        "importPath": "handlers.wallet",
+        "description": "handlers.wallet",
+        "isExtraImport": true,
+        "detail": "handlers.wallet",
+        "documentation": {}
+    },
+    {
+        "label": "wallet_menu_callback",
+        "importPath": "handlers.wallet",
+        "description": "handlers.wallet",
+        "isExtraImport": true,
+        "detail": "handlers.wallet",
+        "documentation": {}
+    },
+    {
+        "label": "handle_age",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_distinctive_features",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_eye_color",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_hair_color",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_height",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_last_seen_location",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_name",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_mobile",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_person_name",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_photo",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_private_key",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_reason_for_finding",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_relationship",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_reward_type",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_sex",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_tac",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_transfer_confirmation",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_weight",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "disclaimer_2_callback",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "handle_reward_amount",
+        "importPath": "handlers.case",
+        "description": "handlers.case",
+        "isExtraImport": true,
+        "detail": "handlers.case",
+        "documentation": {}
+    },
+    {
+        "label": "settings_command",
+        "importPath": "handlers.settings",
+        "description": "handlers.settings",
+        "isExtraImport": true,
+        "detail": "handlers.settings",
+        "documentation": {}
+    },
+    {
+        "label": "settings_menu_callback",
+        "importPath": "handlers.settings",
+        "description": "handlers.settings",
+        "isExtraImport": true,
+        "detail": "handlers.settings",
+        "documentation": {}
+    },
+    {
+        "label": "mobile_number_handler",
+        "importPath": "handlers.settings",
+        "description": "handlers.settings",
+        "isExtraImport": true,
+        "detail": "handlers.settings",
         "documentation": {}
     },
     {
@@ -1542,6 +1952,24 @@
         "documentation": {}
     },
     {
+        "label": "pycountry",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pycountry",
+        "description": "pycountry",
+        "detail": "pycountry",
+        "documentation": {}
+    },
+    {
+        "label": "geonamescache",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "geonamescache",
+        "description": "geonamescache",
+        "detail": "geonamescache",
+        "documentation": {}
+    },
+    {
         "label": "ParseMode",
         "importPath": "telegram.constants",
         "description": "telegram.constants",
@@ -1550,92 +1978,19 @@
         "documentation": {}
     },
     {
-        "label": "Optional",
-        "importPath": "typing",
-        "description": "typing",
+        "label": "delete_user_wallet",
+        "importPath": "wallet",
+        "description": "wallet",
         "isExtraImport": true,
-        "detail": "typing",
+        "detail": "wallet",
         "documentation": {}
     },
     {
-        "label": "Optional",
-        "importPath": "typing",
-        "description": "typing",
+        "label": "load_user_wallet",
+        "importPath": "wallet",
+        "description": "wallet",
         "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "List",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "init_beanie",
-        "importPath": "beanie",
-        "description": "beanie",
-        "isExtraImport": true,
-        "detail": "beanie",
-        "documentation": {}
-    },
-    {
-        "label": "Document",
-        "importPath": "beanie",
-        "description": "beanie",
-        "isExtraImport": true,
-        "detail": "beanie",
-        "documentation": {}
-    },
-    {
-        "label": "Indexed",
-        "importPath": "beanie",
-        "description": "beanie",
-        "isExtraImport": true,
-        "detail": "beanie",
-        "documentation": {}
-    },
-    {
-        "label": "init_beanie",
-        "importPath": "beanie",
-        "description": "beanie",
-        "isExtraImport": true,
-        "detail": "beanie",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncIOMotorClient",
-        "importPath": "motor.motor_asyncio",
-        "description": "motor.motor_asyncio",
-        "isExtraImport": true,
-        "detail": "motor.motor_asyncio",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncIOMotorClient",
-        "importPath": "motor.motor_asyncio",
-        "description": "motor.motor_asyncio",
-        "isExtraImport": true,
-        "detail": "motor.motor_asyncio",
-        "documentation": {}
-    },
-    {
-        "label": "BaseSettings",
-        "importPath": "pydantic_settings",
-        "description": "pydantic_settings",
-        "isExtraImport": true,
-        "detail": "pydantic_settings",
-        "documentation": {}
-    },
-    {
-        "label": "src.models",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "src.models",
-        "description": "src.models",
-        "detail": "src.models",
+        "detail": "wallet",
         "documentation": {}
     },
     {
@@ -1687,426 +2042,6 @@
         "documentation": {}
     },
     {
-        "label": "load_dotenv",
-        "importPath": "dotenv",
-        "description": "dotenv",
-        "isExtraImport": true,
-        "detail": "dotenv",
-        "documentation": {}
-    },
-    {
-        "label": "handler.finder",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "handler.finder",
-        "description": "handler.finder",
-        "detail": "handler.finder",
-        "documentation": {}
-    },
-    {
-        "label": "choose_province",
-        "importPath": "handler.finder",
-        "description": "handler.finder",
-        "isExtraImport": true,
-        "detail": "handler.finder",
-        "documentation": {}
-    },
-    {
-        "label": "# handle_proof",
-        "importPath": "handler.finder",
-        "description": "handler.finder",
-        "isExtraImport": true,
-        "detail": "handler.finder",
-        "documentation": {}
-    },
-    {
-        "label": "# notify_advertiser",
-        "importPath": "handler.finder",
-        "description": "handler.finder",
-        "isExtraImport": true,
-        "detail": "handler.finder",
-        "documentation": {}
-    },
-    {
-        "label": "# show_advertisements",
-        "importPath": "handler.finder",
-        "description": "handler.finder",
-        "isExtraImport": true,
-        "detail": "handler.finder",
-        "documentation": {}
-    },
-    {
-        "label": "start",
-        "importPath": "utils",
-        "description": "utils",
-        "isExtraImport": true,
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "select_lang_callback",
-        "importPath": "utils",
-        "description": "utils",
-        "isExtraImport": true,
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "choose_country",
-        "importPath": "utils",
-        "description": "utils",
-        "isExtraImport": true,
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "country_callback",
-        "importPath": "utils",
-        "description": "utils",
-        "isExtraImport": true,
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "disclaimer_callback",
-        "importPath": "utils",
-        "description": "utils",
-        "isExtraImport": true,
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "choose_city",
-        "importPath": "utils",
-        "description": "utils",
-        "isExtraImport": true,
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "city_callback",
-        "importPath": "utils",
-        "description": "utils",
-        "isExtraImport": true,
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "action_callback",
-        "importPath": "utils",
-        "description": "utils",
-        "isExtraImport": true,
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "wallet_type_callback",
-        "importPath": "utils",
-        "description": "utils",
-        "isExtraImport": true,
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "wallet_name_handler",
-        "importPath": "utils",
-        "description": "utils",
-        "isExtraImport": true,
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "cancel",
-        "importPath": "utils",
-        "description": "utils",
-        "isExtraImport": true,
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "error_handler",
-        "importPath": "utils",
-        "description": "utils",
-        "isExtraImport": true,
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "error_handler",
-        "importPath": "utils",
-        "description": "utils",
-        "isExtraImport": true,
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "setup_logging",
-        "importPath": "utils",
-        "description": "utils",
-        "isExtraImport": true,
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "wallet_command",
-        "importPath": "handler.wallet",
-        "description": "handler.wallet",
-        "isExtraImport": true,
-        "detail": "handler.wallet",
-        "documentation": {}
-    },
-    {
-        "label": "wallet_menu_callback",
-        "importPath": "handler.wallet",
-        "description": "handler.wallet",
-        "isExtraImport": true,
-        "detail": "handler.wallet",
-        "documentation": {}
-    },
-    {
-        "label": "handle_age",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_distinctive_features",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_eye_color",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_hair_color",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_height",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_last_seen_location",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_name",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_mobile",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_person_name",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_photo",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_private_key",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_reason_for_finding",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_relationship",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_reward_type",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_sex",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_tac",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_transfer_confirmation",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_weight",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "disclaimer_2_callback",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "handle_reward_amount",
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "isExtraImport": true,
-        "detail": "handler.case",
-        "documentation": {}
-    },
-    {
-        "label": "settings_command",
-        "importPath": "settings",
-        "description": "settings",
-        "isExtraImport": true,
-        "detail": "settings",
-        "documentation": {}
-    },
-    {
-        "label": "settings_menu_callback",
-        "importPath": "settings",
-        "description": "settings",
-        "isExtraImport": true,
-        "detail": "settings",
-        "documentation": {}
-    },
-    {
-        "label": "mobile_number_handler",
-        "importPath": "settings",
-        "description": "settings",
-        "isExtraImport": true,
-        "detail": "settings",
-        "documentation": {}
-    },
-    {
-        "label": "asyncio",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "asyncio",
-        "description": "asyncio",
-        "detail": "asyncio",
-        "documentation": {}
-    },
-    {
-        "label": "conv_handler",
-        "importPath": "handlers",
-        "description": "handlers",
-        "isExtraImport": true,
-        "detail": "handlers",
-        "documentation": {}
-    },
-    {
-        "label": "wallet_conv_handler",
-        "importPath": "handlers",
-        "description": "handlers",
-        "isExtraImport": true,
-        "detail": "handlers",
-        "documentation": {}
-    },
-    {
-        "label": "settings_conv_handler",
-        "importPath": "handlers",
-        "description": "handlers",
-        "isExtraImport": true,
-        "detail": "handlers",
-        "documentation": {}
-    },
-    {
-        "label": "case_listing_handler",
-        "importPath": "handlers",
-        "description": "handlers",
-        "isExtraImport": true,
-        "detail": "handlers",
-        "documentation": {}
-    },
-    {
-        "label": "pycountry",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "pycountry",
-        "description": "pycountry",
-        "detail": "pycountry",
-        "documentation": {}
-    },
-    {
-        "label": "geonamescache",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "geonamescache",
-        "description": "geonamescache",
-        "detail": "geonamescache",
-        "documentation": {}
-    },
-    {
         "label": "json",
         "kind": 6,
         "isExtraImport": true,
@@ -2141,66 +2076,114 @@
         "documentation": {}
     },
     {
-        "label": "client",
-        "kind": 5,
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "peekOfCode": "client = Client(\"https://api.devnet.solana.com\")\nlogging.basicConfig(\n    format=\"%(asctime)s - %(name)s - %(levelname)s - %(message)s\", level=logging.INFO\n)\nlogger = logging.getLogger(__name__)\n# --- Create Case Handlers (with separate states for each person detail) ---\nasync def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:\n    \"\"\"Handle the user's name input.\"\"\"\n    user_id = update.effective_user.id\n    name = update.message.text.strip()",
-        "detail": "handler.case",
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
         "documentation": {}
     },
     {
-        "label": "logger",
-        "kind": 5,
-        "importPath": "handler.case",
-        "description": "handler.case",
-        "peekOfCode": "logger = logging.getLogger(__name__)\n# --- Create Case Handlers (with separate states for each person detail) ---\nasync def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:\n    \"\"\"Handle the user's name input.\"\"\"\n    user_id = update.effective_user.id\n    name = update.message.text.strip()\n    context.user_data[\"case\"] = {\"name\": name}\n    await update.message.reply_text(get_text(user_id, \"enter_mobile\"))\n    return CREATE_CASE_MOBILE\nasync def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:",
-        "detail": "handler.case",
+        "label": "asyncio",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "asyncio",
+        "description": "asyncio",
+        "detail": "asyncio",
         "documentation": {}
     },
     {
-        "label": "get_provinces_for_country",
-        "kind": 2,
-        "importPath": "handler.finder",
-        "description": "handler.finder",
-        "peekOfCode": "def get_provinces_for_country(country):\n    \"\"\"\n    Fetch provinces/states for the given country using REST Countries API.\n    \"\"\"\n    response = requests.get(f\"https://restcountries.com/v3.1/name/{country}\")\n    if response.status_code == 200:\n        data = response.json()\n        # Extract states/provinces if available\n        if data and \"subdivisions\" in data[0]:\n            return data[0][\"subdivisions\"]",
-        "detail": "handler.finder",
+        "label": "conv_handler",
+        "importPath": "handlers.handlers",
+        "description": "handlers.handlers",
+        "isExtraImport": true,
+        "detail": "handlers.handlers",
         "documentation": {}
     },
     {
-        "label": "paginate_list",
-        "kind": 2,
-        "importPath": "handler.listing",
-        "description": "handler.listing",
-        "peekOfCode": "def paginate_list(items, page, items_per_page=ITEMS_PER_PAGE):\n    total_pages = max(1, math.ceil(len(items) / items_per_page)) if items else 1\n    page = max(1, min(page, total_pages))\n    start = (page - 1) * items_per_page\n    end = start + items_per_page\n    return items[start:end], total_pages\n# Define states\nasync def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:\n    \"\"\"Handler for the /listing command.\"\"\"\n    user_id = update.effective_user.id",
-        "detail": "handler.listing",
+        "label": "wallet_conv_handler",
+        "importPath": "handlers.handlers",
+        "description": "handlers.handlers",
+        "isExtraImport": true,
+        "detail": "handlers.handlers",
         "documentation": {}
     },
     {
-        "label": "logger",
-        "kind": 5,
-        "importPath": "handler.listing",
-        "description": "handler.listing",
-        "peekOfCode": "logger = logging.getLogger(__name__)\nITEMS_PER_PAGE = 5  # Define how many cases to display per page\n# Helper to paginate list items\ndef paginate_list(items, page, items_per_page=ITEMS_PER_PAGE):\n    total_pages = max(1, math.ceil(len(items) / items_per_page)) if items else 1\n    page = max(1, min(page, total_pages))\n    start = (page - 1) * items_per_page\n    end = start + items_per_page\n    return items[start:end], total_pages\n# Define states",
-        "detail": "handler.listing",
-        "documentation": {}
-    },
-    {
-        "label": "ITEMS_PER_PAGE",
-        "kind": 5,
-        "importPath": "handler.listing",
-        "description": "handler.listing",
-        "peekOfCode": "ITEMS_PER_PAGE = 5  # Define how many cases to display per page\n# Helper to paginate list items\ndef paginate_list(items, page, items_per_page=ITEMS_PER_PAGE):\n    total_pages = max(1, math.ceil(len(items) / items_per_page)) if items else 1\n    page = max(1, min(page, total_pages))\n    start = (page - 1) * items_per_page\n    end = start + items_per_page\n    return items[start:end], total_pages\n# Define states\nasync def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:",
-        "detail": "handler.listing",
+        "label": "settings_conv_handler",
+        "importPath": "handlers.handlers",
+        "description": "handlers.handlers",
+        "isExtraImport": true,
+        "detail": "handlers.handlers",
         "documentation": {}
     },
     {
         "label": "case_listing_handler",
+        "importPath": "handlers.handlers",
+        "description": "handlers.handlers",
+        "isExtraImport": true,
+        "detail": "handlers.handlers",
+        "documentation": {}
+    },
+    {
+        "label": "MONGODB_NAME",
+        "importPath": "config.config_manager",
+        "description": "config.config_manager",
+        "isExtraImport": true,
+        "detail": "config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "MONGODB_URI",
+        "importPath": "config.config_manager",
+        "description": "config.config_manager",
+        "isExtraImport": true,
+        "detail": "config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "TWILIO_ACCOUNT_SID",
         "kind": 5,
-        "importPath": "handler.listing",
-        "description": "handler.listing",
-        "peekOfCode": "case_listing_handler = ConversationHandler(\n    entry_points=[CommandHandler(\"listing\", listing_command)],\n    states={\n        CASE_DETAILS: [\n            CallbackQueryHandler(case_details_callback, pattern=\"^case_.*$\"),\n            CallbackQueryHandler(\n                pagination_callback, pattern=\"^(page_previous|page_next)$\"\n            ),\n        ]\n    },",
-        "detail": "handler.listing",
+        "importPath": "src.config.config_manager",
+        "description": "src.config.config_manager",
+        "peekOfCode": "TWILIO_ACCOUNT_SID = os.getenv(\"TWILIO_ACCOUNT_SID\")\nTWILIO_AUTH_TOKEN = os.getenv(\"TWILIO_AUTH_TOKEN\")\nTWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")\nMONGODB_URI = os.getenv(\"MONGODB_URI\")\nMONGODB_NAME = os.getenv(\"MONGODB_NAME\")",
+        "detail": "src.config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "TWILIO_AUTH_TOKEN",
+        "kind": 5,
+        "importPath": "src.config.config_manager",
+        "description": "src.config.config_manager",
+        "peekOfCode": "TWILIO_AUTH_TOKEN = os.getenv(\"TWILIO_AUTH_TOKEN\")\nTWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")\nMONGODB_URI = os.getenv(\"MONGODB_URI\")\nMONGODB_NAME = os.getenv(\"MONGODB_NAME\")",
+        "detail": "src.config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "TWILIO_PHONE_NUMBER",
+        "kind": 5,
+        "importPath": "src.config.config_manager",
+        "description": "src.config.config_manager",
+        "peekOfCode": "TWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")\nMONGODB_URI = os.getenv(\"MONGODB_URI\")\nMONGODB_NAME = os.getenv(\"MONGODB_NAME\")",
+        "detail": "src.config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "MONGODB_URI",
+        "kind": 5,
+        "importPath": "src.config.config_manager",
+        "description": "src.config.config_manager",
+        "peekOfCode": "MONGODB_URI = os.getenv(\"MONGODB_URI\")\nMONGODB_NAME = os.getenv(\"MONGODB_NAME\")",
+        "detail": "src.config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "MONGODB_NAME",
+        "kind": 5,
+        "importPath": "src.config.config_manager",
+        "description": "src.config.config_manager",
+        "peekOfCode": "MONGODB_NAME = os.getenv(\"MONGODB_NAME\")",
+        "detail": "src.config.config_manager",
         "documentation": {}
     },
     {
@@ -2219,6 +2202,177 @@
         "description": "src.database.mongo",
         "peekOfCode": "settings = Settings()\nasync def initiate_database():\n    print(settings.DATABASE_URL)\n    client = AsyncIOMotorClient(settings.DATABASE_URL)\n    database = client[settings.DATABASE_NAME]\n    await init_beanie(database=database, document_models=models.__all__)",
         "detail": "src.database.mongo",
+        "documentation": {}
+    },
+    {
+        "label": "client",
+        "kind": 5,
+        "importPath": "src.handlers.case_handler",
+        "description": "src.handlers.case_handler",
+        "peekOfCode": "client = Client(\"https://api.devnet.solana.com\")\nlogging.basicConfig(\n    format=\"%(asctime)s - %(name)s - %(levelname)s - %(message)s\", level=logging.INFO\n)\nlogger = logging.getLogger(__name__)\n# --- Create Case Handlers (with separate states for each person detail) ---\nasync def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:\n    \"\"\"Handle the user's name input.\"\"\"\n    user_id = update.effective_user.id\n    name = update.message.text.strip()",
+        "detail": "src.handlers.case_handler",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "src.handlers.case_handler",
+        "description": "src.handlers.case_handler",
+        "peekOfCode": "logger = logging.getLogger(__name__)\n# --- Create Case Handlers (with separate states for each person detail) ---\nasync def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:\n    \"\"\"Handle the user's name input.\"\"\"\n    user_id = update.effective_user.id\n    name = update.message.text.strip()\n    context.user_data[\"case\"] = {\"name\": name}\n    await update.message.reply_text(get_text(user_id, \"enter_mobile\"))\n    return CREATE_CASE_MOBILE\nasync def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:",
+        "detail": "src.handlers.case_handler",
+        "documentation": {}
+    },
+    {
+        "label": "get_provinces_for_country",
+        "kind": 2,
+        "importPath": "src.handlers.finder_handler",
+        "description": "src.handlers.finder_handler",
+        "peekOfCode": "def get_provinces_for_country(country):\n    \"\"\"\n    Fetch provinces/states for the given country using REST Countries API.\n    \"\"\"\n    response = requests.get(f\"https://restcountries.com/v3.1/name/{country}\")\n    if response.status_code == 200:\n        data = response.json()\n        # Extract states/provinces if available\n        if data and \"subdivisions\" in data[0]:\n            return data[0][\"subdivisions\"]",
+        "detail": "src.handlers.finder_handler",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "src.handlers.handlers",
+        "description": "src.handlers.handlers",
+        "peekOfCode": "def main() -> None:\n    # Create the Application and pass it your bot's token.\n    application = Application.builder().token(\"YOUR_TELEGRAM_BOT_TOKEN\").build()\n    # Add conversation handlers\n    application.add_handler(conv_handler)\n    application.add_handler(case_listing_handler)\n    application.add_handler(wallet_conv_handler)\n    application.add_handler(settings_conv_handler)\n    # Add error handler\n    application.add_error_handler(error_handler)",
+        "detail": "src.handlers.handlers",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "src.handlers.handlers",
+        "description": "src.handlers.handlers",
+        "peekOfCode": "logger = logging.getLogger(__name__)\n# --- Create Case Handlers (with separate states for each person detail) ---\n# --- Conversation Handlers ---\n# Main conversation handler for the bot\nconv_handler = ConversationHandler(\n    entry_points=[CommandHandler(\"start\", start)],\n    states={\n        SELECT_LANG: [CallbackQueryHandler(select_lang_callback, pattern=\"^lang_\")],\n        CHOOSE_COUNTRY: [\n            CallbackQueryHandler(",
+        "detail": "src.handlers.handlers",
+        "documentation": {}
+    },
+    {
+        "label": "conv_handler",
+        "kind": 5,
+        "importPath": "src.handlers.handlers",
+        "description": "src.handlers.handlers",
+        "peekOfCode": "conv_handler = ConversationHandler(\n    entry_points=[CommandHandler(\"start\", start)],\n    states={\n        SELECT_LANG: [CallbackQueryHandler(select_lang_callback, pattern=\"^lang_\")],\n        CHOOSE_COUNTRY: [\n            CallbackQueryHandler(\n                country_callback, pattern=\"^(country_select_|country_page_)\"\n            ),\n            MessageHandler(filters.TEXT & ~filters.COMMAND, choose_country),\n        ],",
+        "detail": "src.handlers.handlers",
+        "documentation": {}
+    },
+    {
+        "label": "wallet_conv_handler",
+        "kind": 5,
+        "importPath": "src.handlers.handlers",
+        "description": "src.handlers.handlers",
+        "peekOfCode": "wallet_conv_handler = ConversationHandler(\n    entry_points=[CommandHandler(\"wallet\", wallet_command)],\n    states={\n        WALLET_MENU: [\n            CallbackQueryHandler(\n                wallet_menu_callback,\n                pattern=\"^(wallet_refresh|wallet_sol|wallet_btc|wallet_show|wallet_create|wallet_delete)$\",\n            )\n        ],\n        NAME_WALLET: [",
+        "detail": "src.handlers.handlers",
+        "documentation": {}
+    },
+    {
+        "label": "case_listing_handler",
+        "kind": 5,
+        "importPath": "src.handlers.handlers",
+        "description": "src.handlers.handlers",
+        "peekOfCode": "case_listing_handler = ConversationHandler(\n    entry_points=[CommandHandler(\"listing\", listing_command)],\n    states={\n        CASE_DETAILS: [\n            CallbackQueryHandler(case_details_callback, pattern=\"^case_.*$\"),\n            CallbackQueryHandler(\n                pagination_callback, pattern=\"^(page_previous|page_next)$\"\n            ),\n        ]\n    },",
+        "detail": "src.handlers.handlers",
+        "documentation": {}
+    },
+    {
+        "label": "settings_conv_handler",
+        "kind": 5,
+        "importPath": "src.handlers.handlers",
+        "description": "src.handlers.handlers",
+        "peekOfCode": "settings_conv_handler = ConversationHandler(\n    entry_points=[CommandHandler(\"settings\", settings_command)],\n    states={\n        SETTINGS_MENU: [\n            CallbackQueryHandler(\n                settings_menu_callback,\n                pattern=\"^(settings_language|settings_mobile|settings_close|setlang_)\",\n            )\n        ],\n        WAITING_FOR_MOBILE: [",
+        "detail": "src.handlers.handlers",
+        "documentation": {}
+    },
+    {
+        "label": "paginate_list",
+        "kind": 2,
+        "importPath": "src.handlers.listing_handler",
+        "description": "src.handlers.listing_handler",
+        "peekOfCode": "def paginate_list(items, page, items_per_page=ITEMS_PER_PAGE):\n    total_pages = max(1, math.ceil(len(items) / items_per_page)) if items else 1\n    page = max(1, min(page, total_pages))\n    start = (page - 1) * items_per_page\n    end = start + items_per_page\n    return items[start:end], total_pages\n# Define states\nasync def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:\n    \"\"\"Handler for the /listing command.\"\"\"\n    user_id = update.effective_user.id",
+        "detail": "src.handlers.listing_handler",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "src.handlers.listing_handler",
+        "description": "src.handlers.listing_handler",
+        "peekOfCode": "logger = logging.getLogger(__name__)\nITEMS_PER_PAGE = 5  # Define how many cases to display per page\n# Helper to paginate list items\ndef paginate_list(items, page, items_per_page=ITEMS_PER_PAGE):\n    total_pages = max(1, math.ceil(len(items) / items_per_page)) if items else 1\n    page = max(1, min(page, total_pages))\n    start = (page - 1) * items_per_page\n    end = start + items_per_page\n    return items[start:end], total_pages\n# Define states",
+        "detail": "src.handlers.listing_handler",
+        "documentation": {}
+    },
+    {
+        "label": "ITEMS_PER_PAGE",
+        "kind": 5,
+        "importPath": "src.handlers.listing_handler",
+        "description": "src.handlers.listing_handler",
+        "peekOfCode": "ITEMS_PER_PAGE = 5  # Define how many cases to display per page\n# Helper to paginate list items\ndef paginate_list(items, page, items_per_page=ITEMS_PER_PAGE):\n    total_pages = max(1, math.ceil(len(items) / items_per_page)) if items else 1\n    page = max(1, min(page, total_pages))\n    start = (page - 1) * items_per_page\n    end = start + items_per_page\n    return items[start:end], total_pages\n# Define states\nasync def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:",
+        "detail": "src.handlers.listing_handler",
+        "documentation": {}
+    },
+    {
+        "label": "case_listing_handler",
+        "kind": 5,
+        "importPath": "src.handlers.listing_handler",
+        "description": "src.handlers.listing_handler",
+        "peekOfCode": "case_listing_handler = ConversationHandler(\n    entry_points=[CommandHandler(\"listing\", listing_command)],\n    states={\n        CASE_DETAILS: [\n            CallbackQueryHandler(case_details_callback, pattern=\"^case_.*$\"),\n            CallbackQueryHandler(\n                pagination_callback, pattern=\"^(page_previous|page_next)$\"\n            ),\n        ]\n    },",
+        "detail": "src.handlers.listing_handler",
+        "documentation": {}
+    },
+    {
+        "label": "paginate_list",
+        "kind": 2,
+        "importPath": "src.handlers.utils",
+        "description": "src.handlers.utils",
+        "peekOfCode": "def paginate_list(items, page, items_per_page=ITEMS_PER_PAGE):\n    \"\"\"Helper to paginate list items.\"\"\"\n    total_pages = max(1, math.ceil(len(items) / items_per_page)) if items else 1\n    page = max(1, min(page, total_pages))\n    start = (page - 1) * items_per_page\n    end = start + items_per_page\n    return items[start:end], total_pages\ndef get_country_matches(query):\n    query = query.lower()\n    return [c.name for c in pycountry.countries if query in c.name.lower()]",
+        "detail": "src.handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "get_country_matches",
+        "kind": 2,
+        "importPath": "src.handlers.utils",
+        "description": "src.handlers.utils",
+        "peekOfCode": "def get_country_matches(query):\n    query = query.lower()\n    return [c.name for c in pycountry.countries if query in c.name.lower()]\ndef get_cities_by_country(country_name):\n    country = pycountry.countries.get(name=country_name)\n    if not country:\n        return []\n    country_code = country.alpha_2\n    all_cities = gc.get_cities().values()\n    filtered = [city for city in all_cities if city[\"countrycode\"] == country_code]",
+        "detail": "src.handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "get_cities_by_country",
+        "kind": 2,
+        "importPath": "src.handlers.utils",
+        "description": "src.handlers.utils",
+        "peekOfCode": "def get_cities_by_country(country_name):\n    country = pycountry.countries.get(name=country_name)\n    if not country:\n        return []\n    country_code = country.alpha_2\n    all_cities = gc.get_cities().values()\n    filtered = [city for city in all_cities if city[\"countrycode\"] == country_code]\n    if not filtered:\n        return []\n    sorted_cities = sorted(filtered, key=lambda x: x[\"population\"], reverse=True)",
+        "detail": "src.handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "get_city_matches",
+        "kind": 2,
+        "importPath": "src.handlers.utils",
+        "description": "src.handlers.utils",
+        "peekOfCode": "def get_city_matches(country_name, query):\n    return [\n        c for c in get_cities_by_country(country_name) if query.lower() in c.lower()\n    ]\n# Handlers\nasync def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:\n    \"\"\"/start command entry point.\"\"\"\n    btns = [\n        [\n            InlineKeyboardButton(",
+        "detail": "src.handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "setup_logging",
+        "kind": 2,
+        "importPath": "src.handlers.utils",
+        "description": "src.handlers.utils",
+        "peekOfCode": "def setup_logging():\n    logging.basicConfig(\n        format=\"%(asctime)s - %(name)s - %(levelname)s - %(message)s\",\n        level=logging.INFO,\n        handlers=[\n            logging.FileHandler(\"bot.log\"),  # Log to a file named bot.log\n            logging.StreamHandler(),  # Also log to the console\n        ],\n    )\n    logger = logging.getLogger(__name__)",
+        "detail": "src.handlers.utils",
+        "documentation": {}
+    },
+    {
+        "label": "gc",
+        "kind": 5,
+        "importPath": "src.handlers.utils",
+        "description": "src.handlers.utils",
+        "peekOfCode": "gc = geonamescache.GeonamesCache()\ndef paginate_list(items, page, items_per_page=ITEMS_PER_PAGE):\n    \"\"\"Helper to paginate list items.\"\"\"\n    total_pages = max(1, math.ceil(len(items) / items_per_page)) if items else 1\n    page = max(1, min(page, total_pages))\n    start = (page - 1) * items_per_page\n    end = start + items_per_page\n    return items[start:end], total_pages\ndef get_country_matches(query):\n    query = query.lower()",
+        "detail": "src.handlers.utils",
         "documentation": {}
     },
     {
@@ -2366,633 +2520,498 @@
         "documentation": {}
     },
     {
-        "label": "TWILIO_ACCOUNT_SID",
-        "kind": 5,
-        "importPath": "config",
-        "description": "config",
-        "peekOfCode": "TWILIO_ACCOUNT_SID = os.getenv(\"TWILIO_ACCOUNT_SID\")\nTWILIO_AUTH_TOKEN = os.getenv(\"TWILIO_AUTH_TOKEN\")\nTWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")",
-        "detail": "config",
-        "documentation": {}
-    },
-    {
-        "label": "TWILIO_AUTH_TOKEN",
-        "kind": 5,
-        "importPath": "config",
-        "description": "config",
-        "peekOfCode": "TWILIO_AUTH_TOKEN = os.getenv(\"TWILIO_AUTH_TOKEN\")\nTWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")",
-        "detail": "config",
-        "documentation": {}
-    },
-    {
-        "label": "TWILIO_PHONE_NUMBER",
-        "kind": 5,
-        "importPath": "config",
-        "description": "config",
-        "peekOfCode": "TWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")",
-        "detail": "config",
-        "documentation": {}
-    },
-    {
-        "label": "get_text",
-        "kind": 2,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "def get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "SELECT_LANG",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "SELECT_LANG = 0\nSHOW_DISCLAIMER = 1\nCHOOSE_COUNTRY = 2\nCHOOSE_CITY = 3\nCHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "SHOW_DISCLAIMER",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "SHOW_DISCLAIMER = 1\nCHOOSE_COUNTRY = 2\nCHOOSE_CITY = 3\nCHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CHOOSE_COUNTRY",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CHOOSE_COUNTRY = 2\nCHOOSE_CITY = 3\nCHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CHOOSE_CITY",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CHOOSE_CITY = 3\nCHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CHOOSE_PROVINCE",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CHOOSE_ACTION",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CHOOSE_WALLET_TYPE",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "NAME_WALLET",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "NAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_NAME",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_MOBILE",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_TAC",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_DISCLAIMER",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_REWARD_TYPE",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_REWARD_AMOUNT",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_PERSON_NAME",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_RELATIONSHIP",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_PHOTO",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_LAST_SEEN_LOCATION",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_SEX",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_AGE",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_HAIR_COLOR",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_EYE_COLOR",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_HEIGHT",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_WEIGHT",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_DISTINCTIVE_FEATURES",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CREATE_CASE_SUBMIT",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "ENTER_PRIVATE_KEY",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "ENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "TRANSFER_CONFIRMATION",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "TRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "END",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "END = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "WALLET_MENU",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "WALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "WAITING_FOR_MOBILE",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "WAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "SETTINGS_MENU",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "SETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CASE_LIST",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CASE_DETAILS",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "UPLOAD_PROOF",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "UPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "ENTER_LOCATION",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "ENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",\n        \"choose_country\": \"Please enter your country name (partial name allowed):\",",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "LANG_DATA",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "LANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",\n        \"choose_country\": \"Please enter your country name (partial name allowed):\",\n        \"country_not_found\": \"No matching countries found. Please try again:\",\n        \"country_multi\": \"Multiple countries found (Page {page} of {total}):\",\n        \"country_selected\": \"You have selected\",\n        \"disclaimer_title\": \"Disclaimer\\n\\n\",",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "ITEMS_PER_PAGE",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "ITEMS_PER_PAGE = 10  # Number of items per page for pagination\nWALLETS_DIR = \"wallets\"  # Directory to store user wallets\nPHOTOS_DIR = \"photos\"  # Directory to store uploaded photos\nPROOFS_DIR = \"proofs\"  # Directory to store proof uploads\n# A simple in-memory data store for user preferences (language, etc.)\nuser_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "WALLETS_DIR",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "WALLETS_DIR = \"wallets\"  # Directory to store user wallets\nPHOTOS_DIR = \"photos\"  # Directory to store uploaded photos\nPROOFS_DIR = \"proofs\"  # Directory to store proof uploads\n# A simple in-memory data store for user preferences (language, etc.)\nuser_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "PHOTOS_DIR",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "PHOTOS_DIR = \"photos\"  # Directory to store uploaded photos\nPROOFS_DIR = \"proofs\"  # Directory to store proof uploads\n# A simple in-memory data store for user preferences (language, etc.)\nuser_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "PROOFS_DIR",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "PROOFS_DIR = \"proofs\"  # Directory to store proof uploads\n# A simple in-memory data store for user preferences (language, etc.)\nuser_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "user_data_store",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "user_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "main",
-        "kind": 2,
-        "importPath": "handlers",
-        "description": "handlers",
-        "peekOfCode": "def main() -> None:\n    # Create the Application and pass it your bot's token.\n    application = Application.builder().token(\"YOUR_TELEGRAM_BOT_TOKEN\").build()\n    # Add conversation handlers\n    application.add_handler(conv_handler)\n    application.add_handler(case_listing_handler)\n    application.add_handler(wallet_conv_handler)\n    application.add_handler(settings_conv_handler)\n    # Add error handler\n    application.add_error_handler(error_handler)",
-        "detail": "handlers",
-        "documentation": {}
-    },
-    {
-        "label": "logger",
-        "kind": 5,
-        "importPath": "handlers",
-        "description": "handlers",
-        "peekOfCode": "logger = logging.getLogger(__name__)\n# --- Create Case Handlers (with separate states for each person detail) ---\n# --- Conversation Handlers ---\n# Main conversation handler for the bot\nconv_handler = ConversationHandler(\n    entry_points=[CommandHandler(\"start\", start)],\n    states={\n        SELECT_LANG: [CallbackQueryHandler(select_lang_callback, pattern=\"^lang_\")],\n        CHOOSE_COUNTRY: [\n            CallbackQueryHandler(",
-        "detail": "handlers",
-        "documentation": {}
-    },
-    {
-        "label": "conv_handler",
-        "kind": 5,
-        "importPath": "handlers",
-        "description": "handlers",
-        "peekOfCode": "conv_handler = ConversationHandler(\n    entry_points=[CommandHandler(\"start\", start)],\n    states={\n        SELECT_LANG: [CallbackQueryHandler(select_lang_callback, pattern=\"^lang_\")],\n        CHOOSE_COUNTRY: [\n            CallbackQueryHandler(\n                country_callback, pattern=\"^(country_select_|country_page_)\"\n            ),\n            MessageHandler(filters.TEXT & ~filters.COMMAND, choose_country),\n        ],",
-        "detail": "handlers",
-        "documentation": {}
-    },
-    {
-        "label": "wallet_conv_handler",
-        "kind": 5,
-        "importPath": "handlers",
-        "description": "handlers",
-        "peekOfCode": "wallet_conv_handler = ConversationHandler(\n    entry_points=[CommandHandler(\"wallet\", wallet_command)],\n    states={\n        WALLET_MENU: [\n            CallbackQueryHandler(\n                wallet_menu_callback,\n                pattern=\"^(wallet_refresh|wallet_sol|wallet_btc|wallet_show|wallet_create|wallet_delete)$\",\n            )\n        ],\n        NAME_WALLET: [",
-        "detail": "handlers",
-        "documentation": {}
-    },
-    {
-        "label": "case_listing_handler",
-        "kind": 5,
-        "importPath": "handlers",
-        "description": "handlers",
-        "peekOfCode": "case_listing_handler = ConversationHandler(\n    entry_points=[CommandHandler(\"listing\", listing_command)],\n    states={\n        CASE_DETAILS: [\n            CallbackQueryHandler(case_details_callback, pattern=\"^case_.*$\"),\n            CallbackQueryHandler(\n                pagination_callback, pattern=\"^(page_previous|page_next)$\"\n            ),\n        ]\n    },",
-        "detail": "handlers",
-        "documentation": {}
-    },
-    {
-        "label": "settings_conv_handler",
-        "kind": 5,
-        "importPath": "handlers",
-        "description": "handlers",
-        "peekOfCode": "settings_conv_handler = ConversationHandler(\n    entry_points=[CommandHandler(\"settings\", settings_command)],\n    states={\n        SETTINGS_MENU: [\n            CallbackQueryHandler(\n                settings_menu_callback,\n                pattern=\"^(settings_language|settings_mobile|settings_close|setlang_)\",\n            )\n        ],\n        WAITING_FOR_MOBILE: [",
-        "detail": "handlers",
-        "documentation": {}
-    },
-    {
-        "label": "client",
-        "kind": 5,
-        "importPath": "test_sol_transfer",
-        "description": "test_sol_transfer",
-        "peekOfCode": "client = Client(\"https://api.devnet.solana.com\")\n# Load the sender's private key\nsender = Keypair.from_base58_string(\n    \"3zGLwBKciRezgUfChoQSLmCeYxv7rrBSGg4tpFUXsPyEfpCqYrWsruBF6d5QTrn4E6MjUziVebmwkpwv3oC3fPoc\"\n)\n# Load the recipient's public key\nto_pubkey = Pubkey.from_string(\"8RjkX9qRpwE3zaXPzvo88veZeCRUKAqanUChEXGhJG9o\")\n# Create a transfer instruction\ninstruction = transfer(\n    TransferParams(",
-        "detail": "test_sol_transfer",
-        "documentation": {}
-    },
-    {
-        "label": "sender",
-        "kind": 5,
-        "importPath": "test_sol_transfer",
-        "description": "test_sol_transfer",
-        "peekOfCode": "sender = Keypair.from_base58_string(\n    \"3zGLwBKciRezgUfChoQSLmCeYxv7rrBSGg4tpFUXsPyEfpCqYrWsruBF6d5QTrn4E6MjUziVebmwkpwv3oC3fPoc\"\n)\n# Load the recipient's public key\nto_pubkey = Pubkey.from_string(\"8RjkX9qRpwE3zaXPzvo88veZeCRUKAqanUChEXGhJG9o\")\n# Create a transfer instruction\ninstruction = transfer(\n    TransferParams(\n        from_pubkey=sender.pubkey(),\n        to_pubkey=to_pubkey,",
-        "detail": "test_sol_transfer",
-        "documentation": {}
-    },
-    {
-        "label": "to_pubkey",
-        "kind": 5,
-        "importPath": "test_sol_transfer",
-        "description": "test_sol_transfer",
-        "peekOfCode": "to_pubkey = Pubkey.from_string(\"8RjkX9qRpwE3zaXPzvo88veZeCRUKAqanUChEXGhJG9o\")\n# Create a transfer instruction\ninstruction = transfer(\n    TransferParams(\n        from_pubkey=sender.pubkey(),\n        to_pubkey=to_pubkey,\n        lamports=1_000_000,  # Amount in lamports\n    )\n)\n# Get the latest blockhash",
-        "detail": "test_sol_transfer",
-        "documentation": {}
-    },
-    {
-        "label": "instruction",
-        "kind": 5,
-        "importPath": "test_sol_transfer",
-        "description": "test_sol_transfer",
-        "peekOfCode": "instruction = transfer(\n    TransferParams(\n        from_pubkey=sender.pubkey(),\n        to_pubkey=to_pubkey,\n        lamports=1_000_000,  # Amount in lamports\n    )\n)\n# Get the latest blockhash\nblockhash_response = client.get_latest_blockhash()\nrecent_blockhash = blockhash_response.value.blockhash",
-        "detail": "test_sol_transfer",
-        "documentation": {}
-    },
-    {
-        "label": "blockhash_response",
-        "kind": 5,
-        "importPath": "test_sol_transfer",
-        "description": "test_sol_transfer",
-        "peekOfCode": "blockhash_response = client.get_latest_blockhash()\nrecent_blockhash = blockhash_response.value.blockhash\n# Create a message and transaction\nmessage = Message(instructions=[instruction], payer=sender.pubkey())\ntransaction = Transaction(\n    from_keypairs=[sender], message=message, recent_blockhash=recent_blockhash\n)\n# Sign the transaction\ntransaction.sign([sender], recent_blockhash=recent_blockhash)\n# Send the transaction",
-        "detail": "test_sol_transfer",
-        "documentation": {}
-    },
-    {
-        "label": "recent_blockhash",
-        "kind": 5,
-        "importPath": "test_sol_transfer",
-        "description": "test_sol_transfer",
-        "peekOfCode": "recent_blockhash = blockhash_response.value.blockhash\n# Create a message and transaction\nmessage = Message(instructions=[instruction], payer=sender.pubkey())\ntransaction = Transaction(\n    from_keypairs=[sender], message=message, recent_blockhash=recent_blockhash\n)\n# Sign the transaction\ntransaction.sign([sender], recent_blockhash=recent_blockhash)\n# Send the transaction\nsend_response = client.send_transaction(transaction)",
-        "detail": "test_sol_transfer",
-        "documentation": {}
-    },
-    {
-        "label": "message",
-        "kind": 5,
-        "importPath": "test_sol_transfer",
-        "description": "test_sol_transfer",
-        "peekOfCode": "message = Message(instructions=[instruction], payer=sender.pubkey())\ntransaction = Transaction(\n    from_keypairs=[sender], message=message, recent_blockhash=recent_blockhash\n)\n# Sign the transaction\ntransaction.sign([sender], recent_blockhash=recent_blockhash)\n# Send the transaction\nsend_response = client.send_transaction(transaction)\nprint(f\"Transaction sent! Transaction signature: {send_response}\")",
-        "detail": "test_sol_transfer",
-        "documentation": {}
-    },
-    {
-        "label": "transaction",
-        "kind": 5,
-        "importPath": "test_sol_transfer",
-        "description": "test_sol_transfer",
-        "peekOfCode": "transaction = Transaction(\n    from_keypairs=[sender], message=message, recent_blockhash=recent_blockhash\n)\n# Sign the transaction\ntransaction.sign([sender], recent_blockhash=recent_blockhash)\n# Send the transaction\nsend_response = client.send_transaction(transaction)\nprint(f\"Transaction sent! Transaction signature: {send_response}\")",
-        "detail": "test_sol_transfer",
-        "documentation": {}
-    },
-    {
-        "label": "send_response",
-        "kind": 5,
-        "importPath": "test_sol_transfer",
-        "description": "test_sol_transfer",
-        "peekOfCode": "send_response = client.send_transaction(transaction)\nprint(f\"Transaction sent! Transaction signature: {send_response}\")",
-        "detail": "test_sol_transfer",
-        "documentation": {}
-    },
-    {
-        "label": "paginate_list",
-        "kind": 2,
-        "importPath": "utils",
-        "description": "utils",
-        "peekOfCode": "def paginate_list(items, page, items_per_page=ITEMS_PER_PAGE):\n    \"\"\"Helper to paginate list items.\"\"\"\n    total_pages = max(1, math.ceil(len(items) / items_per_page)) if items else 1\n    page = max(1, min(page, total_pages))\n    start = (page - 1) * items_per_page\n    end = start + items_per_page\n    return items[start:end], total_pages\ndef get_country_matches(query):\n    query = query.lower()\n    return [c.name for c in pycountry.countries if query in c.name.lower()]",
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "get_country_matches",
-        "kind": 2,
-        "importPath": "utils",
-        "description": "utils",
-        "peekOfCode": "def get_country_matches(query):\n    query = query.lower()\n    return [c.name for c in pycountry.countries if query in c.name.lower()]\ndef get_cities_by_country(country_name):\n    country = pycountry.countries.get(name=country_name)\n    if not country:\n        return []\n    country_code = country.alpha_2\n    all_cities = gc.get_cities().values()\n    filtered = [city for city in all_cities if city[\"countrycode\"] == country_code]",
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "get_cities_by_country",
-        "kind": 2,
-        "importPath": "utils",
-        "description": "utils",
-        "peekOfCode": "def get_cities_by_country(country_name):\n    country = pycountry.countries.get(name=country_name)\n    if not country:\n        return []\n    country_code = country.alpha_2\n    all_cities = gc.get_cities().values()\n    filtered = [city for city in all_cities if city[\"countrycode\"] == country_code]\n    if not filtered:\n        return []\n    sorted_cities = sorted(filtered, key=lambda x: x[\"population\"], reverse=True)",
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "get_city_matches",
-        "kind": 2,
-        "importPath": "utils",
-        "description": "utils",
-        "peekOfCode": "def get_city_matches(country_name, query):\n    return [\n        c for c in get_cities_by_country(country_name) if query.lower() in c.lower()\n    ]\n# Handlers\nasync def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:\n    \"\"\"/start command entry point.\"\"\"\n    btns = [\n        [\n            InlineKeyboardButton(",
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "setup_logging",
-        "kind": 2,
-        "importPath": "utils",
-        "description": "utils",
-        "peekOfCode": "def setup_logging():\n    logging.basicConfig(\n        format=\"%(asctime)s - %(name)s - %(levelname)s - %(message)s\",\n        level=logging.INFO,\n        handlers=[\n            logging.FileHandler(\"bot.log\"),  # Log to a file named bot.log\n            logging.StreamHandler(),  # Also log to the console\n        ],\n    )\n    logger = logging.getLogger(__name__)",
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
-        "label": "gc",
-        "kind": 5,
-        "importPath": "utils",
-        "description": "utils",
-        "peekOfCode": "gc = geonamescache.GeonamesCache()\ndef paginate_list(items, page, items_per_page=ITEMS_PER_PAGE):\n    \"\"\"Helper to paginate list items.\"\"\"\n    total_pages = max(1, math.ceil(len(items) / items_per_page)) if items else 1\n    page = max(1, min(page, total_pages))\n    start = (page - 1) * items_per_page\n    end = start + items_per_page\n    return items[start:end], total_pages\ndef get_country_matches(query):\n    query = query.lower()",
-        "detail": "utils",
-        "documentation": {}
-    },
-    {
         "label": "create_sol_wallet",
         "kind": 2,
-        "importPath": "wallet",
-        "description": "wallet",
+        "importPath": "src.utils.wallet",
+        "description": "src.utils.wallet",
         "peekOfCode": "def create_sol_wallet(wallet_name):\n    \"\"\"Create a SOL wallet with Keypair, store it as JSON, and return its details.\"\"\"\n    if not client:\n        return None\n    try:\n        keypair = Keypair()\n        public_key = str(keypair.pubkey())\n        secret_key = base58.b58encode(bytes(keypair.to_bytes_array())).decode(\"utf-8\")\n        wallet = {\n            \"name\": wallet_name,",
-        "detail": "wallet",
+        "detail": "src.utils.wallet",
         "documentation": {}
     },
     {
         "label": "load_user_wallet",
         "kind": 2,
-        "importPath": "wallet",
-        "description": "wallet",
+        "importPath": "src.utils.wallet",
+        "description": "src.utils.wallet",
         "peekOfCode": "def load_user_wallet(user_id):\n    \"\"\"Load wallet info from user_data_store or from file if needed.\"\"\"\n    user_wallet = user_data_store[user_id].get(\"wallet\")\n    if not user_wallet:\n        return None\n    # Optionally re-check balance from the chain\n    if client:\n        pubkey = user_wallet.get(\"public_key\")\n        if pubkey:\n            balance_response = client.get_balance(Pubkey.from_string(pubkey))",
-        "detail": "wallet",
+        "detail": "src.utils.wallet",
         "documentation": {}
     },
     {
         "label": "delete_user_wallet",
         "kind": 2,
-        "importPath": "wallet",
-        "description": "wallet",
+        "importPath": "src.utils.wallet",
+        "description": "src.utils.wallet",
         "peekOfCode": "def delete_user_wallet(user_id):\n    \"\"\"Remove the user's wallet from memory and optionally from disk.\"\"\"\n    user_wallet = user_data_store[user_id].get(\"wallet\")\n    if not user_wallet:\n        return False\n    # Delete from disk if you want\n    pubkey = user_wallet.get(\"public_key\")\n    if pubkey:\n        wallet_filename = os.path.join(WALLETS_DIR, f\"{pubkey}.json\")\n        if os.path.exists(wallet_filename):",
-        "detail": "wallet",
+        "detail": "src.utils.wallet",
+        "documentation": {}
+    },
+    {
+        "label": "get_text",
+        "kind": 2,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "def get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "SELECT_LANG",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "SELECT_LANG = 0\nSHOW_DISCLAIMER = 1\nCHOOSE_COUNTRY = 2\nCHOOSE_CITY = 3\nCHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "SHOW_DISCLAIMER",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "SHOW_DISCLAIMER = 1\nCHOOSE_COUNTRY = 2\nCHOOSE_CITY = 3\nCHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CHOOSE_COUNTRY",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CHOOSE_COUNTRY = 2\nCHOOSE_CITY = 3\nCHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CHOOSE_CITY",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CHOOSE_CITY = 3\nCHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CHOOSE_PROVINCE",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CHOOSE_ACTION",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CHOOSE_WALLET_TYPE",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "NAME_WALLET",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "NAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_NAME",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_MOBILE",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_TAC",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_DISCLAIMER",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_REWARD_TYPE",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_REWARD_AMOUNT",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_PERSON_NAME",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_RELATIONSHIP",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_PHOTO",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_LAST_SEEN_LOCATION",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_SEX",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_AGE",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_HAIR_COLOR",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_EYE_COLOR",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_HEIGHT",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_WEIGHT",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_DISTINCTIVE_FEATURES",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CREATE_CASE_SUBMIT",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "ENTER_PRIVATE_KEY",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "ENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "TRANSFER_CONFIRMATION",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "TRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "END",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "END = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "WALLET_MENU",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "WALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "WAITING_FOR_MOBILE",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "WAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "SETTINGS_MENU",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "SETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CASE_LIST",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CASE_DETAILS",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "UPLOAD_PROOF",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "UPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "ENTER_LOCATION",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "ENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",\n        \"choose_country\": \"Please enter your country name (partial name allowed):\",",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "LANG_DATA",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "LANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",\n        \"choose_country\": \"Please enter your country name (partial name allowed):\",\n        \"country_not_found\": \"No matching countries found. Please try again:\",\n        \"country_multi\": \"Multiple countries found (Page {page} of {total}):\",\n        \"country_selected\": \"You have selected\",\n        \"disclaimer_title\": \"Disclaimer\\n\\n\",",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "ITEMS_PER_PAGE",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "ITEMS_PER_PAGE = 10  # Number of items per page for pagination\nWALLETS_DIR = \"wallets\"  # Directory to store user wallets\nPHOTOS_DIR = \"photos\"  # Directory to store uploaded photos\nPROOFS_DIR = \"proofs\"  # Directory to store proof uploads\n# A simple in-memory data store for user preferences (language, etc.)\nuser_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "WALLETS_DIR",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "WALLETS_DIR = \"wallets\"  # Directory to store user wallets\nPHOTOS_DIR = \"photos\"  # Directory to store uploaded photos\nPROOFS_DIR = \"proofs\"  # Directory to store proof uploads\n# A simple in-memory data store for user preferences (language, etc.)\nuser_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "PHOTOS_DIR",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "PHOTOS_DIR = \"photos\"  # Directory to store uploaded photos\nPROOFS_DIR = \"proofs\"  # Directory to store proof uploads\n# A simple in-memory data store for user preferences (language, etc.)\nuser_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "PROOFS_DIR",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "PROOFS_DIR = \"proofs\"  # Directory to store proof uploads\n# A simple in-memory data store for user preferences (language, etc.)\nuser_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "user_data_store",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "user_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "client",
+        "kind": 5,
+        "importPath": "test.test_sol_transfer",
+        "description": "test.test_sol_transfer",
+        "peekOfCode": "client = Client(\"https://api.devnet.solana.com\")\n# Load the sender's private key\nsender = Keypair.from_base58_string(\n    \"3zGLwBKciRezgUfChoQSLmCeYxv7rrBSGg4tpFUXsPyEfpCqYrWsruBF6d5QTrn4E6MjUziVebmwkpwv3oC3fPoc\"\n)\n# Load the recipient's public key\nto_pubkey = Pubkey.from_string(\"8RjkX9qRpwE3zaXPzvo88veZeCRUKAqanUChEXGhJG9o\")\n# Create a transfer instruction\ninstruction = transfer(\n    TransferParams(",
+        "detail": "test.test_sol_transfer",
+        "documentation": {}
+    },
+    {
+        "label": "sender",
+        "kind": 5,
+        "importPath": "test.test_sol_transfer",
+        "description": "test.test_sol_transfer",
+        "peekOfCode": "sender = Keypair.from_base58_string(\n    \"3zGLwBKciRezgUfChoQSLmCeYxv7rrBSGg4tpFUXsPyEfpCqYrWsruBF6d5QTrn4E6MjUziVebmwkpwv3oC3fPoc\"\n)\n# Load the recipient's public key\nto_pubkey = Pubkey.from_string(\"8RjkX9qRpwE3zaXPzvo88veZeCRUKAqanUChEXGhJG9o\")\n# Create a transfer instruction\ninstruction = transfer(\n    TransferParams(\n        from_pubkey=sender.pubkey(),\n        to_pubkey=to_pubkey,",
+        "detail": "test.test_sol_transfer",
+        "documentation": {}
+    },
+    {
+        "label": "to_pubkey",
+        "kind": 5,
+        "importPath": "test.test_sol_transfer",
+        "description": "test.test_sol_transfer",
+        "peekOfCode": "to_pubkey = Pubkey.from_string(\"8RjkX9qRpwE3zaXPzvo88veZeCRUKAqanUChEXGhJG9o\")\n# Create a transfer instruction\ninstruction = transfer(\n    TransferParams(\n        from_pubkey=sender.pubkey(),\n        to_pubkey=to_pubkey,\n        lamports=1_000_000,  # Amount in lamports\n    )\n)\n# Get the latest blockhash",
+        "detail": "test.test_sol_transfer",
+        "documentation": {}
+    },
+    {
+        "label": "instruction",
+        "kind": 5,
+        "importPath": "test.test_sol_transfer",
+        "description": "test.test_sol_transfer",
+        "peekOfCode": "instruction = transfer(\n    TransferParams(\n        from_pubkey=sender.pubkey(),\n        to_pubkey=to_pubkey,\n        lamports=1_000_000,  # Amount in lamports\n    )\n)\n# Get the latest blockhash\nblockhash_response = client.get_latest_blockhash()\nrecent_blockhash = blockhash_response.value.blockhash",
+        "detail": "test.test_sol_transfer",
+        "documentation": {}
+    },
+    {
+        "label": "blockhash_response",
+        "kind": 5,
+        "importPath": "test.test_sol_transfer",
+        "description": "test.test_sol_transfer",
+        "peekOfCode": "blockhash_response = client.get_latest_blockhash()\nrecent_blockhash = blockhash_response.value.blockhash\n# Create a message and transaction\nmessage = Message(instructions=[instruction], payer=sender.pubkey())\ntransaction = Transaction(\n    from_keypairs=[sender], message=message, recent_blockhash=recent_blockhash\n)\n# Sign the transaction\ntransaction.sign([sender], recent_blockhash=recent_blockhash)\n# Send the transaction",
+        "detail": "test.test_sol_transfer",
+        "documentation": {}
+    },
+    {
+        "label": "recent_blockhash",
+        "kind": 5,
+        "importPath": "test.test_sol_transfer",
+        "description": "test.test_sol_transfer",
+        "peekOfCode": "recent_blockhash = blockhash_response.value.blockhash\n# Create a message and transaction\nmessage = Message(instructions=[instruction], payer=sender.pubkey())\ntransaction = Transaction(\n    from_keypairs=[sender], message=message, recent_blockhash=recent_blockhash\n)\n# Sign the transaction\ntransaction.sign([sender], recent_blockhash=recent_blockhash)\n# Send the transaction\nsend_response = client.send_transaction(transaction)",
+        "detail": "test.test_sol_transfer",
+        "documentation": {}
+    },
+    {
+        "label": "message",
+        "kind": 5,
+        "importPath": "test.test_sol_transfer",
+        "description": "test.test_sol_transfer",
+        "peekOfCode": "message = Message(instructions=[instruction], payer=sender.pubkey())\ntransaction = Transaction(\n    from_keypairs=[sender], message=message, recent_blockhash=recent_blockhash\n)\n# Sign the transaction\ntransaction.sign([sender], recent_blockhash=recent_blockhash)\n# Send the transaction\nsend_response = client.send_transaction(transaction)\nprint(f\"Transaction sent! Transaction signature: {send_response}\")",
+        "detail": "test.test_sol_transfer",
+        "documentation": {}
+    },
+    {
+        "label": "transaction",
+        "kind": 5,
+        "importPath": "test.test_sol_transfer",
+        "description": "test.test_sol_transfer",
+        "peekOfCode": "transaction = Transaction(\n    from_keypairs=[sender], message=message, recent_blockhash=recent_blockhash\n)\n# Sign the transaction\ntransaction.sign([sender], recent_blockhash=recent_blockhash)\n# Send the transaction\nsend_response = client.send_transaction(transaction)\nprint(f\"Transaction sent! Transaction signature: {send_response}\")",
+        "detail": "test.test_sol_transfer",
+        "documentation": {}
+    },
+    {
+        "label": "send_response",
+        "kind": 5,
+        "importPath": "test.test_sol_transfer",
+        "description": "test.test_sol_transfer",
+        "peekOfCode": "send_response = client.send_transaction(transaction)\nprint(f\"Transaction sent! Transaction signature: {send_response}\")",
+        "detail": "test.test_sol_transfer",
         "documentation": {}
     }
 ]
