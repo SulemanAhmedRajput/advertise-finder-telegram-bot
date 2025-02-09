@@ -1,13 +1,9 @@
-# Setup the Root directory to be src
 import sys
 import os
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
-
-
 import logging
 import asyncio
 from beanie import init_beanie
+from motor.motor_asyncio import AsyncIOMotorClient
 from models.case_model import Case
 from telegram.ext import ApplicationBuilder
 from handlers.handlers import (
@@ -17,14 +13,17 @@ from handlers.handlers import (
     case_listing_handler,
 )
 from handlers.start_handler import error_handler, setup_logging
-from motor.motor_asyncio import AsyncIOMotorClient
 from config.config_manager import MONGODB_NAME, MONGODB_URI
+from src.config.config_manager import TOKEN
+
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
+
 
 setup_logging()
 
 
 async def main_setup():
-    TOKEN = "8012413981:AAG-nklE6dsD_RU4bicbF0jJ-Zjrmbab3oM"
     application = ApplicationBuilder().token(TOKEN).build()
 
     application.add_handler(conv_handler)
