@@ -12,48 +12,39 @@ from handlers import (
 from utils import error_handler, setup_logging
 from motor.motor_asyncio import AsyncIOMotorClient
 
-# Setup logging
 setup_logging()
 
 
-# Main setup function for the bot
 async def main_setup():
     TOKEN = "8012413981:AAG-nklE6dsD_RU4bicbF0jJ-Zjrmbab3oM"
     application = ApplicationBuilder().token(TOKEN).build()
 
-    # Add conversation handlers
     application.add_handler(conv_handler)
     application.add_handler(wallet_conv_handler)
     application.add_handler(settings_conv_handler)
     application.add_handler(case_listing_handler)
 
-    # Add error handler
     application.add_error_handler(error_handler)
 
-    # Start the bot
     logger = logging.getLogger(__name__)
     logger.info("Bot is starting...")
     await application.run_polling()
 
 
-# MongoDB initialization
 async def init_db():
     try:
         client = AsyncIOMotorClient("mongodb://localhost:27017/myproject")
         await init_beanie(database=client["myproject"], document_models=[Case])
-        print("Database initialized successfully.")
+        print("Database Connected Successfully 🚀.")
+        await main_setup()
     except Exception as e:
-        print(f"Error initializing database: {e}")
+        print(f"\033[91mError initializing database: {e}\033[0m")
 
 
-# Main function (entry point)
 async def main():
-    # Initialize MongoDB and then start the bot
     await init_db()
-    await main_setup()
 
 
-# Running the event loop correctly
 if __name__ == "__main__":
     import nest_asyncio
 

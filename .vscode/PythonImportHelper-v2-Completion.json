@@ -634,6 +634,14 @@
         "documentation": {}
     },
     {
+        "label": "CHOOSE_COUNTRY",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
         "label": "CHOOSE_PROVINCE",
         "importPath": "constants",
         "description": "constants",
@@ -1083,6 +1091,14 @@
     },
     {
         "label": "CHOOSE_COUNTRY",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "CHOOSE_PROVINCE",
         "importPath": "constants",
         "description": "constants",
         "isExtraImport": true,
@@ -1676,6 +1692,47 @@
         "description": "dotenv",
         "isExtraImport": true,
         "detail": "dotenv",
+        "documentation": {}
+    },
+    {
+        "label": "handler.finder",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "handler.finder",
+        "description": "handler.finder",
+        "detail": "handler.finder",
+        "documentation": {}
+    },
+    {
+        "label": "choose_province",
+        "importPath": "handler.finder",
+        "description": "handler.finder",
+        "isExtraImport": true,
+        "detail": "handler.finder",
+        "documentation": {}
+    },
+    {
+        "label": "# handle_proof",
+        "importPath": "handler.finder",
+        "description": "handler.finder",
+        "isExtraImport": true,
+        "detail": "handler.finder",
+        "documentation": {}
+    },
+    {
+        "label": "# notify_advertiser",
+        "importPath": "handler.finder",
+        "description": "handler.finder",
+        "isExtraImport": true,
+        "detail": "handler.finder",
+        "documentation": {}
+    },
+    {
+        "label": "# show_advertisements",
+        "importPath": "handler.finder",
+        "description": "handler.finder",
+        "isExtraImport": true,
+        "detail": "handler.finder",
         "documentation": {}
     },
     {

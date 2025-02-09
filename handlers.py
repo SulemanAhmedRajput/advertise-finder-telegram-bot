@@ -1,3 +1,9 @@
+from handler.finder import (
+    choose_province,
+    # handle_proof,
+    # notify_advertiser,
+    # show_advertisements,
+)
 from handler.listing import case_details_callback, listing_command, pagination_callback
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
@@ -186,7 +192,7 @@ conv_handler = ConversationHandler(
             ),
         ],
         # From here the finder is the one who is going to find the person
-        # CHOOSE_PROVINCE: [CallbackQueryHandler(choose_province, pattern="^province_")],
+        CHOOSE_PROVINCE: [CallbackQueryHandler(choose_province, pattern="^province_")],
         # CASE_LIST: [CallbackQueryHandler(show_advertisements, pattern="^page_|^case_")],
         # CASE_DETAILS: [CallbackQueryHandler(case_details_callback, pattern="^case_")],
         # UPLOAD_PROOF: [MessageHandler(filters.PHOTO | filters.VIDEO, handle_proof)],

@@ -1,3 +1,4 @@
+import handler.finder
 import logging
 import math
 import pycountry
@@ -19,6 +20,7 @@ from constants import (
     CHOOSE_ACTION,
     CHOOSE_CITY,
     CHOOSE_COUNTRY,
+    CHOOSE_PROVINCE,
     CHOOSE_WALLET_TYPE,
     CREATE_CASE_NAME,
     CREATE_CASE_SUBMIT,
@@ -407,8 +409,8 @@ async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         )
         return CHOOSE_WALLET_TYPE
     elif choice == "find_people":
-        await query.edit_message_text(get_text(user_id, "find_dev"), parse_mode="HTML")
-        return END
+        await query.edit_message_text("Select a province:", parse_mode="HTML")
+        return await handler.finder.choose_province(update, context)
     else:
         await query.edit_message_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"

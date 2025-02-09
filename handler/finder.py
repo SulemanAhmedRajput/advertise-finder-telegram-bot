@@ -2,6 +2,7 @@ import requests
 from constants import (
     CASE_DETAILS,
     CASE_LIST,
+    CHOOSE_COUNTRY,
     CHOOSE_PROVINCE,
     END,
     ENTER_LOCATION,
@@ -30,23 +31,39 @@ def get_provinces_for_country(country):
     return []
 
 
-asyncdef fetch_cases_by_province(location):
+async def fetch_cases_by_province(location):
     """
     Fetch cases from the database based on the province.
     """
     # Implement this function
-    case = await Case.find({"province": location}).to_list()
-    pass
+    case = await Case.find({"last_seen_location": location}).to_list()
+    return case
+
+
+async def fetch_case_by_number(case_no):
+    """
+    Fetch a case from the database based on the case number.
+    """
+    # Implement this function
+    case = await Case.find_one({"case_no": case_no})
+    return case
 
 
 async def choose_province(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """List provinces/cities in the selected country."""
+
     user_id = update.effective_user.id
     query = update.callback_query
     await query.answer()
+    country = context.user_data["country"]
+
+    if not country:
+        await query.edit_message_text(
+            "Please select a country first.", parse_mode="HTML"
+        )
+        return CHOOSE_COUNTRY
 
     # Fetch provinces/cities based on the selected country
-    country = context.user_data.get("country", "Unknown")
     provinces = get_provinces_for_country(country)  # Implement this function
 
     keyboard = []
@@ -68,130 +85,131 @@ async def choose_province(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     return CHOOSE_PROVINCE
 
 
-async def show_advertisements(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
-    """Show listings of advertisements."""
-    user_id = update.effective_user.id
-    query = update.callback_query
-    await query.answer()
+# async def show_advertisements(
+#     update: Update, context: ContextTypes.DEFAULT_TYPE
+# ) -> int:
+#     """Show listings of advertisements."""
+#     user_id = update.effective_user.id
+#     query = update.callback_query
+#     await query.answer()
 
-    # Fetch cases from the database
-    cases = fetch_cases_by_province(
-        context.user_data.get("province")
-    )  # Implement this function
+#     # Fetch cases from the database
+#     cases = fetch_cases_by_province(
+#         context.user_data.get("province")
+#     )  # Implement this function
 
-    keyboard = []
-    for case in cases:
-        case_info = f"{case['case_no']} | {case['name']} | {case['last_seen']} | 📷 | {case['reward']} SOL"
-        keyboard.append(
-            [InlineKeyboardButton(case_info, callback_data=f"case_{case['case_no']}")]
-        )
+#     keyboard = []
+#     for case in cases:
+#         case_info = f"{case['case_no']} | {case['name']} | {case['last_seen']} | 📷 | {case['reward']} SOL"
+#         keyboard.append(
+#             [InlineKeyboardButton(case_info, callback_data=f"case_{case['case_no']}")]
+#         )
 
-    # Add pagination buttons if needed
-    if len(cases) > ITEMS_PER_PAGE:
-        keyboard.append(
-            [
-                InlineKeyboardButton("Previous", callback_data="page_previous"),
-                InlineKeyboardButton("Next", callback_data="page_next"),
-            ]
-        )
+#     # Add pagination buttons if needed
+#     if len(cases) > ITEMS_PER_PAGE:
+#         keyboard.append(
+#             [
+#                 InlineKeyboardButton("Previous", callback_data="page_previous"),
+#                 InlineKeyboardButton("Next", callback_data="page_next"),
+#             ]
+#         )
 
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await query.edit_message_text("Available cases:", reply_markup=reply_markup)
-    return CASE_LIST
-
-
-async def case_details_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
-    """Show detailed information about a case."""
-    query = update.callback_query
-    await query.answer()
-    user_id = query.from_user.id
-
-    # Extract case number from callback data
-    case_no = query.data.split("_")[1]
-    case = fetch_case_by_number(case_no)  # Implement this function
-
-    # Build detailed message
-    details = (
-        f"Name: {case['person_name']}\n"
-        f"Last Seen: {case['last_seen_location']}\n"
-        f"Photos: [View Photo]({case['photo_path']})\n"
-        f"Reward: {case['reward']} SOL\n"
-    )
-
-    # Add buttons for "Save" and "Found"
-    keyboard = [
-        [InlineKeyboardButton("Save", callback_data=f"save_{case_no}")],
-        [InlineKeyboardButton("Found", callback_data=f"found_{case_no}")],
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await query.edit_message_text(
-        details, reply_markup=reply_markup, parse_mode="Markdown"
-    )
-    return CASE_DETAILS
+#     reply_markup = InlineKeyboardMarkup(keyboard)
+#     await query.edit_message_text("Available cases:", reply_markup=reply_markup)
+#     return CASE_LIST
 
 
-async def handle_found_case(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle submission of a found case."""
-    query = update.callback_query
-    await query.answer()
-    user_id = query.from_user.id
+# async def case_details_callback(
+#     update: Update, context: ContextTypes.DEFAULT_TYPE
+# ) -> int:
+#     """Show detailed information about a case."""
+#     query = update.callback_query
+#     await query.answer()
+#     user_id = query.from_user.id
 
-    # Extract case number from callback data
-    case_no = query.data.split("_")[1]
-    context.user_data["found_case_no"] = case_no
+#     # Extract case number from callback data
+#     case_no = query.data.split("_")[1]
+#     case = fetch_case_by_number(case_no)  # Implement this function
 
-    # Ask for proof (photo/video)
-    await query.message.reply_text("Please upload a photo or video as proof.")
-    return UPLOAD_PROOF
+#     # Build detailed message
+#     details = (
+#         f"Name: {case['person_name']}\n"
+#         f"Last Seen: {case['last_seen_location']}\n"
+#         f"Photos: [View Photo]({case['photo_path']})\n"
+#         f"Reward: {case['reward']} SOL\n"
+#     )
 
+#     # Add buttons for "Save" and "Found"
+#     keyboard = [
+#         [InlineKeyboardButton("Save", callback_data=f"save_{case_no}")],
+#         [InlineKeyboardButton("Found", callback_data=f"found_{case_no}")],
+#     ]
+#     reply_markup = InlineKeyboardMarkup(keyboard)
 
-async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle uploaded proof."""
-    user_id = update.effective_user.id
-    case_no = context.user_data.get("found_case_no")
-
-    # Check if the user sent a photo or video
-    if update.message.photo:
-        proof_file = await update.message.photo[-1].get_file()
-        proof_path = f"proofs/{user_id}_{case_no}_proof.jpg"
-        await proof_file.download_to_drive(proof_path)
-        context.user_data["proof_path"] = proof_path
-    elif update.message.video:
-        proof_file = await update.message.video.get_file()
-        proof_path = f"proofs/{user_id}_{case_no}_proof.mp4"
-        await proof_file.download_to_drive(proof_path)
-        context.user_data["proof_path"] = proof_path
-    else:
-        await update.message.reply_text(
-            "Invalid proof. Please upload a photo or video."
-        )
-        return UPLOAD_PROOF
-
-    # Ask for the location where the person was found
-    await update.message.reply_text("Enter the location where the person was found:")
-    return ENTER_LOCATION
+#     await query.edit_message_text(
+#         details, reply_markup=reply_markup, parse_mode="Markdown"
+#     )
+#     return CASE_DETAILS
 
 
-async def notify_advertiser(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Notify the advertiser about the found case."""
-    user_id = update.effective_user.id
-    case_no = context.user_data.get("found_case_no")
-    location = update.message.text.strip()
+# async def handle_found_case(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+#     """Handle submission of a found case."""
+#     query = update.callback_query
+#     await query.answer()
+#     user_id = query.from_user.id
 
-    # Fetch advertiser's chat ID
-    advertiser_chat_id = fetch_advertiser_chat_id(case_no)  # Implement this function
+#     # Extract case number from callback data
+#     case_no = query.data.split("_")[1]
+#     context.user_data["found_case_no"] = case_no
 
-    # Send notification to the advertiser
-    await context.bot.send_message(
-        chat_id=advertiser_chat_id,
-        text=f"Someone has found the person in your case #{case_no}. Location: {location}",
-    )
+#     # Ask for proof (photo/video)
+#     await query.message.reply_text("Please upload a photo or video as proof.")
+#     return UPLOAD_PROOF
 
-    # Confirm to the finder
-    await update.message.reply_text("The advertiser has been notified. Thank you!")
-    return END
+
+# async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+#     """Handle uploaded proof."""
+#     user_id = update.effective_user.id
+#     case_no = context.user_data.get("found_case_no")
+
+#     # Check if the user sent a photo or video
+#     if update.message.photo:
+#         proof_file = await update.message.photo[-1].get_file()
+#         proof_path = f"proofs/{user_id}_{case_no}_proof.jpg"
+#         await proof_file.download_to_drive(proof_path)
+#         context.user_data["proof_path"] = proof_path
+#     elif update.message.video:
+#         proof_file = await update.message.video.get_file()
+#         proof_path = f"proofs/{user_id}_{case_no}_proof.mp4"
+#         await proof_file.download_to_drive(proof_path)
+#         context.user_data["proof_path"] = proof_path
+#     else:
+#         await update.message.reply_text(
+#             "Invalid proof. Please upload a photo or video."
+#         )
+#         return UPLOAD_PROOF
+
+#     # Ask for the location where the person was found
+#     await update.message.reply_text("Enter the location where the person was found:")
+#     return ENTER_LOCATION
+
+
+# async def notify_advertiser(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+#     """Notify the advertiser about the found case."""
+#     pass
+#     # user_id = update.effective_user.id
+#     # case_no = context.user_data.get("found_case_no")
+#     # location = update.message.text.strip()
+
+#     # # Fetch advertiser's chat ID
+#     # advertiser_chat_id = fetch_advertiser_chat_id(case_no)  # Implement this function
+
+#     # # Send notification to the advertiser
+#     # await context.bot.send_message(
+#     #     chat_id=advertiser_chat_id,
+#     #     text=f"Someone has found the person in your case #{case_no}. Location: {location}",
+#     # )
+
+#     # # Confirm to the finder
+#     # await update.message.reply_text("The advertiser has been notified. Thank you!")
+#     # return END
