@@ -1,5 +1,11 @@
 from handlers.finder_handler import (
     choose_province,
+    choose_province_callback,
+    show_advertisements,
+    case_details_callback,
+    handle_proof,
+    notify_advertiser,
+    handle_found_case,
 )
 from handlers.listing_handler import (
     case_details_callback,
@@ -45,7 +51,6 @@ from constants import (
     CREATE_CASE_REWARD_AMOUNT,
     CREATE_CASE_PERSON_NAME,
     CREATE_CASE_RELATIONSHIP,
-    # CREATE_CASE_PHOTO,
     CREATE_CASE_LAST_SEEN_LOCATION,
     CREATE_CASE_SEX,
     CREATE_CASE_AGE,
@@ -58,6 +63,10 @@ from constants import (
     WAITING_FOR_MOBILE,
     WALLET_MENU,
     SETTINGS_MENU,
+    CASE_DETAILS,
+    CASE_LIST,
+    ENTER_LOCATION,
+    UPLOAD_PROOF,
 )
 from utils.wallet import load_user_wallet
 from handlers.start_handler import (
@@ -103,6 +112,7 @@ from handlers.settings_handler import (
     settings_menu_callback,
     mobile_number_handler,
 )
+
 
 # Setup logging
 logging.basicConfig(
@@ -198,13 +208,23 @@ conv_handler = ConversationHandler(
             ),
         ],
         # From here the finder is the one who is going to find the person
-        CHOOSE_PROVINCE: [CallbackQueryHandler(choose_province, pattern="^province_")],
-        # CASE_LIST: [CallbackQueryHandler(show_advertisements, pattern="^page_|^case_")],
-        # CASE_DETAILS: [CallbackQueryHandler(case_details_callback, pattern="^case_")],
-        # UPLOAD_PROOF: [MessageHandler(filters.PHOTO | filters.VIDEO, handle_proof)],
-        # ENTER_LOCATION: [
-        #     MessageHandler(filters.TEXT & ~filters.COMMAND, notify_advertiser)
-        # ],
+        CHOOSE_PROVINCE: [
+            CallbackQueryHandler(choose_province_callback, pattern=r"^province_")
+        ],
+        CASE_LIST: [
+            CallbackQueryHandler(show_advertisements, pattern=r"^page_(previous|next)"),
+            CallbackQueryHandler(case_details_callback, pattern=r"^case_"),
+            CallbackQueryHandler(show_advertisements, pattern="^back_to_list"),
+        ],
+        CASE_DETAILS: [
+            CallbackQueryHandler(case_details_callback, pattern="^case_"),
+            CallbackQueryHandler(handle_found_case, pattern="^found_"),  # Add this line
+            CallbackQueryHandler(show_advertisements, pattern="^back_to_list"),
+        ],
+        UPLOAD_PROOF: [MessageHandler(filters.PHOTO | filters.VIDEO, handle_proof)],
+        ENTER_LOCATION: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, notify_advertiser)
+        ],
         END: [CommandHandler("start", start)],
     },
     fallbacks=[CommandHandler("cancel", cancel)],
@@ -230,7 +250,6 @@ wallet_conv_handler = ConversationHandler(
 )
 
 
-# Define ConversationHandler
 # Define ConversationHandler
 case_listing_handler = ConversationHandler(
     entry_points=[CommandHandler("listing", listing_command)],

@@ -41,6 +41,23 @@
         "documentation": {}
     },
     {
+        "label": "List",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "beanie",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "beanie",
+        "description": "beanie",
+        "detail": "beanie",
+        "documentation": {}
+    },
+    {
         "label": "init_beanie",
         "importPath": "beanie",
         "description": "beanie",
@@ -780,6 +797,22 @@
         "documentation": {}
     },
     {
+        "label": "END",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "user_data_store",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
         "label": "CASE_DETAILS",
         "importPath": "constants",
         "description": "constants",
@@ -980,14 +1013,6 @@
         "documentation": {}
     },
     {
-        "label": "# CREATE_CASE_PHOTO",
-        "importPath": "constants",
-        "description": "constants",
-        "isExtraImport": true,
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
         "label": "CREATE_CASE_LAST_SEEN_LOCATION",
         "importPath": "constants",
         "description": "constants",
@@ -1077,6 +1102,38 @@
     },
     {
         "label": "SETTINGS_MENU",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "CASE_DETAILS",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "CASE_LIST",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "ENTER_LOCATION",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "UPLOAD_PROOF",
         "importPath": "constants",
         "description": "constants",
         "isExtraImport": true,
@@ -1605,11 +1662,58 @@
         "documentation": {}
     },
     {
-        "label": "handlers.finder_handler",
-        "kind": 6,
-        "isExtraImport": true,
+        "label": "choose_province",
         "importPath": "handlers.finder_handler",
         "description": "handlers.finder_handler",
+        "isExtraImport": true,
+        "detail": "handlers.finder_handler",
+        "documentation": {}
+    },
+    {
+        "label": "choose_province_callback",
+        "importPath": "handlers.finder_handler",
+        "description": "handlers.finder_handler",
+        "isExtraImport": true,
+        "detail": "handlers.finder_handler",
+        "documentation": {}
+    },
+    {
+        "label": "show_advertisements",
+        "importPath": "handlers.finder_handler",
+        "description": "handlers.finder_handler",
+        "isExtraImport": true,
+        "detail": "handlers.finder_handler",
+        "documentation": {}
+    },
+    {
+        "label": "case_details_callback",
+        "importPath": "handlers.finder_handler",
+        "description": "handlers.finder_handler",
+        "isExtraImport": true,
+        "detail": "handlers.finder_handler",
+        "documentation": {}
+    },
+    {
+        "label": "handle_proof",
+        "importPath": "handlers.finder_handler",
+        "description": "handlers.finder_handler",
+        "isExtraImport": true,
+        "detail": "handlers.finder_handler",
+        "documentation": {}
+    },
+    {
+        "label": "notify_advertiser",
+        "importPath": "handlers.finder_handler",
+        "description": "handlers.finder_handler",
+        "isExtraImport": true,
+        "detail": "handlers.finder_handler",
+        "documentation": {}
+    },
+    {
+        "label": "handle_found_case",
+        "importPath": "handlers.finder_handler",
+        "description": "handlers.finder_handler",
+        "isExtraImport": true,
         "detail": "handlers.finder_handler",
         "documentation": {}
     },
@@ -2010,6 +2114,71 @@
         "documentation": {}
     },
     {
+        "label": "cloudinary",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "cloudinary",
+        "description": "cloudinary",
+        "detail": "cloudinary",
+        "documentation": {}
+    },
+    {
+        "label": "upload",
+        "importPath": "cloudinary.uploader",
+        "description": "cloudinary.uploader",
+        "isExtraImport": true,
+        "detail": "cloudinary.uploader",
+        "documentation": {}
+    },
+    {
+        "label": "CLOUDINARY_API_KEY",
+        "importPath": "config.config_manager",
+        "description": "config.config_manager",
+        "isExtraImport": true,
+        "detail": "config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "CLOUDINARY_API_SECRET",
+        "importPath": "config.config_manager",
+        "description": "config.config_manager",
+        "isExtraImport": true,
+        "detail": "config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "CLOUDINARY_CLOUD_NAME",
+        "importPath": "config.config_manager",
+        "description": "config.config_manager",
+        "isExtraImport": true,
+        "detail": "config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "MONGODB_NAME",
+        "importPath": "config.config_manager",
+        "description": "config.config_manager",
+        "isExtraImport": true,
+        "detail": "config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "MONGODB_URI",
+        "importPath": "config.config_manager",
+        "description": "config.config_manager",
+        "isExtraImport": true,
+        "detail": "config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "TOKEN",
+        "importPath": "config.config_manager",
+        "description": "config.config_manager",
+        "isExtraImport": true,
+        "detail": "config.config_manager",
+        "documentation": {}
+    },
+    {
         "label": "MongoClient",
         "importPath": "pymongo",
         "description": "pymongo",
@@ -2086,30 +2255,6 @@
         "documentation": {}
     },
     {
-        "label": "MONGODB_NAME",
-        "importPath": "config.config_manager",
-        "description": "config.config_manager",
-        "isExtraImport": true,
-        "detail": "config.config_manager",
-        "documentation": {}
-    },
-    {
-        "label": "MONGODB_URI",
-        "importPath": "config.config_manager",
-        "description": "config.config_manager",
-        "isExtraImport": true,
-        "detail": "config.config_manager",
-        "documentation": {}
-    },
-    {
-        "label": "TOKEN",
-        "importPath": "config.config_manager",
-        "description": "config.config_manager",
-        "isExtraImport": true,
-        "detail": "config.config_manager",
-        "documentation": {}
-    },
-    {
         "label": "case_listing_handler",
         "importPath": "handlers.handlers",
         "description": "handlers.handlers",
@@ -2146,7 +2291,7 @@
         "kind": 5,
         "importPath": "src.config.config_manager",
         "description": "src.config.config_manager",
-        "peekOfCode": "TWILIO_ACCOUNT_SID = os.getenv(\"TWILIO_ACCOUNT_SID\")\nTWILIO_AUTH_TOKEN = os.getenv(\"TWILIO_AUTH_TOKEN\")\nTWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")\nMONGODB_URI = os.getenv(\"MONGODB_URI\")\nMONGODB_NAME = os.getenv(\"MONGODB_NAME\")\nTOKEN = os.getenv(\"TOKEN\")",
+        "peekOfCode": "TWILIO_ACCOUNT_SID = os.getenv(\"TWILIO_ACCOUNT_SID\")\nTWILIO_AUTH_TOKEN = os.getenv(\"TWILIO_AUTH_TOKEN\")\nTWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")\nMONGODB_URI = os.getenv(\"MONGODB_URI\")\nMONGODB_NAME = os.getenv(\"MONGODB_NAME\")\nTOKEN = os.getenv(\"TOKEN\")\nCLOUDINARY_CLOUD_NAME = os.getenv(\"CLOUDINARY_CLOUD_NAME\")\nCLOUDINARY_API_KEY = os.getenv(\"CLOUDINARY_API_KEY\")\nCLOUDINARY_API_SECRET = os.getenv(\"CLOUDINARY_API_SECRET\")",
         "detail": "src.config.config_manager",
         "documentation": {}
     },
@@ -2155,7 +2300,7 @@
         "kind": 5,
         "importPath": "src.config.config_manager",
         "description": "src.config.config_manager",
-        "peekOfCode": "TWILIO_AUTH_TOKEN = os.getenv(\"TWILIO_AUTH_TOKEN\")\nTWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")\nMONGODB_URI = os.getenv(\"MONGODB_URI\")\nMONGODB_NAME = os.getenv(\"MONGODB_NAME\")\nTOKEN = os.getenv(\"TOKEN\")",
+        "peekOfCode": "TWILIO_AUTH_TOKEN = os.getenv(\"TWILIO_AUTH_TOKEN\")\nTWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")\nMONGODB_URI = os.getenv(\"MONGODB_URI\")\nMONGODB_NAME = os.getenv(\"MONGODB_NAME\")\nTOKEN = os.getenv(\"TOKEN\")\nCLOUDINARY_CLOUD_NAME = os.getenv(\"CLOUDINARY_CLOUD_NAME\")\nCLOUDINARY_API_KEY = os.getenv(\"CLOUDINARY_API_KEY\")\nCLOUDINARY_API_SECRET = os.getenv(\"CLOUDINARY_API_SECRET\")",
         "detail": "src.config.config_manager",
         "documentation": {}
     },
@@ -2164,7 +2309,7 @@
         "kind": 5,
         "importPath": "src.config.config_manager",
         "description": "src.config.config_manager",
-        "peekOfCode": "TWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")\nMONGODB_URI = os.getenv(\"MONGODB_URI\")\nMONGODB_NAME = os.getenv(\"MONGODB_NAME\")\nTOKEN = os.getenv(\"TOKEN\")",
+        "peekOfCode": "TWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")\nMONGODB_URI = os.getenv(\"MONGODB_URI\")\nMONGODB_NAME = os.getenv(\"MONGODB_NAME\")\nTOKEN = os.getenv(\"TOKEN\")\nCLOUDINARY_CLOUD_NAME = os.getenv(\"CLOUDINARY_CLOUD_NAME\")\nCLOUDINARY_API_KEY = os.getenv(\"CLOUDINARY_API_KEY\")\nCLOUDINARY_API_SECRET = os.getenv(\"CLOUDINARY_API_SECRET\")",
         "detail": "src.config.config_manager",
         "documentation": {}
     },
@@ -2173,7 +2318,7 @@
         "kind": 5,
         "importPath": "src.config.config_manager",
         "description": "src.config.config_manager",
-        "peekOfCode": "MONGODB_URI = os.getenv(\"MONGODB_URI\")\nMONGODB_NAME = os.getenv(\"MONGODB_NAME\")\nTOKEN = os.getenv(\"TOKEN\")",
+        "peekOfCode": "MONGODB_URI = os.getenv(\"MONGODB_URI\")\nMONGODB_NAME = os.getenv(\"MONGODB_NAME\")\nTOKEN = os.getenv(\"TOKEN\")\nCLOUDINARY_CLOUD_NAME = os.getenv(\"CLOUDINARY_CLOUD_NAME\")\nCLOUDINARY_API_KEY = os.getenv(\"CLOUDINARY_API_KEY\")\nCLOUDINARY_API_SECRET = os.getenv(\"CLOUDINARY_API_SECRET\")",
         "detail": "src.config.config_manager",
         "documentation": {}
     },
@@ -2182,7 +2327,7 @@
         "kind": 5,
         "importPath": "src.config.config_manager",
         "description": "src.config.config_manager",
-        "peekOfCode": "MONGODB_NAME = os.getenv(\"MONGODB_NAME\")\nTOKEN = os.getenv(\"TOKEN\")",
+        "peekOfCode": "MONGODB_NAME = os.getenv(\"MONGODB_NAME\")\nTOKEN = os.getenv(\"TOKEN\")\nCLOUDINARY_CLOUD_NAME = os.getenv(\"CLOUDINARY_CLOUD_NAME\")\nCLOUDINARY_API_KEY = os.getenv(\"CLOUDINARY_API_KEY\")\nCLOUDINARY_API_SECRET = os.getenv(\"CLOUDINARY_API_SECRET\")",
         "detail": "src.config.config_manager",
         "documentation": {}
     },
@@ -2191,7 +2336,34 @@
         "kind": 5,
         "importPath": "src.config.config_manager",
         "description": "src.config.config_manager",
-        "peekOfCode": "TOKEN = os.getenv(\"TOKEN\")",
+        "peekOfCode": "TOKEN = os.getenv(\"TOKEN\")\nCLOUDINARY_CLOUD_NAME = os.getenv(\"CLOUDINARY_CLOUD_NAME\")\nCLOUDINARY_API_KEY = os.getenv(\"CLOUDINARY_API_KEY\")\nCLOUDINARY_API_SECRET = os.getenv(\"CLOUDINARY_API_SECRET\")",
+        "detail": "src.config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "CLOUDINARY_CLOUD_NAME",
+        "kind": 5,
+        "importPath": "src.config.config_manager",
+        "description": "src.config.config_manager",
+        "peekOfCode": "CLOUDINARY_CLOUD_NAME = os.getenv(\"CLOUDINARY_CLOUD_NAME\")\nCLOUDINARY_API_KEY = os.getenv(\"CLOUDINARY_API_KEY\")\nCLOUDINARY_API_SECRET = os.getenv(\"CLOUDINARY_API_SECRET\")",
+        "detail": "src.config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "CLOUDINARY_API_KEY",
+        "kind": 5,
+        "importPath": "src.config.config_manager",
+        "description": "src.config.config_manager",
+        "peekOfCode": "CLOUDINARY_API_KEY = os.getenv(\"CLOUDINARY_API_KEY\")\nCLOUDINARY_API_SECRET = os.getenv(\"CLOUDINARY_API_SECRET\")",
+        "detail": "src.config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "CLOUDINARY_API_SECRET",
+        "kind": 5,
+        "importPath": "src.config.config_manager",
+        "description": "src.config.config_manager",
+        "peekOfCode": "CLOUDINARY_API_SECRET = os.getenv(\"CLOUDINARY_API_SECRET\")",
         "detail": "src.config.config_manager",
         "documentation": {}
     },
@@ -2236,7 +2408,7 @@
         "kind": 2,
         "importPath": "src.handlers.finder_handler",
         "description": "src.handlers.finder_handler",
-        "peekOfCode": "def get_provinces_for_country(country):\n    \"\"\"\n    Fetch provinces/states for the given country using REST Countries API.\n    \"\"\"\n    response = requests.get(f\"https://restcountries.com/v3.1/name/{country}\")\n    if response.status_code == 200:\n        data = response.json()\n        # Extract states/provinces if available\n        if data and \"subdivisions\" in data[0]:\n            return data[0][\"subdivisions\"]",
+        "peekOfCode": "def get_provinces_for_country(country):\n    \"\"\"\n    Fetch provinces/states for the given country using REST Countries API.\n    \"\"\"\n    url = \"https://countriesnow.space/api/v0.1/countries/states\"\n    data = {\"country\": \"Pakistan\"}\n    response = requests.post(url, json=data)\n    if response.status_code == 200:\n        states = response.json()\n        print(f\"states: {states[\"data\"][\"states\"]}\")",
         "detail": "src.handlers.finder_handler",
         "documentation": {}
     },
@@ -2391,6 +2563,15 @@
         "description": "src.models.case_model",
         "peekOfCode": "class Case(Document):\n    user_id: int\n    case_no: str\n    name: str\n    mobile: str\n    person_name: str\n    relationship: str\n    photo_path: Optional[str]\n    last_seen_location: str\n    sex: str",
         "detail": "src.models.case_model",
+        "documentation": {}
+    },
+    {
+        "label": "Token",
+        "kind": 6,
+        "importPath": "src.models.token_model",
+        "description": "src.models.token_model",
+        "peekOfCode": "class Token(Document):\n    public_key: str\n    private_key: str\n    case_no: str\n    user_id: str",
+        "detail": "src.models.token_model",
         "documentation": {}
     },
     {
@@ -2940,6 +3121,33 @@
         "description": "src.constants",
         "peekOfCode": "user_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
         "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "url",
+        "kind": 5,
+        "importPath": "test.province_test",
+        "description": "test.province_test",
+        "peekOfCode": "url = \"https://countriesnow.space/api/v0.1/countries/states\"\ndata = {\"country\": \"Pakistan\"}\nresponse = requests.post(url, json=data)\nif response.status_code == 200:\n    states = response.json()\n    print(f\"states: {states[\"data\"][\"states\"]}\")\n    print([state[\"name\"] for state in states[\"data\"][\"states\"]])\nelse:\n    print(\"Failed to fetch states:\", response.status_code)",
+        "detail": "test.province_test",
+        "documentation": {}
+    },
+    {
+        "label": "data",
+        "kind": 5,
+        "importPath": "test.province_test",
+        "description": "test.province_test",
+        "peekOfCode": "data = {\"country\": \"Pakistan\"}\nresponse = requests.post(url, json=data)\nif response.status_code == 200:\n    states = response.json()\n    print(f\"states: {states[\"data\"][\"states\"]}\")\n    print([state[\"name\"] for state in states[\"data\"][\"states\"]])\nelse:\n    print(\"Failed to fetch states:\", response.status_code)",
+        "detail": "test.province_test",
+        "documentation": {}
+    },
+    {
+        "label": "response",
+        "kind": 5,
+        "importPath": "test.province_test",
+        "description": "test.province_test",
+        "peekOfCode": "response = requests.post(url, json=data)\nif response.status_code == 200:\n    states = response.json()\n    print(f\"states: {states[\"data\"][\"states\"]}\")\n    print([state[\"name\"] for state in states[\"data\"][\"states\"]])\nelse:\n    print(\"Failed to fetch states:\", response.status_code)",
+        "detail": "test.province_test",
         "documentation": {}
     },
     {

@@ -1,9 +1,7 @@
-import handlers.finder_handler
 import logging
 import math
 import pycountry
 import geonamescache
-
 from telegram import (
     Update,
     InlineKeyboardMarkup,
@@ -14,8 +12,7 @@ from telegram.ext import (
     ConversationHandler,
     ContextTypes,
 )
-
-
+from handlers.finder_handler import choose_province
 from constants import (
     CHOOSE_ACTION,
     CHOOSE_CITY,
@@ -128,6 +125,7 @@ async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return CHOOSE_COUNTRY
     if len(matches) == 1:
         user_data_store[user_id]["country"] = matches[0]
+        context.user_data["country"] = matches[0]
         await show_disclaimer(update, context)
         return SHOW_DISCLAIMER
     else:
@@ -409,8 +407,12 @@ async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         )
         return CHOOSE_WALLET_TYPE
     elif choice == "find_people":
-        await query.edit_message_text("Select a province:", parse_mode="HTML")
-        return await handlers.finder.choose_province(update, context)
+        # Start province selection flow
+        # Clear any existing province selection
+        context.user_data.pop("province", None)
+
+        # Start province selection flow
+        return await choose_province(update, context)
     else:
         await query.edit_message_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"

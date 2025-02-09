@@ -74,6 +74,13 @@ async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     # Send TAC via Twilio
     message = send_sms(mobile, tac)
 
+    # Validate the mobile number (basic validation for example purposes)
+    if not mobile.isdigit() or len(mobile) < 10:
+        await update.message.reply_text(
+            "Invalid mobile number. Please enter a valid 10-digit number."
+        )
+        return CREATE_CASE_MOBILE
+
     await update.message.reply_text(get_text(user_id, "enter_tac"))
     return CREATE_CASE_TAC
 
