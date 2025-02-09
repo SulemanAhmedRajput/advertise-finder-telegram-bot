@@ -16,7 +16,7 @@ from handlers.handlers import (
     settings_conv_handler,
     case_listing_handler,
 )
-from handlers.utils import error_handler, setup_logging
+from handlers.start_handler import error_handler, setup_logging
 from motor.motor_asyncio import AsyncIOMotorClient
 from config.config_manager import MONGODB_NAME, MONGODB_URI
 

@@ -14,7 +14,7 @@ from telegram.ext import (
     ContextTypes,
 )
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from handlers.listing import ITEMS_PER_PAGE
+from handlers.listing_handler import ITEMS_PER_PAGE
 from models.case_model import Case
 
 

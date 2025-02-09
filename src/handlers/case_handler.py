@@ -212,10 +212,6 @@ async def handle_relationship(
     # return CREATE_CASE_LAST_SEEN_LOCATION
 
 
-import os
-from test_sol_transfer import recent_blockhash
-
-
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle photo upload."""
     user_id = update.effective_user.id

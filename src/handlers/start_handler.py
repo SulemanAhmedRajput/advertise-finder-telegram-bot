@@ -1,4 +1,4 @@
-import handlers.finder
+import handlers.finder_handler
 import logging
 import math
 import pycountry

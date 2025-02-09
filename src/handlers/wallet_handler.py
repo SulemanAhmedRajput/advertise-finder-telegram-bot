@@ -10,7 +10,7 @@ from telegram.ext import (
 )
 
 from constants import NAME_WALLET, WALLET_MENU, get_text, user_data_store
-from wallet import delete_user_wallet, load_user_wallet
+from utils.wallet import delete_user_wallet, load_user_wallet
 
 
 async def wallet_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
