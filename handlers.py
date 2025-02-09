@@ -1,5 +1,4 @@
 from handler.listing import case_details_callback, listing_command, pagination_callback
-import solders.message
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
     Application,
@@ -15,11 +14,14 @@ import logging
 from constants import (
     CASE_DETAILS,
     CASE_LIST,
+    CHOOSE_PROVINCE,
     CREATE_CASE_PHOTO,
     CREATE_CASE_REWARD_TYPE,
     CREATE_CASE_SUBMIT,
+    ENTER_LOCATION,
     ENTER_PRIVATE_KEY,
     TRANSFER_CONFIRMATION,
+    UPLOAD_PROOF,
     get_text,
     SELECT_LANG,
     CHOOSE_COUNTRY,
@@ -183,6 +185,14 @@ conv_handler = ConversationHandler(
                 handle_transfer_confirmation, pattern="^(confirm|cancel)$"
             ),
         ],
+        # From here the finder is the one who is going to find the person
+        # CHOOSE_PROVINCE: [CallbackQueryHandler(choose_province, pattern="^province_")],
+        # CASE_LIST: [CallbackQueryHandler(show_advertisements, pattern="^page_|^case_")],
+        # CASE_DETAILS: [CallbackQueryHandler(case_details_callback, pattern="^case_")],
+        # UPLOAD_PROOF: [MessageHandler(filters.PHOTO | filters.VIDEO, handle_proof)],
+        # ENTER_LOCATION: [
+        #     MessageHandler(filters.TEXT & ~filters.COMMAND, notify_advertiser)
+        # ],
         END: [CommandHandler("start", start)],
     },
     fallbacks=[CommandHandler("cancel", cancel)],

@@ -1,52 +1,50 @@
 # ======================
 # Conversation States
 # ======================
-
 # (Note: The original conversation states from your snippet have been extended
 # to separate the steps for creating a case. You may adjust the numbering as needed.)
-
 SELECT_LANG = 0
 SHOW_DISCLAIMER = 1
 CHOOSE_COUNTRY = 2
 CHOOSE_CITY = 3
-CHOOSE_ACTION = 4
-CHOOSE_WALLET_TYPE = 5
-NAME_WALLET = 6
-CREATE_CASE_NAME = 7
-CREATE_CASE_MOBILE = 8
-CREATE_CASE_TAC = 9
-CREATE_CASE_DISCLAIMER = 10
-CREATE_CASE_REWARD_TYPE = 102
-CREATE_CASE_REWARD_AMOUNT = 105
-CREATE_CASE_PERSON_NAME = 12
-CREATE_CASE_RELATIONSHIP = 13
-CREATE_CASE_PHOTO = 14
-CREATE_CASE_LAST_SEEN_LOCATION = 15
-CREATE_CASE_SEX = 16
-CREATE_CASE_AGE = 17
-CREATE_CASE_HAIR_COLOR = 18
-CREATE_CASE_EYE_COLOR = 19
-CREATE_CASE_HEIGHT = 20
-CREATE_CASE_WEIGHT = 21
-CREATE_CASE_DISTINCTIVE_FEATURES = 22
-CREATE_CASE_SUBMIT = 23
-ENTER_PRIVATE_KEY = 24
-TRANSFER_CONFIRMATION = 25
-END = 26
-
+CHOOSE_PROVINCE = 4  # New state for province selection
+CHOOSE_ACTION = 5
+CHOOSE_WALLET_TYPE = 6
+NAME_WALLET = 7
+CREATE_CASE_NAME = 8
+CREATE_CASE_MOBILE = 9
+CREATE_CASE_TAC = 10
+CREATE_CASE_DISCLAIMER = 11
+CREATE_CASE_REWARD_TYPE = 12
+CREATE_CASE_REWARD_AMOUNT = 13
+CREATE_CASE_PERSON_NAME = 14
+CREATE_CASE_RELATIONSHIP = 15
+CREATE_CASE_PHOTO = 16
+CREATE_CASE_LAST_SEEN_LOCATION = 17
+CREATE_CASE_SEX = 18
+CREATE_CASE_AGE = 19
+CREATE_CASE_HAIR_COLOR = 20
+CREATE_CASE_EYE_COLOR = 21
+CREATE_CASE_HEIGHT = 22
+CREATE_CASE_WEIGHT = 23
+CREATE_CASE_DISTINCTIVE_FEATURES = 24
+CREATE_CASE_SUBMIT = 25
+ENTER_PRIVATE_KEY = 26
+TRANSFER_CONFIRMATION = 27
+END = 28
 # Additional states for Wallet and Settings flows
 WALLET_MENU = 80
 WAITING_FOR_MOBILE = 81
 SETTINGS_MENU = 92
-
-
 # Additional flow of the listing command
-CASE_DETAILS = 100
-CASE_LIST = 101
+CASE_LIST = 100
+CASE_DETAILS = 101
+UPLOAD_PROOF = 102  # New state for uploading proof
+ENTER_LOCATION = 103  # New state for entering the location where the person was found
+
 # ======================
 # Language Data & Constants
 # ======================
-
 LANG_DATA = {
     "en": {
         "lang_choice": "English",
@@ -56,7 +54,7 @@ LANG_DATA = {
         "country_not_found": "No matching countries found. Please try again:",
         "country_multi": "Multiple countries found (Page {page} of {total}):",
         "country_selected": "You have selected",
-        "disclaimer_title": "<b>Disclaimer</b>\n\n",
+        "disclaimer_title": "Disclaimer\n\n",
         "disclaimer_text": (
             "1. All bounties are held in escrow.\n"
             "2. AI-generated fake content is prohibited.\n"
@@ -88,7 +86,7 @@ LANG_DATA = {
         "wallet_create_err": "❌ Error creating wallet.",
         "cancel_msg": "Operation cancelled. Use /start to begin again.",
         "invalid_choice": "Invalid choice. Conversation ended.",
-        # ---------------- Milestone 2 Additions ----------------
+        # Milestone 2 Additions
         "account_wallet_type": "Account Wallet Type (SOL | BTC)",
         "menu_wallet_title": "Wallet Menu",
         "btn_refresh": "🔄 Refresh",
@@ -148,6 +146,17 @@ LANG_DATA = {
         "case_submitted": "✅ Case submitted successfully!\nCase Number: {case_no}",
         "case_failed": "❌ Failed to submit case. Please try again.",
         "escrow_transfer": "Reward amount transferred to escrow wallet.",
+        # Find People Functionality
+        "choose_province": "Please select a province:",
+        "more_provinces": "More provinces...",
+        "case_list": "Available cases:",
+        "case_details": "Case Details:",
+        "save_case": "Save Case",
+        "found_case": "Found Case",
+        "upload_proof": "Please upload a photo or video as proof.",
+        "invalid_proof": "Invalid proof. Please upload a photo or video.",
+        "enter_location": "Enter the location where the person was found:",
+        "notify_advertiser": "The advertiser has been notified. Thank you!",
     },
     "zh": {
         "lang_choice": "中文",
@@ -157,7 +166,7 @@ LANG_DATA = {
         "country_not_found": "未找到匹配的国家。请重试：",
         "country_multi": "找到多个国家 (第 {page} 页，共 {total} 页)：",
         "country_selected": "您已选择",
-        "disclaimer_title": "<b>免责声明</b>\n\n",
+        "disclaimer_title": "免责声明\n\n",
         "disclaimer_text": (
             "1. 所有悬赏由平台托管。\n"
             "2. 严禁使用 AI 虚假内容。\n"
@@ -189,7 +198,7 @@ LANG_DATA = {
         "wallet_create_err": "❌ 创建钱包时出错。",
         "cancel_msg": "操作已取消。输入 /start 重新开始。",
         "invalid_choice": "无效选择，结束对话。",
-        # ---------------- Milestone 2 Additions ----------------
+        # Milestone 2 Additions
         "account_wallet_type": "Account Wallet Type (SOL | BTC)",
         "menu_wallet_title": "钱包菜单",
         "btn_refresh": "🔄 刷新",
@@ -249,11 +258,25 @@ LANG_DATA = {
         "case_submitted": "✅ 案件提交成功！\n案件编号：{case_no}",
         "case_failed": "❌ 提交案件失败，请重试。",
         "escrow_transfer": "赏金金额已转入托管钱包。",
+        # Find People Functionality
+        "choose_province": "请选择省份：",
+        "more_provinces": "更多省份...",
+        "case_list": "可用案件：",
+        "case_details": "案件详情：",
+        "save_case": "保存案件",
+        "found_case": "找到案件",
+        "upload_proof": "请上传照片或视频作为证据。",
+        "invalid_proof": "无效证据。请上传照片或视频。",
+        "enter_location": "请输入发现该人的地点：",
+        "notify_advertiser": "已通知广告主。谢谢！",
     },
 }
 
-ITEMS_PER_PAGE = 10
-WALLETS_DIR = "wallets"
+ITEMS_PER_PAGE = 10  # Number of items per page for pagination
+WALLETS_DIR = "wallets"  # Directory to store user wallets
+PHOTOS_DIR = "photos"  # Directory to store uploaded photos
+PROOFS_DIR = "proofs"  # Directory to store proof uploads
+
 # A simple in-memory data store for user preferences (language, etc.)
 user_data_store = {}
 

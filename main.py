@@ -10,7 +10,6 @@ from handlers import (
     case_listing_handler,
 )
 from utils import error_handler, setup_logging
-from src.utils.db_utils import get_mongo_client, get_database, get_collection
 from motor.motor_asyncio import AsyncIOMotorClient
 
 # Setup logging

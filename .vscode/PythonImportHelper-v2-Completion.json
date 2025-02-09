@@ -24,6 +24,23 @@
         "documentation": {}
     },
     {
+        "label": "Case",
+        "importPath": "src.models.case_model",
+        "description": "src.models.case_model",
+        "isExtraImport": true,
+        "detail": "src.models.case_model",
+        "documentation": {}
+    },
+    {
+        "label": "telegram",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "telegram",
+        "description": "telegram",
+        "detail": "telegram",
+        "documentation": {}
+    },
+    {
         "label": "Update",
         "importPath": "telegram",
         "description": "telegram",
@@ -41,6 +58,30 @@
     },
     {
         "label": "InlineKeyboardButton",
+        "importPath": "telegram",
+        "description": "telegram",
+        "isExtraImport": true,
+        "detail": "telegram",
+        "documentation": {}
+    },
+    {
+        "label": "InlineKeyboardButton",
+        "importPath": "telegram",
+        "description": "telegram",
+        "isExtraImport": true,
+        "detail": "telegram",
+        "documentation": {}
+    },
+    {
+        "label": "InlineKeyboardMarkup",
+        "importPath": "telegram",
+        "description": "telegram",
+        "isExtraImport": true,
+        "detail": "telegram",
+        "documentation": {}
+    },
+    {
+        "label": "Update",
         "importPath": "telegram",
         "description": "telegram",
         "isExtraImport": true,
@@ -181,6 +222,14 @@
         "description": "telegram",
         "isExtraImport": true,
         "detail": "telegram",
+        "documentation": {}
+    },
+    {
+        "label": "ContextTypes",
+        "importPath": "telegram.ext",
+        "description": "telegram.ext",
+        "isExtraImport": true,
+        "detail": "telegram.ext",
         "documentation": {}
     },
     {
@@ -577,6 +626,54 @@
         "documentation": {}
     },
     {
+        "label": "CASE_LIST",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "CHOOSE_PROVINCE",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "END",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "ENTER_LOCATION",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "UPLOAD_PROOF",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "CASE_DETAILS",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
         "label": "END",
         "importPath": "constants",
         "description": "constants",
@@ -633,6 +730,14 @@
         "documentation": {}
     },
     {
+        "label": "CHOOSE_PROVINCE",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
         "label": "CREATE_CASE_PHOTO",
         "importPath": "constants",
         "description": "constants",
@@ -657,6 +762,14 @@
         "documentation": {}
     },
     {
+        "label": "ENTER_LOCATION",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
         "label": "ENTER_PRIVATE_KEY",
         "importPath": "constants",
         "description": "constants",
@@ -666,6 +779,14 @@
     },
     {
         "label": "TRANSFER_CONFIRMATION",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "UPLOAD_PROOF",
         "importPath": "constants",
         "description": "constants",
         "isExtraImport": true,
@@ -897,6 +1018,22 @@
         "documentation": {}
     },
     {
+        "label": "END",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "get_text",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
         "label": "LANG_DATA",
         "importPath": "constants",
         "description": "constants",
@@ -913,14 +1050,6 @@
         "documentation": {}
     },
     {
-        "label": "WAITING_FOR_MOBILE",
-        "importPath": "constants",
-        "description": "constants",
-        "isExtraImport": true,
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
         "label": "user_data_store",
         "importPath": "constants",
         "description": "constants",
@@ -929,7 +1058,7 @@
         "documentation": {}
     },
     {
-        "label": "get_text",
+        "label": "WAITING_FOR_MOBILE",
         "importPath": "constants",
         "description": "constants",
         "isExtraImport": true,
@@ -977,7 +1106,31 @@
         "documentation": {}
     },
     {
+        "label": "CREATE_CASE_SUBMIT",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
         "label": "END",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "ENTER_PRIVATE_KEY",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "get_text",
         "importPath": "constants",
         "description": "constants",
         "isExtraImport": true,
@@ -1025,23 +1178,15 @@
         "documentation": {}
     },
     {
-        "label": "WALLETS_DIR",
-        "importPath": "constants",
-        "description": "constants",
-        "isExtraImport": true,
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "get_text",
-        "importPath": "constants",
-        "description": "constants",
-        "isExtraImport": true,
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
         "label": "user_data_store",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "WALLETS_DIR",
         "importPath": "constants",
         "description": "constants",
         "isExtraImport": true,
@@ -1281,15 +1426,6 @@
         "documentation": {}
     },
     {
-        "label": "solders.message",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "solders.message",
-        "description": "solders.message",
-        "detail": "solders.message",
-        "documentation": {}
-    },
-    {
         "label": "Message",
         "importPath": "solders.message",
         "description": "solders.message",
@@ -1320,6 +1456,47 @@
         "description": "test_sol_transfer",
         "isExtraImport": true,
         "detail": "test_sol_transfer",
+        "documentation": {}
+    },
+    {
+        "label": "requests",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "requests",
+        "description": "requests",
+        "detail": "requests",
+        "documentation": {}
+    },
+    {
+        "label": "ITEMS_PER_PAGE",
+        "importPath": "handler.listing",
+        "description": "handler.listing",
+        "isExtraImport": true,
+        "detail": "handler.listing",
+        "documentation": {}
+    },
+    {
+        "label": "case_details_callback",
+        "importPath": "handler.listing",
+        "description": "handler.listing",
+        "isExtraImport": true,
+        "detail": "handler.listing",
+        "documentation": {}
+    },
+    {
+        "label": "listing_command",
+        "importPath": "handler.listing",
+        "description": "handler.listing",
+        "isExtraImport": true,
+        "detail": "handler.listing",
+        "documentation": {}
+    },
+    {
+        "label": "pagination_callback",
+        "importPath": "handler.listing",
+        "description": "handler.listing",
+        "isExtraImport": true,
+        "detail": "handler.listing",
         "documentation": {}
     },
     {
@@ -1499,30 +1676,6 @@
         "description": "dotenv",
         "isExtraImport": true,
         "detail": "dotenv",
-        "documentation": {}
-    },
-    {
-        "label": "case_details_callback",
-        "importPath": "handler.listing",
-        "description": "handler.listing",
-        "isExtraImport": true,
-        "detail": "handler.listing",
-        "documentation": {}
-    },
-    {
-        "label": "listing_command",
-        "importPath": "handler.listing",
-        "description": "handler.listing",
-        "isExtraImport": true,
-        "detail": "handler.listing",
-        "documentation": {}
-    },
-    {
-        "label": "pagination_callback",
-        "importPath": "handler.listing",
-        "description": "handler.listing",
-        "isExtraImport": true,
-        "detail": "handler.listing",
         "documentation": {}
     },
     {
@@ -1879,30 +2032,6 @@
         "documentation": {}
     },
     {
-        "label": "get_mongo_client",
-        "importPath": "src.utils.db_utils",
-        "description": "src.utils.db_utils",
-        "isExtraImport": true,
-        "detail": "src.utils.db_utils",
-        "documentation": {}
-    },
-    {
-        "label": "get_database",
-        "importPath": "src.utils.db_utils",
-        "description": "src.utils.db_utils",
-        "isExtraImport": true,
-        "detail": "src.utils.db_utils",
-        "documentation": {}
-    },
-    {
-        "label": "get_collection",
-        "importPath": "src.utils.db_utils",
-        "description": "src.utils.db_utils",
-        "isExtraImport": true,
-        "detail": "src.utils.db_utils",
-        "documentation": {}
-    },
-    {
         "label": "pycountry",
         "kind": 6,
         "isExtraImport": true,
@@ -1973,6 +2102,15 @@
         "documentation": {}
     },
     {
+        "label": "get_provinces_for_country",
+        "kind": 2,
+        "importPath": "handler.finder",
+        "description": "handler.finder",
+        "peekOfCode": "def get_provinces_for_country(country):\n    \"\"\"\n    Fetch provinces/states for the given country using REST Countries API.\n    \"\"\"\n    response = requests.get(f\"https://restcountries.com/v3.1/name/{country}\")\n    if response.status_code == 200:\n        data = response.json()\n        # Extract states/provinces if available\n        if data and \"subdivisions\" in data[0]:\n            return data[0][\"subdivisions\"]",
+        "detail": "handler.finder",
+        "documentation": {}
+    },
+    {
         "label": "paginate_list",
         "kind": 2,
         "importPath": "handler.listing",
@@ -2033,6 +2171,15 @@
         "description": "src.models.case_model",
         "peekOfCode": "class Case(Document):\n    user_id: int\n    case_no: str\n    name: str\n    mobile: str\n    person_name: str\n    relationship: str\n    photo_path: Optional[str]\n    last_seen_location: str\n    sex: str",
         "detail": "src.models.case_model",
+        "documentation": {}
+    },
+    {
+        "label": "calculate_reward_with_tax",
+        "kind": 2,
+        "importPath": "src.utils.calculate_tax",
+        "description": "src.utils.calculate_tax",
+        "peekOfCode": "def calculate_reward_with_tax(reward: float, tax_rate: float = 0.05) -> float:\n    \"\"\"Calculate the reward after applying a 5% tax.\"\"\"\n    tax = reward * tax_rate\n    return reward - tax",
+        "detail": "src.utils.calculate_tax",
         "documentation": {}
     },
     {
@@ -2202,7 +2349,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "SELECT_LANG = 0\nSHOW_DISCLAIMER = 1\nCHOOSE_COUNTRY = 2\nCHOOSE_CITY = 3\nCHOOSE_ACTION = 4\nCHOOSE_WALLET_TYPE = 5\nNAME_WALLET = 6\nCREATE_CASE_NAME = 7\nCREATE_CASE_MOBILE = 8\nCREATE_CASE_TAC = 9",
+        "peekOfCode": "SELECT_LANG = 0\nSHOW_DISCLAIMER = 1\nCHOOSE_COUNTRY = 2\nCHOOSE_CITY = 3\nCHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9",
         "detail": "constants",
         "documentation": {}
     },
@@ -2211,7 +2358,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "SHOW_DISCLAIMER = 1\nCHOOSE_COUNTRY = 2\nCHOOSE_CITY = 3\nCHOOSE_ACTION = 4\nCHOOSE_WALLET_TYPE = 5\nNAME_WALLET = 6\nCREATE_CASE_NAME = 7\nCREATE_CASE_MOBILE = 8\nCREATE_CASE_TAC = 9\nCREATE_CASE_DISCLAIMER = 10",
+        "peekOfCode": "SHOW_DISCLAIMER = 1\nCHOOSE_COUNTRY = 2\nCHOOSE_CITY = 3\nCHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10",
         "detail": "constants",
         "documentation": {}
     },
@@ -2220,7 +2367,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CHOOSE_COUNTRY = 2\nCHOOSE_CITY = 3\nCHOOSE_ACTION = 4\nCHOOSE_WALLET_TYPE = 5\nNAME_WALLET = 6\nCREATE_CASE_NAME = 7\nCREATE_CASE_MOBILE = 8\nCREATE_CASE_TAC = 9\nCREATE_CASE_DISCLAIMER = 10\nCREATE_CASE_REWARD_TYPE = 102",
+        "peekOfCode": "CHOOSE_COUNTRY = 2\nCHOOSE_CITY = 3\nCHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11",
         "detail": "constants",
         "documentation": {}
     },
@@ -2229,7 +2376,16 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CHOOSE_CITY = 3\nCHOOSE_ACTION = 4\nCHOOSE_WALLET_TYPE = 5\nNAME_WALLET = 6\nCREATE_CASE_NAME = 7\nCREATE_CASE_MOBILE = 8\nCREATE_CASE_TAC = 9\nCREATE_CASE_DISCLAIMER = 10\nCREATE_CASE_REWARD_TYPE = 102\nCREATE_CASE_REWARD_AMOUNT = 105",
+        "peekOfCode": "CHOOSE_CITY = 3\nCHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12",
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "CHOOSE_PROVINCE",
+        "kind": 5,
+        "importPath": "constants",
+        "description": "constants",
+        "peekOfCode": "CHOOSE_PROVINCE = 4  # New state for province selection\nCHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13",
         "detail": "constants",
         "documentation": {}
     },
@@ -2238,7 +2394,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CHOOSE_ACTION = 4\nCHOOSE_WALLET_TYPE = 5\nNAME_WALLET = 6\nCREATE_CASE_NAME = 7\nCREATE_CASE_MOBILE = 8\nCREATE_CASE_TAC = 9\nCREATE_CASE_DISCLAIMER = 10\nCREATE_CASE_REWARD_TYPE = 102\nCREATE_CASE_REWARD_AMOUNT = 105\nCREATE_CASE_PERSON_NAME = 12",
+        "peekOfCode": "CHOOSE_ACTION = 5\nCHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14",
         "detail": "constants",
         "documentation": {}
     },
@@ -2247,7 +2403,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CHOOSE_WALLET_TYPE = 5\nNAME_WALLET = 6\nCREATE_CASE_NAME = 7\nCREATE_CASE_MOBILE = 8\nCREATE_CASE_TAC = 9\nCREATE_CASE_DISCLAIMER = 10\nCREATE_CASE_REWARD_TYPE = 102\nCREATE_CASE_REWARD_AMOUNT = 105\nCREATE_CASE_PERSON_NAME = 12\nCREATE_CASE_RELATIONSHIP = 13",
+        "peekOfCode": "CHOOSE_WALLET_TYPE = 6\nNAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15",
         "detail": "constants",
         "documentation": {}
     },
@@ -2256,7 +2412,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "NAME_WALLET = 6\nCREATE_CASE_NAME = 7\nCREATE_CASE_MOBILE = 8\nCREATE_CASE_TAC = 9\nCREATE_CASE_DISCLAIMER = 10\nCREATE_CASE_REWARD_TYPE = 102\nCREATE_CASE_REWARD_AMOUNT = 105\nCREATE_CASE_PERSON_NAME = 12\nCREATE_CASE_RELATIONSHIP = 13\nCREATE_CASE_PHOTO = 14",
+        "peekOfCode": "NAME_WALLET = 7\nCREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16",
         "detail": "constants",
         "documentation": {}
     },
@@ -2265,7 +2421,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_NAME = 7\nCREATE_CASE_MOBILE = 8\nCREATE_CASE_TAC = 9\nCREATE_CASE_DISCLAIMER = 10\nCREATE_CASE_REWARD_TYPE = 102\nCREATE_CASE_REWARD_AMOUNT = 105\nCREATE_CASE_PERSON_NAME = 12\nCREATE_CASE_RELATIONSHIP = 13\nCREATE_CASE_PHOTO = 14\nCREATE_CASE_LAST_SEEN_LOCATION = 15",
+        "peekOfCode": "CREATE_CASE_NAME = 8\nCREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17",
         "detail": "constants",
         "documentation": {}
     },
@@ -2274,7 +2430,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_MOBILE = 8\nCREATE_CASE_TAC = 9\nCREATE_CASE_DISCLAIMER = 10\nCREATE_CASE_REWARD_TYPE = 102\nCREATE_CASE_REWARD_AMOUNT = 105\nCREATE_CASE_PERSON_NAME = 12\nCREATE_CASE_RELATIONSHIP = 13\nCREATE_CASE_PHOTO = 14\nCREATE_CASE_LAST_SEEN_LOCATION = 15\nCREATE_CASE_SEX = 16",
+        "peekOfCode": "CREATE_CASE_MOBILE = 9\nCREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18",
         "detail": "constants",
         "documentation": {}
     },
@@ -2283,7 +2439,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_TAC = 9\nCREATE_CASE_DISCLAIMER = 10\nCREATE_CASE_REWARD_TYPE = 102\nCREATE_CASE_REWARD_AMOUNT = 105\nCREATE_CASE_PERSON_NAME = 12\nCREATE_CASE_RELATIONSHIP = 13\nCREATE_CASE_PHOTO = 14\nCREATE_CASE_LAST_SEEN_LOCATION = 15\nCREATE_CASE_SEX = 16\nCREATE_CASE_AGE = 17",
+        "peekOfCode": "CREATE_CASE_TAC = 10\nCREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19",
         "detail": "constants",
         "documentation": {}
     },
@@ -2292,7 +2448,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_DISCLAIMER = 10\nCREATE_CASE_REWARD_TYPE = 102\nCREATE_CASE_REWARD_AMOUNT = 105\nCREATE_CASE_PERSON_NAME = 12\nCREATE_CASE_RELATIONSHIP = 13\nCREATE_CASE_PHOTO = 14\nCREATE_CASE_LAST_SEEN_LOCATION = 15\nCREATE_CASE_SEX = 16\nCREATE_CASE_AGE = 17\nCREATE_CASE_HAIR_COLOR = 18",
+        "peekOfCode": "CREATE_CASE_DISCLAIMER = 11\nCREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20",
         "detail": "constants",
         "documentation": {}
     },
@@ -2301,7 +2457,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_REWARD_TYPE = 102\nCREATE_CASE_REWARD_AMOUNT = 105\nCREATE_CASE_PERSON_NAME = 12\nCREATE_CASE_RELATIONSHIP = 13\nCREATE_CASE_PHOTO = 14\nCREATE_CASE_LAST_SEEN_LOCATION = 15\nCREATE_CASE_SEX = 16\nCREATE_CASE_AGE = 17\nCREATE_CASE_HAIR_COLOR = 18\nCREATE_CASE_EYE_COLOR = 19",
+        "peekOfCode": "CREATE_CASE_REWARD_TYPE = 12\nCREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21",
         "detail": "constants",
         "documentation": {}
     },
@@ -2310,7 +2466,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_REWARD_AMOUNT = 105\nCREATE_CASE_PERSON_NAME = 12\nCREATE_CASE_RELATIONSHIP = 13\nCREATE_CASE_PHOTO = 14\nCREATE_CASE_LAST_SEEN_LOCATION = 15\nCREATE_CASE_SEX = 16\nCREATE_CASE_AGE = 17\nCREATE_CASE_HAIR_COLOR = 18\nCREATE_CASE_EYE_COLOR = 19\nCREATE_CASE_HEIGHT = 20",
+        "peekOfCode": "CREATE_CASE_REWARD_AMOUNT = 13\nCREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22",
         "detail": "constants",
         "documentation": {}
     },
@@ -2319,7 +2475,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_PERSON_NAME = 12\nCREATE_CASE_RELATIONSHIP = 13\nCREATE_CASE_PHOTO = 14\nCREATE_CASE_LAST_SEEN_LOCATION = 15\nCREATE_CASE_SEX = 16\nCREATE_CASE_AGE = 17\nCREATE_CASE_HAIR_COLOR = 18\nCREATE_CASE_EYE_COLOR = 19\nCREATE_CASE_HEIGHT = 20\nCREATE_CASE_WEIGHT = 21",
+        "peekOfCode": "CREATE_CASE_PERSON_NAME = 14\nCREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23",
         "detail": "constants",
         "documentation": {}
     },
@@ -2328,7 +2484,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_RELATIONSHIP = 13\nCREATE_CASE_PHOTO = 14\nCREATE_CASE_LAST_SEEN_LOCATION = 15\nCREATE_CASE_SEX = 16\nCREATE_CASE_AGE = 17\nCREATE_CASE_HAIR_COLOR = 18\nCREATE_CASE_EYE_COLOR = 19\nCREATE_CASE_HEIGHT = 20\nCREATE_CASE_WEIGHT = 21\nCREATE_CASE_DISTINCTIVE_FEATURES = 22",
+        "peekOfCode": "CREATE_CASE_RELATIONSHIP = 15\nCREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24",
         "detail": "constants",
         "documentation": {}
     },
@@ -2337,7 +2493,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_PHOTO = 14\nCREATE_CASE_LAST_SEEN_LOCATION = 15\nCREATE_CASE_SEX = 16\nCREATE_CASE_AGE = 17\nCREATE_CASE_HAIR_COLOR = 18\nCREATE_CASE_EYE_COLOR = 19\nCREATE_CASE_HEIGHT = 20\nCREATE_CASE_WEIGHT = 21\nCREATE_CASE_DISTINCTIVE_FEATURES = 22\nCREATE_CASE_SUBMIT = 23",
+        "peekOfCode": "CREATE_CASE_PHOTO = 16\nCREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25",
         "detail": "constants",
         "documentation": {}
     },
@@ -2346,7 +2502,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_LAST_SEEN_LOCATION = 15\nCREATE_CASE_SEX = 16\nCREATE_CASE_AGE = 17\nCREATE_CASE_HAIR_COLOR = 18\nCREATE_CASE_EYE_COLOR = 19\nCREATE_CASE_HEIGHT = 20\nCREATE_CASE_WEIGHT = 21\nCREATE_CASE_DISTINCTIVE_FEATURES = 22\nCREATE_CASE_SUBMIT = 23\nENTER_PRIVATE_KEY = 24",
+        "peekOfCode": "CREATE_CASE_LAST_SEEN_LOCATION = 17\nCREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26",
         "detail": "constants",
         "documentation": {}
     },
@@ -2355,7 +2511,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_SEX = 16\nCREATE_CASE_AGE = 17\nCREATE_CASE_HAIR_COLOR = 18\nCREATE_CASE_EYE_COLOR = 19\nCREATE_CASE_HEIGHT = 20\nCREATE_CASE_WEIGHT = 21\nCREATE_CASE_DISTINCTIVE_FEATURES = 22\nCREATE_CASE_SUBMIT = 23\nENTER_PRIVATE_KEY = 24\nTRANSFER_CONFIRMATION = 25",
+        "peekOfCode": "CREATE_CASE_SEX = 18\nCREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27",
         "detail": "constants",
         "documentation": {}
     },
@@ -2364,7 +2520,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_AGE = 17\nCREATE_CASE_HAIR_COLOR = 18\nCREATE_CASE_EYE_COLOR = 19\nCREATE_CASE_HEIGHT = 20\nCREATE_CASE_WEIGHT = 21\nCREATE_CASE_DISTINCTIVE_FEATURES = 22\nCREATE_CASE_SUBMIT = 23\nENTER_PRIVATE_KEY = 24\nTRANSFER_CONFIRMATION = 25\nEND = 26",
+        "peekOfCode": "CREATE_CASE_AGE = 19\nCREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28",
         "detail": "constants",
         "documentation": {}
     },
@@ -2373,7 +2529,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_HAIR_COLOR = 18\nCREATE_CASE_EYE_COLOR = 19\nCREATE_CASE_HEIGHT = 20\nCREATE_CASE_WEIGHT = 21\nCREATE_CASE_DISTINCTIVE_FEATURES = 22\nCREATE_CASE_SUBMIT = 23\nENTER_PRIVATE_KEY = 24\nTRANSFER_CONFIRMATION = 25\nEND = 26\n# Additional states for Wallet and Settings flows",
+        "peekOfCode": "CREATE_CASE_HAIR_COLOR = 20\nCREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows",
         "detail": "constants",
         "documentation": {}
     },
@@ -2382,7 +2538,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_EYE_COLOR = 19\nCREATE_CASE_HEIGHT = 20\nCREATE_CASE_WEIGHT = 21\nCREATE_CASE_DISTINCTIVE_FEATURES = 22\nCREATE_CASE_SUBMIT = 23\nENTER_PRIVATE_KEY = 24\nTRANSFER_CONFIRMATION = 25\nEND = 26\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80",
+        "peekOfCode": "CREATE_CASE_EYE_COLOR = 21\nCREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80",
         "detail": "constants",
         "documentation": {}
     },
@@ -2391,7 +2547,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_HEIGHT = 20\nCREATE_CASE_WEIGHT = 21\nCREATE_CASE_DISTINCTIVE_FEATURES = 22\nCREATE_CASE_SUBMIT = 23\nENTER_PRIVATE_KEY = 24\nTRANSFER_CONFIRMATION = 25\nEND = 26\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81",
+        "peekOfCode": "CREATE_CASE_HEIGHT = 22\nCREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81",
         "detail": "constants",
         "documentation": {}
     },
@@ -2400,7 +2556,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_WEIGHT = 21\nCREATE_CASE_DISTINCTIVE_FEATURES = 22\nCREATE_CASE_SUBMIT = 23\nENTER_PRIVATE_KEY = 24\nTRANSFER_CONFIRMATION = 25\nEND = 26\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92",
+        "peekOfCode": "CREATE_CASE_WEIGHT = 23\nCREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92",
         "detail": "constants",
         "documentation": {}
     },
@@ -2409,7 +2565,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_DISTINCTIVE_FEATURES = 22\nCREATE_CASE_SUBMIT = 23\nENTER_PRIVATE_KEY = 24\nTRANSFER_CONFIRMATION = 25\nEND = 26\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command",
+        "peekOfCode": "CREATE_CASE_DISTINCTIVE_FEATURES = 24\nCREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command",
         "detail": "constants",
         "documentation": {}
     },
@@ -2418,7 +2574,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CREATE_CASE_SUBMIT = 23\nENTER_PRIVATE_KEY = 24\nTRANSFER_CONFIRMATION = 25\nEND = 26\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_DETAILS = 100",
+        "peekOfCode": "CREATE_CASE_SUBMIT = 25\nENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100",
         "detail": "constants",
         "documentation": {}
     },
@@ -2427,7 +2583,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "ENTER_PRIVATE_KEY = 24\nTRANSFER_CONFIRMATION = 25\nEND = 26\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_DETAILS = 100\nCASE_LIST = 101",
+        "peekOfCode": "ENTER_PRIVATE_KEY = 26\nTRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101",
         "detail": "constants",
         "documentation": {}
     },
@@ -2436,7 +2592,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "TRANSFER_CONFIRMATION = 25\nEND = 26\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_DETAILS = 100\nCASE_LIST = 101\n# ======================",
+        "peekOfCode": "TRANSFER_CONFIRMATION = 27\nEND = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof",
         "detail": "constants",
         "documentation": {}
     },
@@ -2445,7 +2601,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "END = 26\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_DETAILS = 100\nCASE_LIST = 101\n# ======================\n# Language Data & Constants",
+        "peekOfCode": "END = 28\n# Additional states for Wallet and Settings flows\nWALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found",
         "detail": "constants",
         "documentation": {}
     },
@@ -2454,7 +2610,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "WALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_DETAILS = 100\nCASE_LIST = 101\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {",
+        "peekOfCode": "WALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants",
         "detail": "constants",
         "documentation": {}
     },
@@ -2463,7 +2619,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "WAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_DETAILS = 100\nCASE_LIST = 101\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {",
+        "peekOfCode": "WAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================",
         "detail": "constants",
         "documentation": {}
     },
@@ -2472,16 +2628,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "SETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_DETAILS = 100\nCASE_LIST = 101\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",",
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
-        "label": "CASE_DETAILS",
-        "kind": 5,
-        "importPath": "constants",
-        "description": "constants",
-        "peekOfCode": "CASE_DETAILS = 100\nCASE_LIST = 101\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",",
+        "peekOfCode": "SETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {",
         "detail": "constants",
         "documentation": {}
     },
@@ -2490,7 +2637,34 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "CASE_LIST = 101\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",\n        \"choose_country\": \"Please enter your country name (partial name allowed):\",",
+        "peekOfCode": "CASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",",
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "CASE_DETAILS",
+        "kind": 5,
+        "importPath": "constants",
+        "description": "constants",
+        "peekOfCode": "CASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",",
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "UPLOAD_PROOF",
+        "kind": 5,
+        "importPath": "constants",
+        "description": "constants",
+        "peekOfCode": "UPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",",
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "ENTER_LOCATION",
+        "kind": 5,
+        "importPath": "constants",
+        "description": "constants",
+        "peekOfCode": "ENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",\n        \"choose_country\": \"Please enter your country name (partial name allowed):\",",
         "detail": "constants",
         "documentation": {}
     },
@@ -2499,7 +2673,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "LANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",\n        \"choose_country\": \"Please enter your country name (partial name allowed):\",\n        \"country_not_found\": \"No matching countries found. Please try again:\",\n        \"country_multi\": \"Multiple countries found (Page {page} of {total}):\",\n        \"country_selected\": \"You have selected\",\n        \"disclaimer_title\": \"<b>Disclaimer</b>\\n\\n\",",
+        "peekOfCode": "LANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",\n        \"choose_country\": \"Please enter your country name (partial name allowed):\",\n        \"country_not_found\": \"No matching countries found. Please try again:\",\n        \"country_multi\": \"Multiple countries found (Page {page} of {total}):\",\n        \"country_selected\": \"You have selected\",\n        \"disclaimer_title\": \"Disclaimer\\n\\n\",",
         "detail": "constants",
         "documentation": {}
     },
@@ -2508,7 +2682,7 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "ITEMS_PER_PAGE = 10\nWALLETS_DIR = \"wallets\"\n# A simple in-memory data store for user preferences (language, etc.)\nuser_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
+        "peekOfCode": "ITEMS_PER_PAGE = 10  # Number of items per page for pagination\nWALLETS_DIR = \"wallets\"  # Directory to store user wallets\nPHOTOS_DIR = \"photos\"  # Directory to store uploaded photos\nPROOFS_DIR = \"proofs\"  # Directory to store proof uploads\n# A simple in-memory data store for user preferences (language, etc.)\nuser_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
         "detail": "constants",
         "documentation": {}
     },
@@ -2517,7 +2691,25 @@
         "kind": 5,
         "importPath": "constants",
         "description": "constants",
-        "peekOfCode": "WALLETS_DIR = \"wallets\"\n# A simple in-memory data store for user preferences (language, etc.)\nuser_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
+        "peekOfCode": "WALLETS_DIR = \"wallets\"  # Directory to store user wallets\nPHOTOS_DIR = \"photos\"  # Directory to store uploaded photos\nPROOFS_DIR = \"proofs\"  # Directory to store proof uploads\n# A simple in-memory data store for user preferences (language, etc.)\nuser_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "PHOTOS_DIR",
+        "kind": 5,
+        "importPath": "constants",
+        "description": "constants",
+        "peekOfCode": "PHOTOS_DIR = \"photos\"  # Directory to store uploaded photos\nPROOFS_DIR = \"proofs\"  # Directory to store proof uploads\n# A simple in-memory data store for user preferences (language, etc.)\nuser_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "PROOFS_DIR",
+        "kind": 5,
+        "importPath": "constants",
+        "description": "constants",
+        "peekOfCode": "PROOFS_DIR = \"proofs\"  # Directory to store proof uploads\n# A simple in-memory data store for user preferences (language, etc.)\nuser_data_store = {}\ndef get_text(user_id, key):\n    \"\"\"Get the localized text for a given key based on user language.\"\"\"\n    lang = user_data_store.get(user_id, {}).get(\"lang\", \"en\")\n    return LANG_DATA.get(lang, LANG_DATA[\"en\"]).get(key, f\"Undefined text for {key}\")",
         "detail": "constants",
         "documentation": {}
     },

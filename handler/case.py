@@ -375,7 +375,12 @@ async def handle_private_key(update: Update, context: ContextTypes.DEFAULT_TYPE)
         # Validate the private key
         sender = Keypair.from_base58_string(private_key)
         # Load the recipient's public key
-        to_pubkey = Pubkey.from_string("8RjkX9qRpwE3zaXPzvo88veZeCRUKAqanUChEXGhJG9o")
+
+        wallet = load_user_wallet(user_id)
+
+        print("wallet are ", wallet)
+
+        to_pubkey = Pubkey.from_string(wallet["public_key"])
         # Fetch the latest blockhash
         instruction = transfer(
             TransferParams(

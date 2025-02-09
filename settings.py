@@ -1,11 +1,12 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes, CallbackQueryHandler, MessageHandler, filters
 from constants import (
+    END,
+    get_text,
     LANG_DATA,
     SETTINGS_MENU,
-    WAITING_FOR_MOBILE,
     user_data_store,
-    get_text,
+    WAITING_FOR_MOBILE,
 )
 from telegram.ext import (
     ConversationHandler,
@@ -80,7 +81,7 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
         await query.edit_message_text(
             get_text(user_id, "btn_close_menu"), parse_mode="HTML"
         )
-        return ConversationHandler.END
+        return END
 
     # Handling the dynamic callback for language changes
     elif choice.startswith("setlang_"):
@@ -95,7 +96,7 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
         await query.edit_message_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
-        return ConversationHandler.END
+        return END
 
 
 async def mobile_number_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -105,4 +106,4 @@ async def mobile_number_handler(update: Update, context: ContextTypes.DEFAULT_TY
     user_data_store[user_id]["mobile_number"] = mobile
     msg = get_text(user_id, "mobile_saved").format(number=mobile)
     await update.message.reply_text(msg, parse_mode="HTML")
-    return ConversationHandler.END
+    return END

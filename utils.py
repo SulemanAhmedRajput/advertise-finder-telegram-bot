@@ -21,15 +21,17 @@ from constants import (
     CHOOSE_COUNTRY,
     CHOOSE_WALLET_TYPE,
     CREATE_CASE_NAME,
+    CREATE_CASE_SUBMIT,
     END,
+    ENTER_PRIVATE_KEY,
+    get_text,
     ITEMS_PER_PAGE,
     LANG_DATA,
     NAME_WALLET,
     SELECT_LANG,
     SHOW_DISCLAIMER,
-    WALLETS_DIR,
-    get_text,
     user_data_store,
+    WALLETS_DIR,
 )
 from wallet import create_sol_wallet
 
@@ -108,6 +110,7 @@ async def select_lang_callback(
     await query.edit_message_text(
         get_text(user_id, "choose_country"), parse_mode="HTML"
     )
+    # return CREATE_CASE_SUBMIT
     return CHOOSE_COUNTRY
 
 
@@ -249,7 +252,7 @@ async def disclaimer_callback(
         await query.edit_message_text(
             get_text(user_id, "disagree_end"), parse_mode="HTML"
         )
-        return ConversationHandler.END
+        return END
 
 
 async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -410,7 +413,7 @@ async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await query.edit_message_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
-        return ConversationHandler.END
+        return END
 
 
 async def wallet_type_callback(
