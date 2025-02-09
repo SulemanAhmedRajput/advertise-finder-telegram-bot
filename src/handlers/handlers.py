@@ -97,6 +97,7 @@ from handlers.case_handler import (
     disclaimer_2_callback,
     handle_reward_amount,
 )
+
 from handlers.settings_handler import (
     settings_command,
     settings_menu_callback,

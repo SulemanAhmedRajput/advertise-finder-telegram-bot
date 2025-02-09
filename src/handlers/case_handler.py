@@ -274,16 +274,17 @@ async def handle_last_seen_location(
     await update.message.reply_text(get_text(user_id, "sex"), reply_markup=kb)
     return CREATE_CASE_SEX
 
-    async def handle_sex(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        """Handle input for sex."""
-        query = update.callback_query
-        await query.answer()
-        user_id = query.from_user.id
-        sex = query.data
-        context.user_data["case"]["sex"] = sex
-        logger.info(f"User {user_id} selected sex: {sex}")
-        await query.edit_message_text(get_text(user_id, "age"))
-        return CREATE_CASE_AGE
+
+async def handle_sex(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handle input for sex."""
+    query = update.callback_query
+    await query.answer()
+    user_id = query.from_user.id
+    sex = query.data
+    context.user_data["case"]["sex"] = sex
+    logger.info(f"User {user_id} selected sex: {sex}")
+    await query.edit_message_text(get_text(user_id, "age"))
+    return CREATE_CASE_AGE
 
 
 async def handle_age(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -320,33 +321,35 @@ async def handle_eye_color(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     await update.message.reply_text(get_text(user_id, "height"))
     return CREATE_CASE_HEIGHT
 
-    async def handle_height(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        """Handle input for height."""
-        user_id = update.effective_user.id
-        height = update.message.text.strip()
 
-        if not height.isdigit():
-            await update.message.reply_text("Please enter a valid number for height.")
-            return CREATE_CASE_HEIGHT
+async def handle_height(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handle input for height."""
+    user_id = update.effective_user.id
+    height = update.message.text.strip()
 
-        context.user_data["case"]["height"] = height
-        logger.info(f"User {user_id} entered height: {height}")
-        await update.message.reply_text(get_text(user_id, "weight"))
+    if not height.isdigit():
+        await update.message.reply_text("Please enter a valid number for height.")
+        return CREATE_CASE_HEIGHT
+
+    context.user_data["case"]["height"] = height
+    logger.info(f"User {user_id} entered height: {height}")
+    await update.message.reply_text(get_text(user_id, "weight"))
+    return CREATE_CASE_WEIGHT
+
+
+async def handle_weight(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handle input for weight."""
+    user_id = update.effective_user.id
+    weight = update.message.text.strip()
+
+    if not weight.isdigit():
+        await update.message.reply_text("Please enter a valid number for weight.")
         return CREATE_CASE_WEIGHT
 
-    async def handle_weight(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        """Handle input for weight."""
-        user_id = update.effective_user.id
-        weight = update.message.text.strip()
-
-        if not weight.isdigit():
-            await update.message.reply_text("Please enter a valid number for weight.")
-            return CREATE_CASE_WEIGHT
-
-        context.user_data["case"]["weight"] = weight
-        logger.info(f"User {user_id} entered weight: {weight}")
-        await update.message.reply_text(get_text(user_id, "distinctive_features"))
-        return CREATE_CASE_DISTINCTIVE_FEATURES
+    context.user_data["case"]["weight"] = weight
+    logger.info(f"User {user_id} entered weight: {weight}")
+    await update.message.reply_text(get_text(user_id, "distinctive_features"))
+    return CREATE_CASE_DISTINCTIVE_FEATURES
 
 
 async def handle_distinctive_features(

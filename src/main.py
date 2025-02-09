@@ -1,23 +1,26 @@
-import sys
-import os
-import logging
 import asyncio
-from beanie import init_beanie
-from motor.motor_asyncio import AsyncIOMotorClient
-from models.case_model import Case
-from telegram.ext import ApplicationBuilder
-from handlers.handlers import (
-    conv_handler,
-    wallet_conv_handler,
-    settings_conv_handler,
-    case_listing_handler,
-)
-from handlers.start_handler import error_handler, setup_logging
-from config.config_manager import MONGODB_NAME, MONGODB_URI
-from src.config.config_manager import TOKEN
+import logging
+import os
+import sys
 
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
+
+
+from beanie import init_beanie
+from motor.motor_asyncio import AsyncIOMotorClient
+from telegram.ext import ApplicationBuilder
+
+from config.config_manager import MONGODB_NAME, MONGODB_URI
+from handlers.handlers import (
+    case_listing_handler,
+    conv_handler,
+    settings_conv_handler,
+    wallet_conv_handler,
+)
+from handlers.start_handler import error_handler, setup_logging
+from models.case_model import Case
+from config.config_manager import TOKEN
 
 
 setup_logging()

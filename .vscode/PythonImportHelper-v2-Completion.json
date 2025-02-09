@@ -2068,15 +2068,6 @@
         "documentation": {}
     },
     {
-        "label": "sys",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "sys",
-        "description": "sys",
-        "detail": "sys",
-        "documentation": {}
-    },
-    {
         "label": "asyncio",
         "kind": 6,
         "isExtraImport": true,
@@ -2086,35 +2077,12 @@
         "documentation": {}
     },
     {
-        "label": "conv_handler",
-        "importPath": "handlers.handlers",
-        "description": "handlers.handlers",
+        "label": "sys",
+        "kind": 6,
         "isExtraImport": true,
-        "detail": "handlers.handlers",
-        "documentation": {}
-    },
-    {
-        "label": "wallet_conv_handler",
-        "importPath": "handlers.handlers",
-        "description": "handlers.handlers",
-        "isExtraImport": true,
-        "detail": "handlers.handlers",
-        "documentation": {}
-    },
-    {
-        "label": "settings_conv_handler",
-        "importPath": "handlers.handlers",
-        "description": "handlers.handlers",
-        "isExtraImport": true,
-        "detail": "handlers.handlers",
-        "documentation": {}
-    },
-    {
-        "label": "case_listing_handler",
-        "importPath": "handlers.handlers",
-        "description": "handlers.handlers",
-        "isExtraImport": true,
-        "detail": "handlers.handlers",
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
         "documentation": {}
     },
     {
@@ -2135,10 +2103,42 @@
     },
     {
         "label": "TOKEN",
-        "importPath": "src.config.config_manager",
-        "description": "src.config.config_manager",
+        "importPath": "config.config_manager",
+        "description": "config.config_manager",
         "isExtraImport": true,
-        "detail": "src.config.config_manager",
+        "detail": "config.config_manager",
+        "documentation": {}
+    },
+    {
+        "label": "case_listing_handler",
+        "importPath": "handlers.handlers",
+        "description": "handlers.handlers",
+        "isExtraImport": true,
+        "detail": "handlers.handlers",
+        "documentation": {}
+    },
+    {
+        "label": "conv_handler",
+        "importPath": "handlers.handlers",
+        "description": "handlers.handlers",
+        "isExtraImport": true,
+        "detail": "handlers.handlers",
+        "documentation": {}
+    },
+    {
+        "label": "settings_conv_handler",
+        "importPath": "handlers.handlers",
+        "description": "handlers.handlers",
+        "isExtraImport": true,
+        "detail": "handlers.handlers",
+        "documentation": {}
+    },
+    {
+        "label": "wallet_conv_handler",
+        "importPath": "handlers.handlers",
+        "description": "handlers.handlers",
+        "isExtraImport": true,
+        "detail": "handlers.handlers",
         "documentation": {}
     },
     {
