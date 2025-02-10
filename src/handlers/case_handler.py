@@ -407,7 +407,7 @@ async def transfer_sol(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
 
 async def handle_private_key(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Store the private key and ask for confirmation before executing the transaction."""
+    """Check sender's balance, store transaction details, and ask for confirmation."""
     user_id = update.effective_user.id
     private_key = update.message.text.strip()
 
@@ -416,6 +416,13 @@ async def handle_private_key(update: Update, context: ContextTypes.DEFAULT_TYPE)
         # Validate the private key
         sender = Keypair.from_base58_string(private_key)
 
+        # Fetch sender's balance
+        sender_balance_response = client.get_balance(sender.pubkey())
+        sender_balance = (
+            sender_balance_response.value / 1e9
+        )  # Convert from lamports to SOL
+        logger.info(f"Sender balance: {sender_balance} SOL")
+
         # Load the recipient's public key
         wallet = load_user_wallet(user_id)
         print("wallet are ", wallet)
@@ -423,7 +430,12 @@ async def handle_private_key(update: Update, context: ContextTypes.DEFAULT_TYPE)
         to_pubkey = Pubkey.from_string(wallet["public_key"])
         total_sol = context.user_data["case"]["reward"]
 
-        print(total_sol)
+        # Check if sender has enough balance
+        if sender_balance < total_sol:
+            await update.message.reply_text(
+                f"❌ Insufficient funds. You have {sender_balance:.5f} SOL, but need {total_sol:.5f} SOL."
+            )
+            return ENTER_PRIVATE_KEY  # Ask user to re-enter key or handle accordingly
 
         # Fetch the latest blockhash
         blockhash_response = client.get_latest_blockhash()
