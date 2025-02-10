@@ -31,6 +31,7 @@ from constants import (
     SHOW_DISCLAIMER,
     user_data_store,
     WALLETS_DIR,
+    CHOOSE_PROVINCE,
 )
 from utils.wallet import create_sol_wallet
 
@@ -407,12 +408,9 @@ async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         )
         return CHOOSE_WALLET_TYPE
     elif choice == "find_people":
-        # Start province selection flow
-        # Clear any existing province selection
-        context.user_data.pop("province", None)
-
-        # Start province selection flow
-        return await choose_province(update, context)
+        # Clearing the province
+        await query.edit_message_text("Choose Province")
+        return CHOOSE_PROVINCE
     else:
         await query.edit_message_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"

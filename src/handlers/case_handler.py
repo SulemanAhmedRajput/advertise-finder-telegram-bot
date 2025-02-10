@@ -462,35 +462,6 @@ async def handle_private_key(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return ENTER_PRIVATE_KEY
 
 
-async def submit_case(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Submit the case."""
-    user_id = update.effective_user.id
-    case = context.user_data.get("case", {})
-    # Generate a unique case number (you can improve this logic)
-    case_no = f"CASE-{user_id}-{len(context.user_data)}"
-    logger.info(f"User {user_id} submitted case: {case_no}")
-
-    # Transfer reward to escrow wallet
-    reward_amount = case.get("reward", 0)
-    user_wallet = load_user_wallet(user_id)
-    if user_wallet and user_wallet.get("balance_sol", 0) >= reward_amount:
-        # Simulate transfer to escrow wallet
-        user_wallet["balance_sol"] -= reward_amount
-        await update.message.reply_text(get_text(user_id, "escrow_transfer"))
-    else:
-        await update.message.reply_text(
-            get_text(user_id, "insufficient_wallet_balance")
-        )
-        return END
-
-    # Notify user of successful submission
-    await update.message.reply_text(
-        get_text(user_id, "case_submitted").format(case_no=case_no)
-    )
-
-    return END
-
-
 async def handle_transfer_confirmation(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:

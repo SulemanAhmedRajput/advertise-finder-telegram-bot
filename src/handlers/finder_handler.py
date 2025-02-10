@@ -7,6 +7,9 @@ from constants import (
     END,
     ENTER_LOCATION,
     UPLOAD_PROOF,
+    get_text,
+    CASE_LIST,
+    user_data_store,
 )
 import telegram
 
@@ -16,15 +19,15 @@ from telegram.ext import (
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from handlers.listing_handler import ITEMS_PER_PAGE
 from models.case_model import Case
-from constants import END, user_data_store
 
 
 def get_provinces_for_country(country):
     """
     Fetch provinces/states for the given country using REST Countries API.
     """
+    print(f"Country: {country}")
     url = "https://countriesnow.space/api/v0.1/countries/states"
-    data = {"country": "Pakistan"}
+    data = {"country": country}
 
     response = requests.post(url, json=data)
 
@@ -36,6 +39,11 @@ def get_provinces_for_country(country):
     else:
         print("Failed to fetch states:", response.status_code)
         return []
+
+
+def get_province_matches(query, country):
+    query = query.lower()
+    return [p.name for p in get_provinces_for_country(country)]
 
 
 async def fetch_cases_by_province(location):
@@ -57,68 +65,113 @@ async def fetch_case_by_number(case_no):
 
 
 async def choose_province(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """List provinces/cities in the selected country."""
-
+    print("Hello from the choose province")
     user_id = update.effective_user.id
-    query = update.callback_query
-    await query.answer()
-
-    country = context.user_data.get("country", None)  # Use get to avoid KeyError
-
-    print(f"Recieved the country {country}")
+    txt = update.message.text.strip()
+    # Replace this with the function to get matching provinces for the text input
+    country = context.user_data.get("country", None)
 
     if not country:
-        await query.edit_message_text(
-            "Please select a country first.", parse_mode="HTML"
+        await update.message.reply_text(
+            get_text(user_id, "country_not_found"), parse_mode="HTML"
         )
         return CHOOSE_COUNTRY
 
-    # Fetch provinces/cities based on the selected country
-    provinces = get_provinces_for_country(country)  # Implement this function
+    matches = get_province_matches(txt, country)
 
-    if len(provinces) == 0:
-        await query.edit_message_text(
-            "No provinces found for the selected country.", parse_mode="HTML"
+    print(f"Matched Provinces are: {matches}")
+
+    if len(matches) == 1:
+        # If there's only one match, select it directly
+        user_data_store[user_id]["province"] = matches[0]
+        context.user_data["province"] = matches[0]
+        # Proceed to next step (e.g., case creation or some other flow)
+        await case_listing(update, context)  # Or whatever the next step is
+        return CASE_LIST
+    else:
+        # If there are multiple matches, show the paginated list
+        user_data_store[user_id]["province_matches"] = matches
+        user_data_store[user_id]["province_page"] = 1
+        paginated, total = paginate_list(matches, 1)
+        kb = []
+        for p in paginated:
+            kb.append([InlineKeyboardButton(p, callback_data=f"province_select_{p}")])
+
+        # Pagination buttons
+        if total > 1:
+            kb.append(
+                [
+                    InlineKeyboardButton("⬅️", callback_data="province_page_0"),
+                    InlineKeyboardButton("➡️", callback_data="province_page_2"),
+                ]
+            )
+        markup = InlineKeyboardMarkup(kb)
+        await update.message.reply_text(
+            get_text(user_id, "province_multi").format(page=1, total=total),
+            reply_markup=markup,
+            parse_mode="HTML",
         )
-        return END
-
-    keyboard = []
-    for i, province in enumerate(provinces):
-        if i % 2 == 0:
-            keyboard.append([])  # Start a new row
-        keyboard[-1].append(
-            InlineKeyboardButton(province, callback_data=f"province_{province}")
-        )
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await query.edit_message_text(
-        f"Select a province in {country}:", reply_markup=reply_markup
-    )
-    return CASE_LIST
+        return CHOOSE_PROVINCE
 
 
-async def choose_province_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
-    """Handle province selection and transition to case list."""
-    print(f"I am inside the choose_province_callback function")
+# Function to handle the province selection callback
+async def province_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
+    data = query.data
+    user_id = query.from_user.id
 
-    try:
-        # Extract province from callback data (format: province_<name>)
-        province = query.data.split("_", 1)[1]
-
-        # Store province in user_data
-        context.user_data["province"] = province
-
-        # Transition to CASE_LIST
-        return await show_advertisements(update, context)
-
-    except Exception as e:
-        logger.error(f"Error in choose_province_callback: {e}")
+    if data.startswith("province_select_"):
+        province = data.replace("province_select_", "")
+        user_data_store[user_id]["province"] = province
         await query.edit_message_text(
-            "Error processing your selection. Please try again."
+            f"{get_text(user_id, 'province_selected')} {province}.",
+            parse_mode="HTML",
+        )
+        # Proceed to the next step (case listing or whatever is next)
+        return await case_listing(update, context)
+
+    elif data.startswith("province_page_"):
+        # Handle pagination for provinces
+        page_str = data.replace("province_page_", "")
+        try:
+            page_num = int(page_str)
+            if page_num < 1:
+                page_num = 1
+        except ValueError:
+            page_num = 1
+
+        matches = user_data_store[user_id].get("province_matches", [])
+        paginated, total = paginate_list(matches, page_num)
+        kb = []
+        for p in paginated:
+            kb.append([InlineKeyboardButton(p, callback_data=f"province_select_{p}")])
+
+        nav_row = []
+        if page_num > 1:
+            nav_row.append(
+                InlineKeyboardButton("⬅️", callback_data=f"province_page_{page_num-1}")
+            )
+        if page_num < total:
+            nav_row.append(
+                InlineKeyboardButton("➡️", callback_data=f"province_page_{page_num+1}")
+            )
+        if nav_row:
+            kb.append(nav_row)
+
+        markup = InlineKeyboardMarkup(kb)
+        await query.edit_message_text(
+            get_text(user_id, "province_multi").format(page=page_num, total=total),
+            reply_markup=markup,
+            parse_mode="HTML",
+        )
+
+        user_data_store[user_id]["province_page"] = page_num
+        return CHOOSE_PROVINCE
+
+    else:
+        await query.edit_message_text(
+            get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
         return END
 
@@ -127,6 +180,7 @@ async def show_advertisements(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
     """Show listings of advertisements with pagination"""
+    print("\033show_advertisements\033[0m")
     query = update.callback_query
     await query.answer() if query else None
 
@@ -200,6 +254,7 @@ async def case_details_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
     """Show detailed information about a case"""
+    print("case_details_callback")
     query = update.callback_query
     await query.answer()
 

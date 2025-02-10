@@ -122,7 +122,7 @@ LANG_DATA = {
             "3. All information provided will be publicly visible.\n\n"
             "Do you agree?"
         ),
-        "enter_reward_amount": "Enter the reward amount (Min. 2 SOL or USD400):",
+        "enter_reward_amount": "Enter the reward amount:",
         "insufficient_funds": "Insufficient funds. Please top up your wallet.",
         "top_up_tutorial": (
             "How to top up your wallet:\n"
@@ -157,6 +157,9 @@ LANG_DATA = {
         "invalid_proof": "Invalid proof. Please upload a photo or video.",
         "enter_location": "Enter the location where the person was found:",
         "notify_advertiser": "The advertiser has been notified. Thank you!",
+        "province_not_found": "No matching provinces found. Please try again:",
+        "province_multi": "Multiple provinces found (Page {page} of {total}):",
+        "province_selected": "You have selected",
     },
     "zh": {
         "lang_choice": "中文",
@@ -234,7 +237,7 @@ LANG_DATA = {
             "3. 提供的所有信息将公开可见。\n\n"
             "您是否同意？"
         ),
-        "enter_reward_amount": "请输入赏金金额（最低 2 SOL 或 USD400）：",
+        "enter_reward_amount": "请输入赏金金额：",
         "insufficient_funds": "余额不足，请充值钱包。",
         "top_up_tutorial": (
             "如何充值钱包：\n"
@@ -269,6 +272,9 @@ LANG_DATA = {
         "invalid_proof": "无效证据。请上传照片或视频。",
         "enter_location": "请输入发现该人的地点：",
         "notify_advertiser": "已通知广告主。谢谢！",
+        "province_not_found": "未找到匹配的省份。请重试：",
+        "province_multi": "找到多个省份 (第 {page} 页，共 {total} 页)：",
+        "province_selected": "已记录省份：",
     },
 }
 

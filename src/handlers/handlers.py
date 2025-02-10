@@ -1,11 +1,11 @@
 from handlers.finder_handler import (
-    choose_province,
-    choose_province_callback,
     show_advertisements,
     case_details_callback,
     handle_proof,
     notify_advertiser,
     handle_found_case,
+    province_callback,
+    choose_province,
 )
 from handlers.listing_handler import (
     case_details_callback,
@@ -209,22 +209,25 @@ conv_handler = ConversationHandler(
         ],
         # From here the finder is the one who is going to find the person
         CHOOSE_PROVINCE: [
-            CallbackQueryHandler(choose_province_callback, pattern=r"^province_")
+            CallbackQueryHandler(
+                province_callback, pattern="^(province_select_|province_page_)"
+            ),
+            MessageHandler(filters.TEXT & ~filters.COMMAND, choose_province),
         ],
-        CASE_LIST: [
-            CallbackQueryHandler(show_advertisements, pattern=r"^page_(previous|next)"),
-            CallbackQueryHandler(case_details_callback, pattern=r"^case_"),
-            CallbackQueryHandler(show_advertisements, pattern="^back_to_list"),
-        ],
-        CASE_DETAILS: [
-            CallbackQueryHandler(case_details_callback, pattern="^case_"),
-            CallbackQueryHandler(handle_found_case, pattern="^found_"),  # Add this line
-            CallbackQueryHandler(show_advertisements, pattern="^back_to_list"),
-        ],
-        UPLOAD_PROOF: [MessageHandler(filters.PHOTO | filters.VIDEO, handle_proof)],
-        ENTER_LOCATION: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, notify_advertiser)
-        ],
+        # CASE_LIST: [
+        #     CallbackQueryHandler(show_advertisements, pattern=r"^page_(previous|next)"),
+        #     CallbackQueryHandler(case_details_callback, pattern=r"^case_"),
+        #     CallbackQueryHandler(show_advertisements, pattern="^back_to_list"),
+        # ],
+        # CASE_DETAILS: [
+        #     CallbackQueryHandler(case_details_callback, pattern="^case_"),
+        #     CallbackQueryHandler(handle_found_case, pattern="^found_"),  # Add this line
+        #     CallbackQueryHandler(show_advertisements, pattern="^back_to_list"),
+        # ],
+        # UPLOAD_PROOF: [MessageHandler(filters.PHOTO | filters.VIDEO, handle_proof)],
+        # ENTER_LOCATION: [
+        #     MessageHandler(filters.TEXT & ~filters.COMMAND, notify_advertiser)
+        # ],
         END: [CommandHandler("start", start)],
     },
     fallbacks=[CommandHandler("cancel", cancel)],

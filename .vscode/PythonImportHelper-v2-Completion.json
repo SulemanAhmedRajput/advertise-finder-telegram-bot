@@ -797,7 +797,15 @@
         "documentation": {}
     },
     {
-        "label": "END",
+        "label": "get_text",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "CASE_LIST",
         "importPath": "constants",
         "description": "constants",
         "isExtraImport": true,
@@ -1341,6 +1349,14 @@
         "documentation": {}
     },
     {
+        "label": "CHOOSE_PROVINCE",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
         "label": "NAME_WALLET",
         "importPath": "constants",
         "description": "constants",
@@ -1662,22 +1678,6 @@
         "documentation": {}
     },
     {
-        "label": "choose_province",
-        "importPath": "handlers.finder_handler",
-        "description": "handlers.finder_handler",
-        "isExtraImport": true,
-        "detail": "handlers.finder_handler",
-        "documentation": {}
-    },
-    {
-        "label": "choose_province_callback",
-        "importPath": "handlers.finder_handler",
-        "description": "handlers.finder_handler",
-        "isExtraImport": true,
-        "detail": "handlers.finder_handler",
-        "documentation": {}
-    },
-    {
         "label": "show_advertisements",
         "importPath": "handlers.finder_handler",
         "description": "handlers.finder_handler",
@@ -1711,6 +1711,22 @@
     },
     {
         "label": "handle_found_case",
+        "importPath": "handlers.finder_handler",
+        "description": "handlers.finder_handler",
+        "isExtraImport": true,
+        "detail": "handlers.finder_handler",
+        "documentation": {}
+    },
+    {
+        "label": "province_callback",
+        "importPath": "handlers.finder_handler",
+        "description": "handlers.finder_handler",
+        "isExtraImport": true,
+        "detail": "handlers.finder_handler",
+        "documentation": {}
+    },
+    {
+        "label": "choose_province",
         "importPath": "handlers.finder_handler",
         "description": "handlers.finder_handler",
         "isExtraImport": true,
@@ -2287,6 +2303,40 @@
         "documentation": {}
     },
     {
+        "label": "time",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "time",
+        "description": "time",
+        "detail": "time",
+        "documentation": {}
+    },
+    {
+        "label": "subprocess",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "subprocess",
+        "description": "subprocess",
+        "detail": "subprocess",
+        "documentation": {}
+    },
+    {
+        "label": "Observer",
+        "importPath": "watchdog.observers",
+        "description": "watchdog.observers",
+        "isExtraImport": true,
+        "detail": "watchdog.observers",
+        "documentation": {}
+    },
+    {
+        "label": "FileSystemEventHandler",
+        "importPath": "watchdog.events",
+        "description": "watchdog.events",
+        "isExtraImport": true,
+        "detail": "watchdog.events",
+        "documentation": {}
+    },
+    {
         "label": "TWILIO_ACCOUNT_SID",
         "kind": 5,
         "importPath": "src.config.config_manager",
@@ -2408,7 +2458,16 @@
         "kind": 2,
         "importPath": "src.handlers.finder_handler",
         "description": "src.handlers.finder_handler",
-        "peekOfCode": "def get_provinces_for_country(country):\n    \"\"\"\n    Fetch provinces/states for the given country using REST Countries API.\n    \"\"\"\n    url = \"https://countriesnow.space/api/v0.1/countries/states\"\n    data = {\"country\": \"Pakistan\"}\n    response = requests.post(url, json=data)\n    if response.status_code == 200:\n        states = response.json()\n        print(f\"states: {states[\"data\"][\"states\"]}\")",
+        "peekOfCode": "def get_provinces_for_country(country):\n    \"\"\"\n    Fetch provinces/states for the given country using REST Countries API.\n    \"\"\"\n    print(f\"Country: {country}\")\n    url = \"https://countriesnow.space/api/v0.1/countries/states\"\n    data = {\"country\": country}\n    response = requests.post(url, json=data)\n    if response.status_code == 200:\n        states = response.json()",
+        "detail": "src.handlers.finder_handler",
+        "documentation": {}
+    },
+    {
+        "label": "get_province_matches",
+        "kind": 2,
+        "importPath": "src.handlers.finder_handler",
+        "description": "src.handlers.finder_handler",
+        "peekOfCode": "def get_province_matches(query, country):\n    query = query.lower()\n    return [p.name for p in get_provinces_for_country(country)]\nasync def fetch_cases_by_province(location):\n    \"\"\"\n    Fetch cases from the database based on the province.\n    \"\"\"\n    # Implement this function\n    case = await Case.find({\"last_seen_location\": location}).to_list()\n    return case",
         "detail": "src.handlers.finder_handler",
         "documentation": {}
     },
@@ -3229,6 +3288,42 @@
         "description": "test.test_sol_transfer",
         "peekOfCode": "send_response = client.send_transaction(transaction)\nprint(f\"Transaction sent! Transaction signature: {send_response}\")",
         "detail": "test.test_sol_transfer",
+        "documentation": {}
+    },
+    {
+        "label": "RestartOnChange",
+        "kind": 6,
+        "importPath": "bot_runner",
+        "description": "bot_runner",
+        "peekOfCode": "class RestartOnChange(FileSystemEventHandler):\n    def on_modified(self, event):\n        if event.src_path.endswith(\".py\"):  # Only restart on Python file changes\n            print(f\"File changed: {event.src_path}\")\n            restart_bot()\nif __name__ == \"__main__\":\n    path = \".\"  # Watch the current directory\n    event_handler = RestartOnChange()\n    observer = Observer()\n    observer.schedule(event_handler, path, recursive=True)",
+        "detail": "bot_runner",
+        "documentation": {}
+    },
+    {
+        "label": "restart_bot",
+        "kind": 2,
+        "importPath": "bot_runner",
+        "description": "bot_runner",
+        "peekOfCode": "def restart_bot():\n    global process\n    if process:\n        print(\"Restarting bot...\")\n        process.kill()  # Kill the existing process\n        time.sleep(1)\n    process = subprocess.Popen([\"python\", BOT_SCRIPT])  # Restart the bot\nclass RestartOnChange(FileSystemEventHandler):\n    def on_modified(self, event):\n        if event.src_path.endswith(\".py\"):  # Only restart on Python file changes",
+        "detail": "bot_runner",
+        "documentation": {}
+    },
+    {
+        "label": "BOT_SCRIPT",
+        "kind": 5,
+        "importPath": "bot_runner",
+        "description": "bot_runner",
+        "peekOfCode": "BOT_SCRIPT = \"src/main.py\"  # The name of your bot script\nprocess = None\ndef restart_bot():\n    global process\n    if process:\n        print(\"Restarting bot...\")\n        process.kill()  # Kill the existing process\n        time.sleep(1)\n    process = subprocess.Popen([\"python\", BOT_SCRIPT])  # Restart the bot\nclass RestartOnChange(FileSystemEventHandler):",
+        "detail": "bot_runner",
+        "documentation": {}
+    },
+    {
+        "label": "process",
+        "kind": 5,
+        "importPath": "bot_runner",
+        "description": "bot_runner",
+        "peekOfCode": "process = None\ndef restart_bot():\n    global process\n    if process:\n        print(\"Restarting bot...\")\n        process.kill()  # Kill the existing process\n        time.sleep(1)\n    process = subprocess.Popen([\"python\", BOT_SCRIPT])  # Restart the bot\nclass RestartOnChange(FileSystemEventHandler):\n    def on_modified(self, event):",
+        "detail": "bot_runner",
         "documentation": {}
     }
 ]
