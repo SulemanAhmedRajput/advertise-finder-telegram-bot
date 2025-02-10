@@ -2,15 +2,10 @@ import os
 from twilio.rest import Client
 from random import randint
 
-# # Load Twilio credentials from environment variables
-# TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
-# TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
-# TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
-
-
-TWILIO_ACCOUNT_SID = "ACa20f16f5e66f19f50d3c2b7d20b12369"
-TWILIO_AUTH_TOKEN = "f504f8cb989d6c6c4c5cecf62497c601"
-TWILIO_PHONE_NUMBER = "+923138194805"
+# Load Twilio credentials from environment variables
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 
 
 # Initialize Twilio client

@@ -23,6 +23,7 @@ class Case(Document):
     reward: float
     reward_type: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    finder: str = None
 
     class Settings:
         name = "cases"  # The name of the collection in MongoDB

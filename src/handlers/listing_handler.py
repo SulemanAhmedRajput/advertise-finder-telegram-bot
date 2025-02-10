@@ -191,18 +191,3 @@ async def pagination_callback(
         parse_mode="Markdown",
     )
     return CASE_DETAILS
-
-
-# Define ConversationHandler
-case_listing_handler = ConversationHandler(
-    entry_points=[CommandHandler("listing", listing_command)],
-    states={
-        CASE_DETAILS: [
-            CallbackQueryHandler(case_details_callback, pattern="^case_.*$"),
-            CallbackQueryHandler(
-                pagination_callback, pattern="^(page_previous|page_next)$"
-            ),
-        ]
-    },
-    fallbacks=[CommandHandler("cancel", lambda update, context: END)],
-)

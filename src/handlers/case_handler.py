@@ -1,4 +1,5 @@
 from models.case_model import Case
+import os
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
     ContextTypes,
@@ -30,9 +31,10 @@ from constants import (
     CREATE_CASE_DISTINCTIVE_FEATURES,
     END,
 )
+import utils.cloudinary
 from utils.twilio import generate_tac, send_sms, verify_tac
 from utils.wallet import load_user_wallet, transfer_solana_funds
-
+from utils.cloudinary import upload_image
 from solders.keypair import Keypair
 from solders.pubkey import Pubkey
 from solana.rpc.api import Client
@@ -71,8 +73,12 @@ async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     context.user_data["tac"] = tac
     context.user_data["mobile"] = mobile
 
-    # Send TAC via Twilio
-    message = send_sms(mobile, tac)
+    # # Send TAC via Twilio
+    # message = send_sms(mobile, tac)
+
+    # if not message:  # Check if SMS was sent successfully
+    #     await update.message.reply_text(get_text(user_id, "enter_mobile"))
+    #     return CREATE_CASE_MOBILE
 
     # Validate the mobile number (basic validation for example purposes)
     if not mobile.isdigit() or len(mobile) < 10:
@@ -184,10 +190,6 @@ async def handle_reward_amount(
         await update.message.reply_text("Invalid amount, please enter a valid number.")
         return CREATE_CASE_REWARD_AMOUNT
 
-    if reward < 2:
-        await update.message.reply_text("The amount must be at least 2.")
-        return CREATE_CASE_REWARD_AMOUNT
-
     context.user_data["case"]["reward"] = reward
 
     await update.message.reply_text("Please enter the person's name.")
@@ -220,7 +222,7 @@ async def handle_relationship(
 
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle photo upload."""
+    """Handle photo upload and store it on Cloudinary."""
     user_id = update.effective_user.id
 
     # Check if the user sent a photo
@@ -228,15 +230,14 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         await update.message.reply_text(get_text(user_id, "no_photo_found"))
         return CREATE_CASE_PHOTO
 
-    # Get the highest quality photo from the list (the last element in the list)
+    # Get the highest quality photo from the list (the last element)
     photo_file = await update.message.photo[-1].get_file()
 
     # Define the absolute path for the photos directory
-    photo_dir = os.path.join(os.getcwd(), "photos")  # Ensure absolute path
+    photo_dir = os.path.join(os.getcwd(), "photos")
 
     # Create the directory if it doesn't exist
-    if not os.path.exists(photo_dir):
-        os.makedirs(photo_dir)
+    os.makedirs(photo_dir, exist_ok=True)
 
     # Define the path to save the photo
     photo_path = os.path.join(photo_dir, f"{user_id}_photo.jpg")
@@ -247,9 +248,13 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     # Download the photo to the server
     await photo_file.download_to_drive(photo_path)
 
-    # Store the photo path in user data for further processing
-    context.user_data["case"]["photo_path"] = photo_path
-    logger.info(f"User {user_id} uploaded photo: {photo_path}")
+    # Upload the photo to Cloudinary
+    upload_result = await upload_image(photo_path)
+    if upload_result:
+        logger.info(f"Uploaded Photo URL: {upload_result}")
+        context.user_data["case"][
+            "photo_url"
+        ] = upload_result  # Store URL instead of local path
 
     # Move to the next step (e.g., last seen location)
     await update.message.reply_text(get_text(user_id, "last_seen_location"))
@@ -402,45 +407,52 @@ async def transfer_sol(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
 
 async def handle_private_key(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Store the private key and ask for confirmation before executing the transaction."""
     user_id = update.effective_user.id
     private_key = update.message.text.strip()
+
     try:
         print("Getting the private key", private_key)
         # Validate the private key
         sender = Keypair.from_base58_string(private_key)
+
         # Load the recipient's public key
-
         wallet = load_user_wallet(user_id)
-
         print("wallet are ", wallet)
 
         to_pubkey = Pubkey.from_string(wallet["public_key"])
+        total_sol = context.user_data["case"]["reward"]
+
+        print(total_sol)
+
         # Fetch the latest blockhash
+        blockhash_response = client.get_latest_blockhash()
+        recent_blockhash = blockhash_response.value.blockhash
+        logger.info(f"Latest blockhash fetched: {recent_blockhash}")
+
+        # Create a transfer instruction
         instruction = transfer(
             TransferParams(
                 from_pubkey=sender.pubkey(),
                 to_pubkey=to_pubkey,
-                lamports=1_000_000,  # Convert SOL to lamports
+                lamports=int(total_sol * 1e9),  # Convert SOL to lamports
             )
         )
-        blockhash_response = client.get_latest_blockhash()
-        recent_blockhash = blockhash_response.value.blockhash
-        logger.info(f"Latest blockhash fetched: {recent_blockhash}")
+
         # Create a message and transaction
         message = Message(instructions=[instruction], payer=sender.pubkey())
         transaction = Transaction(
             from_keypairs=[sender], message=message, recent_blockhash=recent_blockhash
         )
-        # Sign the transaction
-        transaction.sign([sender], recent_blockhash=recent_blockhash)
-        # Send the transaction
-        send_response = client.send_transaction(transaction)
-        print(f"Transaction sent! Response: {send_response}")
 
-        await update.message.reply_text(
-            f"✅ Transfer of 1 SOL successful!\n\nTransaction ID: {send_response}\nDo you want to confirm the transaction?"
-        )
-        # Provide confirmation options (Confirm / Cancel)
+        # Store transaction details temporarily in context (DO NOT execute yet)
+        context.user_data["transaction"] = {
+            "private_key": private_key,  # Keep private key for signing later
+            "transaction": transaction,  # Store transaction object
+            "recent_blockhash": recent_blockhash,
+        }
+
+        # Ask the user to confirm the transaction
         keyboard = [
             [
                 InlineKeyboardButton("Confirm", callback_data="confirm"),
@@ -448,14 +460,17 @@ async def handle_private_key(update: Update, context: ContextTypes.DEFAULT_TYPE)
             ]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
+
         await update.message.reply_text(
-            "Confirm the transaction.", reply_markup=reply_markup
+            f"✅ Transfer of {total_sol} SOL is ready.\n\n"
+            "Do you want to confirm the transaction?",
+            reply_markup=reply_markup,
         )
+
         return TRANSFER_CONFIRMATION
 
     except Exception as e:
-        # Log and notify the user of the error
-        logger.error(f"Error during transaction: {str(e)}")
+        logger.error(f"Error during transaction preparation: {str(e)}")
         await update.message.reply_text(
             f"❌ Error: {str(e)}. Please check your private key and try again."
         )
@@ -465,47 +480,73 @@ async def handle_private_key(update: Update, context: ContextTypes.DEFAULT_TYPE)
 async def handle_transfer_confirmation(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
+    """Execute the transaction if the user confirms, otherwise cancel."""
     query = update.callback_query
-    await query.answer()  # Acknowledge the callback query
+    await query.answer()
 
     if query.data == "confirm":
-        # Confirm the transaction and notify the user
+        try:
+            # Retrieve stored transaction details
+            transaction_data = context.user_data.get("transaction")
+            if not transaction_data:
+                await query.message.reply_text("❌ Error: No transaction found.")
+                return END
 
-        """Submit the case."""
-        user_id = update.effective_user.id
-        case_data = context.user_data.get("case", {})
+            private_key = transaction_data["private_key"]
+            transaction = transaction_data["transaction"]
+            recent_blockhash = transaction_data["recent_blockhash"]
 
-        # Generate a unique case number (you can improve this logic)
-        case_no = f"CASE-{user_id}-{len(context.user_data)}"
+            # Recreate the sender keypair
+            sender = Keypair.from_base58_string(private_key)
 
-        # Create a new Case document
-        case = Case(
-            user_id=user_id,
-            case_no=case_no,
-            name=case_data.get("name", ""),
-            mobile=case_data.get("mobile", ""),
-            person_name=case_data.get("person_name", ""),
-            relationship=case_data.get("relationship", ""),
-            photo_path=case_data.get("photo_path", ""),
-            last_seen_location=case_data.get("last_seen_location", ""),
-            sex=case_data.get("sex", ""),
-            age=case_data.get("age", ""),
-            hair_color=case_data.get("hair_color", ""),
-            eye_color=case_data.get("eye_color", ""),
-            height=case_data.get("height", ""),
-            weight=case_data.get("weight", ""),
-            distinctive_features=case_data.get("distinctive_features", ""),
-            reward=case_data.get("reward", 0),
-            reward_type=case_data.get("reward_type", "SOL"),
-        )
+            # Sign and send the transaction
+            transaction.sign([sender], recent_blockhash=recent_blockhash)
+            send_response = client.send_transaction(transaction)
+            logger.info(f"Transaction sent! Response: {send_response}")
 
-        # Save the case to the database
-        await case.insert()
+            await query.message.reply_text(
+                f"✅ Transfer successful!\n\nTransaction ID: {send_response}"
+            )
 
-        await query.message.reply_text("Your transaction has been confirmed.")
+            """Submit the case."""
+            user_id = query.from_user.id
+            case_data = context.user_data.get("case", {})
+
+            # Generate a unique case number
+            case_no = f"CASE-{user_id}-{len(context.user_data)}"
+
+            # Create and insert case into the database
+            case = Case(
+                user_id=user_id,
+                case_no=case_no,
+                name=case_data.get("name", ""),
+                mobile=case_data.get("mobile", ""),
+                person_name=case_data.get("person_name", ""),
+                relationship=case_data.get("relationship", ""),
+                photo_path=case_data.get("photo_path", ""),
+                last_seen_location=case_data.get("last_seen_location", ""),
+                sex=case_data.get("sex", ""),
+                age=case_data.get("age", ""),
+                hair_color=case_data.get("hair_color", ""),
+                eye_color=case_data.get("eye_color", ""),
+                height=case_data.get("height", ""),
+                weight=case_data.get("weight", ""),
+                distinctive_features=case_data.get("distinctive_features", ""),
+                reward=case_data.get("reward", 0),
+                reward_type=case_data.get("reward_type", "SOL"),
+            )
+            await case.insert()
+
+            await query.message.reply_text("✅ Your transaction has been confirmed.")
+
+        except Exception as e:
+            logger.error(f"Error executing transaction: {str(e)}")
+            await query.message.reply_text(
+                f"❌ Transaction failed: {str(e)}. Please try again."
+            )
 
     else:
         # If canceled, notify the user
-        await query.message.reply_text("Transaction has been canceled.")
+        await query.message.reply_text("❌ Transaction has been canceled.")
 
     return END

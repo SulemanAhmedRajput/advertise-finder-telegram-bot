@@ -16,13 +16,12 @@ cloudinary.config(
 )
 
 
-async def upload_image(image):
+async def upload_image(image: str):
     try:
-        upload_result = upload(image.file)
+        upload_result = upload(image)
         file_url = upload_result["secure_url"]
+        print(f"Uploaded Image URL: {file_url}")
         return file_url
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error uploading images: {e}",
-        )
+        print(f"Error uploading image: {e}")
+        return None

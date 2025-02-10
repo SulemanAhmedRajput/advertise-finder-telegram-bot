@@ -1,3 +1,6 @@
+from bson import ObjectId
+import datetime
+import os
 import requests
 from constants import (
     CASE_DETAILS,
@@ -17,8 +20,10 @@ from telegram.ext import (
     ContextTypes,
 )
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from handlers.listing_handler import ITEMS_PER_PAGE
+from handlers.listing_handler import ITEMS_PER_PAGE, paginate_list
 from models.case_model import Case
+from handlers.listing_handler import logger
+from utils.cloudinary import upload_image
 
 
 def get_provinces_for_country(country):
@@ -42,8 +47,10 @@ def get_provinces_for_country(country):
 
 
 def get_province_matches(query, country):
+    """Geting the province match with query and inside the country which provided"""
     query = query.lower()
-    return [p.name for p in get_provinces_for_country(country)]
+    provinces = get_provinces_for_country(country)
+    return [province for province in provinces if query in province.lower()]
 
 
 async def fetch_cases_by_province(location):
@@ -52,6 +59,8 @@ async def fetch_cases_by_province(location):
     """
     # Implement this function
     case = await Case.find({"last_seen_location": location}).to_list()
+    print(f"These are the cases for {location}: {case}")
+
     return case
 
 
@@ -60,15 +69,17 @@ async def fetch_case_by_number(case_no):
     Fetch a case from the database based on the case number.
     """
     # Implement this function
-    case = await Case.find_one({"case_no": case_no})
+    case = await Case.find_one({"_id": ObjectId(case_no)})
     return case
 
 
 async def choose_province(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handles province selection and shows cases for that province."""
     print("Hello from the choose province")
     user_id = update.effective_user.id
     txt = update.message.text.strip()
-    # Replace this with the function to get matching provinces for the text input
+
+    # Get country from user_data
     country = context.user_data.get("country", None)
 
     if not country:
@@ -77,19 +88,66 @@ async def choose_province(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         )
         return CHOOSE_COUNTRY
 
+    # Get matching provinces
     matches = get_province_matches(txt, country)
-
     print(f"Matched Provinces are: {matches}")
 
     if len(matches) == 1:
-        # If there's only one match, select it directly
-        user_data_store[user_id]["province"] = matches[0]
-        context.user_data["province"] = matches[0]
-        # Proceed to next step (e.g., case creation or some other flow)
-        await case_listing(update, context)  # Or whatever the next step is
-        return CASE_LIST
+        # If there's only one match, fetch and display cases
+        selected_province = matches[0]
+        context.user_data["province"] = selected_province
+
+        # Fetch cases from DB where last_seen_location matches province
+        cases = await Case.find({"last_seen_location": selected_province}).to_list()
+
+        if not cases:
+            await update.message.reply_text(
+                f"No cases found for {selected_province}.",
+                parse_mode="Markdown",
+            )
+            return CHOOSE_PROVINCE
+
+        # Save case list in context for pagination
+        context.user_data["cases"] = cases
+        context.user_data["page"] = 1
+
+        # Paginate cases
+        paginated_cases, total_pages = paginate_list(cases, 1)
+
+        # Create keyboard buttons for cases
+        keyboard = [
+            [
+                InlineKeyboardButton(
+                    f"Case {case.case_no} - {case.person_name}",
+                    callback_data=f"case_{str(case.id)}",
+                )
+            ]
+            for case in paginated_cases
+        ]
+
+        # Add pagination buttons
+        navigation_buttons = []
+        if total_pages > 1:
+            navigation_buttons.append(
+                InlineKeyboardButton("⬅️ Previous", callback_data="case_page_previous")
+            )
+            navigation_buttons.append(
+                InlineKeyboardButton("➡️ Next", callback_data="case_page_next")
+            )
+        if navigation_buttons:
+            keyboard.append(navigation_buttons)
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        await update.message.reply_text(
+            f"📍 **Cases from {selected_province}:**",
+            reply_markup=reply_markup,
+            parse_mode="Markdown",
+        )
+        return CASE_DETAILS  # Transition to case details handling
+
     else:
-        # If there are multiple matches, show the paginated list
+        # If multiple matches, show province selection UI
         user_data_store[user_id]["province_matches"] = matches
         user_data_store[user_id]["province_page"] = 1
         paginated, total = paginate_list(matches, 1)
@@ -129,7 +187,7 @@ async def province_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             parse_mode="HTML",
         )
         # Proceed to the next step (case listing or whatever is next)
-        return await case_listing(update, context)
+        return await show_advertisements(update, context)
 
     elif data.startswith("province_page_"):
         # Handle pagination for provinces
@@ -240,7 +298,7 @@ async def show_advertisements(
         else:
             await update.effective_message.reply_text(text, reply_markup=reply_markup)
 
-        return CASE_LIST
+        return CASE_DETAILS
 
     except Exception as e:
         logger.error(f"Error showing advertisements: {e}")
@@ -250,16 +308,16 @@ async def show_advertisements(
         return END
 
 
-async def case_details_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
+async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Show detailed information about a case"""
     print("case_details_callback")
     query = update.callback_query
     await query.answer()
 
     try:
+        print(f"Printing the Query: {query.data}")
         case_no = query.data.split("_")[1]
+        print(f"Case Number are {case_no}")
         case = await fetch_case_by_number(case_no)
 
         if not case:
@@ -270,17 +328,17 @@ async def case_details_callback(
             f"🔍 Case #{case.case_no}\n\n"
             f"👤 Name: {case.person_name}\n"
             f"📍 Last Seen: {case.last_seen_location}\n"
-            f"📅 Last Seen Date: {case.last_seen_date}\n"
-            f"🏷️ Reward: {case.reward} {case.reward_currency}\n\n"
-            f"ℹ️ Additional Info:\n{case.description}"
+            # f"📅 Last Seen Date: {case.last_seen_date}\n"
+            # f"🏷️ Reward: {case.reward} {case.reward_currency}\n\n"
+            # f"ℹ️ Additional Info:\n{case.description}"
         )
 
         keyboard = [
-            [
-                InlineKeyboardButton(
-                    "📌 Save Case", callback_data=f"save_{case.case_no}"
-                )
-            ],
+            # [
+            #     InlineKeyboardButton(
+            #         "📌 Save Case", callback_data=f"save_{case.case_no}"
+            #     )
+            # ],
             [
                 InlineKeyboardButton(
                     "✅ Mark as Found", callback_data=f"found_{case.case_no}"
@@ -301,7 +359,8 @@ async def case_details_callback(
 
 
 async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle uploaded proof with better file handling"""
+    """Handles uploaded proof and uploads it to Cloudinary."""
+    print("handle_proof")
     try:
         user_id = update.effective_user.id
         case_no = context.user_data.get("found_case_no")
@@ -312,7 +371,7 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             )
             return END
 
-        # Create proofs directory if not exists
+        # Ensure 'proofs' directory exists
         os.makedirs("proofs", exist_ok=True)
 
         file_id = None
@@ -329,7 +388,7 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             return UPLOAD_PROOF
 
         # Generate unique filename
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         filename = f"proof_{user_id}_{case_no}_{timestamp}.{file_extension}"
         file_path = os.path.join("proofs", filename)
 
@@ -337,16 +396,23 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         file = await context.bot.get_file(file_id)
         await file.download_to_drive(file_path)
 
+        # Upload the image to Cloudinary
+        upload_result = await upload_image(
+            file_path
+        )  # Pass file path instead of File object
+        if upload_result:
+            print(f"Uploaded Image URL: {upload_result}")
+
         # Store proof path in context
         context.user_data["proof_path"] = file_path
 
         await update.message.reply_text(
-            "✅ Proof received. Please enter the location where you found this person:"
+            "✅ Proof received. \n  Please enter the location where you found this person:"
         )
         return ENTER_LOCATION
 
     except Exception as e:
-        logger.error(f"Error handling proof: {e}")
+        print(f"Error handling proof: {e}")
         await update.message.reply_text(
             "❌ Error processing your proof. Please try again."
         )
@@ -373,7 +439,7 @@ async def notify_advertiser(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             return END
 
         # Get advertiser's chat ID
-        advertiser_chat_id = case.advertiser_id
+        advertiser_chat_id = case.user_id
 
         # Send notification to advertiser
         notification_text = (
@@ -409,6 +475,7 @@ async def notify_advertiser(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 async def handle_found_case(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle 'Found' button clicks from case details"""
+    print(f"Inside the handle_found_case function")
     query = update.callback_query
     await query.answer()
 

@@ -1413,6 +1413,31 @@
         "documentation": {}
     },
     {
+        "label": "utils.cloudinary",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "utils.cloudinary",
+        "description": "utils.cloudinary",
+        "detail": "utils.cloudinary",
+        "documentation": {}
+    },
+    {
+        "label": "upload_image",
+        "importPath": "utils.cloudinary",
+        "description": "utils.cloudinary",
+        "isExtraImport": true,
+        "detail": "utils.cloudinary",
+        "documentation": {}
+    },
+    {
+        "label": "upload_image",
+        "importPath": "utils.cloudinary",
+        "description": "utils.cloudinary",
+        "isExtraImport": true,
+        "detail": "utils.cloudinary",
+        "documentation": {}
+    },
+    {
         "label": "generate_tac",
         "importPath": "utils.twilio",
         "description": "utils.twilio",
@@ -1637,6 +1662,39 @@
         "documentation": {}
     },
     {
+        "label": "ObjectId",
+        "importPath": "bson",
+        "description": "bson",
+        "isExtraImport": true,
+        "detail": "bson",
+        "documentation": {}
+    },
+    {
+        "label": "ObjectId",
+        "importPath": "bson",
+        "description": "bson",
+        "isExtraImport": true,
+        "detail": "bson",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "datetime",
+        "description": "datetime",
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "requests",
         "kind": 6,
         "isExtraImport": true,
@@ -1647,6 +1705,22 @@
     },
     {
         "label": "ITEMS_PER_PAGE",
+        "importPath": "handlers.listing_handler",
+        "description": "handlers.listing_handler",
+        "isExtraImport": true,
+        "detail": "handlers.listing_handler",
+        "documentation": {}
+    },
+    {
+        "label": "paginate_list",
+        "importPath": "handlers.listing_handler",
+        "description": "handlers.listing_handler",
+        "isExtraImport": true,
+        "detail": "handlers.listing_handler",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
         "importPath": "handlers.listing_handler",
         "description": "handlers.listing_handler",
         "isExtraImport": true,
@@ -1686,7 +1760,7 @@
         "documentation": {}
     },
     {
-        "label": "case_details_callback",
+        "label": "case_details",
         "importPath": "handlers.finder_handler",
         "description": "handlers.finder_handler",
         "isExtraImport": true,
@@ -2054,14 +2128,6 @@
         "documentation": {}
     },
     {
-        "label": "ObjectId",
-        "importPath": "bson",
-        "description": "bson",
-        "isExtraImport": true,
-        "detail": "bson",
-        "documentation": {}
-    },
-    {
         "label": "traceback",
         "kind": 6,
         "isExtraImport": true,
@@ -2119,14 +2185,6 @@
         "description": "pydantic",
         "isExtraImport": true,
         "detail": "pydantic",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
         "documentation": {}
     },
     {
@@ -2467,7 +2525,7 @@
         "kind": 2,
         "importPath": "src.handlers.finder_handler",
         "description": "src.handlers.finder_handler",
-        "peekOfCode": "def get_province_matches(query, country):\n    query = query.lower()\n    return [p.name for p in get_provinces_for_country(country)]\nasync def fetch_cases_by_province(location):\n    \"\"\"\n    Fetch cases from the database based on the province.\n    \"\"\"\n    # Implement this function\n    case = await Case.find({\"last_seen_location\": location}).to_list()\n    return case",
+        "peekOfCode": "def get_province_matches(query, country):\n    \"\"\"Geting the province match with query and inside the country which provided\"\"\"\n    query = query.lower()\n    provinces = get_provinces_for_country(country)\n    return [province for province in provinces if query in province.lower()]\nasync def fetch_cases_by_province(location):\n    \"\"\"\n    Fetch cases from the database based on the province.\n    \"\"\"\n    # Implement this function",
         "detail": "src.handlers.finder_handler",
         "documentation": {}
     },
@@ -2549,15 +2607,6 @@
         "importPath": "src.handlers.listing_handler",
         "description": "src.handlers.listing_handler",
         "peekOfCode": "ITEMS_PER_PAGE = 5  # Define how many cases to display per page\n# Helper to paginate list items\ndef paginate_list(items, page, items_per_page=ITEMS_PER_PAGE):\n    total_pages = max(1, math.ceil(len(items) / items_per_page)) if items else 1\n    page = max(1, min(page, total_pages))\n    start = (page - 1) * items_per_page\n    end = start + items_per_page\n    return items[start:end], total_pages\n# Define states\nasync def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:",
-        "detail": "src.handlers.listing_handler",
-        "documentation": {}
-    },
-    {
-        "label": "case_listing_handler",
-        "kind": 5,
-        "importPath": "src.handlers.listing_handler",
-        "description": "src.handlers.listing_handler",
-        "peekOfCode": "case_listing_handler = ConversationHandler(\n    entry_points=[CommandHandler(\"listing\", listing_command)],\n    states={\n        CASE_DETAILS: [\n            CallbackQueryHandler(case_details_callback, pattern=\"^case_.*$\"),\n            CallbackQueryHandler(\n                pagination_callback, pattern=\"^(page_previous|page_next)$\"\n            ),\n        ]\n    },",
         "detail": "src.handlers.listing_handler",
         "documentation": {}
     },
@@ -2728,7 +2777,7 @@
         "kind": 5,
         "importPath": "src.utils.twilio",
         "description": "src.utils.twilio",
-        "peekOfCode": "TWILIO_ACCOUNT_SID = \"ACa20f16f5e66f19f50d3c2b7d20b12369\"\nTWILIO_AUTH_TOKEN = \"f504f8cb989d6c6c4c5cecf62497c601\"\nTWILIO_PHONE_NUMBER = \"+923138194805\"\n# Initialize Twilio client\nclient = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)\n# In-memory storage for TAC codes (replace with a database in production)\ntac_store = {}\ndef generate_tac():\n    \"\"\"Generate a 6-digit Time-based Authentication Code (TAC).\"\"\"\n    return str(randint(100000, 999999))",
+        "peekOfCode": "TWILIO_ACCOUNT_SID = os.getenv(\"TWILIO_ACCOUNT_SID\")\nTWILIO_AUTH_TOKEN = os.getenv(\"TWILIO_AUTH_TOKEN\")\nTWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")\n# Initialize Twilio client\nclient = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)\n# In-memory storage for TAC codes (replace with a database in production)\ntac_store = {}\ndef generate_tac():\n    \"\"\"Generate a 6-digit Time-based Authentication Code (TAC).\"\"\"\n    return str(randint(100000, 999999))",
         "detail": "src.utils.twilio",
         "documentation": {}
     },
@@ -2737,7 +2786,7 @@
         "kind": 5,
         "importPath": "src.utils.twilio",
         "description": "src.utils.twilio",
-        "peekOfCode": "TWILIO_AUTH_TOKEN = \"f504f8cb989d6c6c4c5cecf62497c601\"\nTWILIO_PHONE_NUMBER = \"+923138194805\"\n# Initialize Twilio client\nclient = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)\n# In-memory storage for TAC codes (replace with a database in production)\ntac_store = {}\ndef generate_tac():\n    \"\"\"Generate a 6-digit Time-based Authentication Code (TAC).\"\"\"\n    return str(randint(100000, 999999))\ndef send_sms(phone_number, tac):",
+        "peekOfCode": "TWILIO_AUTH_TOKEN = os.getenv(\"TWILIO_AUTH_TOKEN\")\nTWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")\n# Initialize Twilio client\nclient = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)\n# In-memory storage for TAC codes (replace with a database in production)\ntac_store = {}\ndef generate_tac():\n    \"\"\"Generate a 6-digit Time-based Authentication Code (TAC).\"\"\"\n    return str(randint(100000, 999999))\ndef send_sms(phone_number, tac):",
         "detail": "src.utils.twilio",
         "documentation": {}
     },
@@ -2746,7 +2795,7 @@
         "kind": 5,
         "importPath": "src.utils.twilio",
         "description": "src.utils.twilio",
-        "peekOfCode": "TWILIO_PHONE_NUMBER = \"+923138194805\"\n# Initialize Twilio client\nclient = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)\n# In-memory storage for TAC codes (replace with a database in production)\ntac_store = {}\ndef generate_tac():\n    \"\"\"Generate a 6-digit Time-based Authentication Code (TAC).\"\"\"\n    return str(randint(100000, 999999))\ndef send_sms(phone_number, tac):\n    \"\"\"",
+        "peekOfCode": "TWILIO_PHONE_NUMBER = os.getenv(\"TWILIO_PHONE_NUMBER\")\n# Initialize Twilio client\nclient = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)\n# In-memory storage for TAC codes (replace with a database in production)\ntac_store = {}\ndef generate_tac():\n    \"\"\"Generate a 6-digit Time-based Authentication Code (TAC).\"\"\"\n    return str(randint(100000, 999999))\ndef send_sms(phone_number, tac):\n    \"\"\"",
         "detail": "src.utils.twilio",
         "documentation": {}
     },
