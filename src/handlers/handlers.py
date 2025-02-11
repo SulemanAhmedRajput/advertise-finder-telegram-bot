@@ -6,6 +6,9 @@ from handlers.finder_handler import (
     handle_found_case,
     province_callback,
     choose_province,
+    handle_advertiser_confirmation,
+    handle_public_key,
+    handle_transfer,
 )
 from handlers.listing_handler import (
     case_details_callback,
@@ -67,6 +70,9 @@ from constants import (
     CASE_LIST,
     ENTER_LOCATION,
     UPLOAD_PROOF,
+    ADVERTISER_CONFIRMATION,
+    CONFIRM_TRANSFER,
+    ENTER_PUBLIC_KEY,
 )
 from utils.wallet import load_user_wallet
 from handlers.start_handler import (
@@ -227,6 +233,20 @@ conv_handler = ConversationHandler(
         UPLOAD_PROOF: [MessageHandler(filters.PHOTO | filters.VIDEO, handle_proof)],
         ENTER_LOCATION: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, notify_advertiser)
+        ],
+        ADVERTISER_CONFIRMATION: [  # NEW: Advertiser confirms reward
+            CallbackQueryHandler(
+                handle_advertiser_confirmation,
+                pattern="^(approve_reward|reject_reward)$",
+            )
+        ],
+        ENTER_PUBLIC_KEY: [  # NEW: Finder enters their Solana public key
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_public_key)
+        ],
+        CONFIRM_TRANSFER: [  # NEW: Advertiser confirms SOL transfer
+            CallbackQueryHandler(
+                handle_transfer, pattern="^(confirm_transfer|cancel_transfer)$"
+            )
         ],
         END: [CommandHandler("start", start)],
     },

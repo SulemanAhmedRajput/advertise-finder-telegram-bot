@@ -41,6 +41,10 @@ CASE_LIST = 100
 CASE_DETAILS = 101
 UPLOAD_PROOF = 102  # New state for uploading proof
 ENTER_LOCATION = 103  # New state for entering the location where the person was found
+ADVERTISER_CONFIRMATION = 104  # New state for confirming the reward transfer
+ENTER_PUBLIC_KEY = 105  # New state for entering the public key of the finder
+CONFIRM_TRANSFER = 106  # New state for confirming the SOL transfer
+
 
 # ======================
 # Language Data & Constants

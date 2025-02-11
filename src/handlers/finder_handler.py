@@ -2,18 +2,7 @@ from bson import ObjectId
 import datetime
 import os
 import requests
-from constants import (
-    CASE_DETAILS,
-    CASE_LIST,
-    CHOOSE_COUNTRY,
-    CHOOSE_PROVINCE,
-    END,
-    ENTER_LOCATION,
-    UPLOAD_PROOF,
-    get_text,
-    CASE_LIST,
-    user_data_store,
-)
+import constants
 import telegram
 
 from telegram.ext import (
@@ -24,6 +13,21 @@ from handlers.listing_handler import ITEMS_PER_PAGE, paginate_list
 from models.case_model import Case
 from handlers.listing_handler import logger
 from utils.cloudinary import upload_image
+import utils.wallet
+from constants import (
+    CASE_DETAILS,
+    CHOOSE_COUNTRY,
+    CHOOSE_PROVINCE,
+    END,
+    ENTER_LOCATION,
+    UPLOAD_PROOF,
+    get_text,
+    CASE_LIST,
+    user_data_store,
+    ADVERTISER_CONFIRMATION,
+    ENTER_PUBLIC_KEY,
+    CONFIRM_TRANSFER,
+)
 
 
 def get_provinces_for_country(country):
@@ -425,7 +429,7 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
 # TODO: Add a check to see if the user has already been notified
 async def notify_advertiser(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Complete notification implementation"""
+    """Notify the advertiser and ask them to confirm the reward transfer."""
     user_id = update.effective_user.id
     try:
         location = update.message.text.strip()
@@ -442,33 +446,160 @@ async def notify_advertiser(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             await update.message.reply_text(get_text(user_id, "case_not_found"))
             return END
 
+        # Store necessary information in context
+        context.user_data["case_no"] = case_no
+        context.user_data["reported_location"] = location
+        context.user_data["finder_chat_id"] = user_id  # Store finder’s ID
+
         # Get advertiser's chat ID
         advertiser_chat_id = case.user_id
 
-        # Send notification to advertiser
-        notification_text = get_text(user_id, "notification_text").format(
-            case_no=case.case_no,
-            person_name=case.person_name,
-            location=location,
-            proof_path="Dev Mode",
+        # Send confirmation request to advertiser
+        keyboard = [
+            [InlineKeyboardButton("✅ Approve Reward", callback_data="approve_reward")],
+            [InlineKeyboardButton("❌ Reject", callback_data="reject_reward")],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        notification_text = (
+            f"🚨 **Potential Match Alert!** 🚨\n\n"
+            f"🔹 **Case #{case_no}:** {case.person_name}\n"
+            f"📍 **Reported Location:** {location}\n"
+            f"🔗 **Proof:** [Dev Mode]\n\n"
+            "💰 **Do you approve sending the reward to the finder?**"
         )
 
         await context.bot.send_message(
-            chat_id=advertiser_chat_id, text=notification_text
+            chat_id=advertiser_chat_id,
+            text=notification_text,
+            reply_markup=reply_markup,
         )
 
         # Confirm to finder
         await update.message.reply_text(get_text(user_id, "reply_to_advertiser"))
 
-        # Cleanup context
-        context.user_data.pop("found_case_no", None)
-        context.user_data.pop("proof_path", None)
-
-        return END
+        return ADVERTISER_CONFIRMATION
 
     except Exception as e:
         logger.error(f"Error notifying advertiser: {e}")
         await update.message.reply_text(get_text(user_id, "error_sending_notification"))
+        return END
+
+
+async def handle_advertiser_confirmation(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    """Handles the advertiser's decision on reward transfer."""
+    query = update.callback_query
+    await query.answer()
+
+    user_id = query.from_user.id
+    case_no = context.user_data.get("case_no")
+    finder_chat_id = context.user_data.get("finder_chat_id")
+
+    if query.data == "approve_reward":
+        await context.bot.send_message(
+            chat_id=finder_chat_id,
+            text="✅ The advertiser has **approved** the reward! 🎉\n\n"
+            "🔑 Please enter your **Solana public key** to receive the reward.",
+        )
+        return ENTER_PUBLIC_KEY  # Next step: Finder enters public key
+
+    elif query.data == "reject_reward":
+        await context.bot.send_message(
+            chat_id=finder_chat_id,
+            text="❌ The advertiser **rejected** the reward transfer. No SOL will be sent.",
+        )
+        await query.message.reply_text("You have declined the reward transfer.")
+        return END
+
+
+async def handle_public_key(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handles the user's public key entry."""
+    finder_id = update.effective_user.id
+    public_key = update.message.text.strip()
+
+    try:
+        to_pubkey = Pubkey.from_string(public_key)  # Validate Solana public key
+        context.user_data["finder_public_key"] = public_key
+
+        keyboard = [
+            [
+                InlineKeyboardButton(
+                    "✅ Confirm Transfer", callback_data="confirm_transfer"
+                )
+            ],
+            [InlineKeyboardButton("❌ Cancel", callback_data="cancel_transfer")],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        await update.message.reply_text(
+            f"🔑 Public Key Received: `{public_key}`\n\n" "⚠️ **Confirm the transfer?**",
+            reply_markup=reply_markup,
+        )
+
+        return CONFIRM_TRANSFER
+
+    except Exception:
+        await update.message.reply_text(
+            "❌ Invalid public key. Please enter a valid Solana address."
+        )
+        return ENTER_PUBLIC_KEY
+
+
+async def handle_transfer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Executes the SOL transfer upon advertiser confirmation."""
+    query = update.callback_query
+    await query.answer()
+
+    if query.data == "confirm_transfer":
+        try:
+            # Retrieve details
+            finder_public_key = context.user_data.get("finder_public_key")
+            case_no = context.user_data.get("case_no")
+            advertiser_id = query.from_user.id
+
+            # Fetch advertiser's wallet
+            advertiser_wallet = load_user_wallet(advertiser_id)
+            advertiser_private_key = advertiser_wallet["private_key"]
+
+            sender = Keypair.from_base58_string(advertiser_private_key)
+            to_pubkey = Pubkey.from_string(finder_public_key)
+            total_sol = context.user_data["reward_amount"]
+
+            # Check balance
+            sender_balance = client.get_balance(sender.pubkey()).value
+            if sender_balance < int(total_sol * 1e9):
+                await query.message.reply_text(
+                    "❌ Not enough SOL to complete this transaction."
+                )
+                return END
+
+            # Create transfer transaction
+            instruction = transfer(
+                TransferParams(
+                    from_pubkey=sender.pubkey(),
+                    to_pubkey=to_pubkey,
+                    lamports=int(total_sol * 1e9),
+                )
+            )
+            message = Message(instructions=[instruction], payer=sender.pubkey())
+            transaction = Transaction(from_keypairs=[sender], message=message)
+
+            send_response = client.send_transaction(transaction)
+
+            await query.message.reply_text(
+                f"✅ Transfer successful! Transaction ID: {send_response}"
+            )
+
+            return END
+
+        except Exception as e:
+            await query.message.reply_text(f"❌ Transaction failed: {str(e)}")
+            return END
+
+    else:
+        await query.message.reply_text("❌ Transaction has been canceled.")
         return END
 
 

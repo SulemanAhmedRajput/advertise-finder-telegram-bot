@@ -565,6 +565,15 @@
         "documentation": {}
     },
     {
+        "label": "constants",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "constants",
+        "description": "constants",
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
         "label": "CREATE_CASE_PHOTO",
         "importPath": "constants",
         "description": "constants",
@@ -757,14 +766,6 @@
         "documentation": {}
     },
     {
-        "label": "CASE_LIST",
-        "importPath": "constants",
-        "description": "constants",
-        "isExtraImport": true,
-        "detail": "constants",
-        "documentation": {}
-    },
-    {
         "label": "CHOOSE_COUNTRY",
         "importPath": "constants",
         "description": "constants",
@@ -822,6 +823,30 @@
     },
     {
         "label": "user_data_store",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "ADVERTISER_CONFIRMATION",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "ENTER_PUBLIC_KEY",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "CONFIRM_TRANSFER",
         "importPath": "constants",
         "description": "constants",
         "isExtraImport": true,
@@ -1157,6 +1182,30 @@
         "documentation": {}
     },
     {
+        "label": "ADVERTISER_CONFIRMATION",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "CONFIRM_TRANSFER",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
+        "label": "ENTER_PUBLIC_KEY",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
         "label": "CASE_DETAILS",
         "importPath": "constants",
         "description": "constants",
@@ -1467,6 +1516,15 @@
         "description": "utils.twilio",
         "isExtraImport": true,
         "detail": "utils.twilio",
+        "documentation": {}
+    },
+    {
+        "label": "utils.wallet",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "utils.wallet",
+        "description": "utils.wallet",
+        "detail": "utils.wallet",
         "documentation": {}
     },
     {
@@ -1809,6 +1867,30 @@
     },
     {
         "label": "choose_province",
+        "importPath": "handlers.finder_handler",
+        "description": "handlers.finder_handler",
+        "isExtraImport": true,
+        "detail": "handlers.finder_handler",
+        "documentation": {}
+    },
+    {
+        "label": "handle_advertiser_confirmation",
+        "importPath": "handlers.finder_handler",
+        "description": "handlers.finder_handler",
+        "isExtraImport": true,
+        "detail": "handlers.finder_handler",
+        "documentation": {}
+    },
+    {
+        "label": "handle_public_key",
+        "importPath": "handlers.finder_handler",
+        "description": "handlers.finder_handler",
+        "isExtraImport": true,
+        "detail": "handlers.finder_handler",
+        "documentation": {}
+    },
+    {
+        "label": "handle_transfer",
         "importPath": "handlers.finder_handler",
         "description": "handlers.finder_handler",
         "isExtraImport": true,
@@ -3135,7 +3217,7 @@
         "kind": 5,
         "importPath": "src.constants",
         "description": "src.constants",
-        "peekOfCode": "WALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants",
+        "peekOfCode": "WALLET_MENU = 80\nWAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\nADVERTISER_CONFIRMATION = 104  # New state for confirming the reward transfer\nENTER_PUBLIC_KEY = 105  # New state for entering the public key of the finder",
         "detail": "src.constants",
         "documentation": {}
     },
@@ -3144,7 +3226,7 @@
         "kind": 5,
         "importPath": "src.constants",
         "description": "src.constants",
-        "peekOfCode": "WAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================",
+        "peekOfCode": "WAITING_FOR_MOBILE = 81\nSETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\nADVERTISER_CONFIRMATION = 104  # New state for confirming the reward transfer\nENTER_PUBLIC_KEY = 105  # New state for entering the public key of the finder\nCONFIRM_TRANSFER = 106  # New state for confirming the SOL transfer",
         "detail": "src.constants",
         "documentation": {}
     },
@@ -3153,7 +3235,7 @@
         "kind": 5,
         "importPath": "src.constants",
         "description": "src.constants",
-        "peekOfCode": "SETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {",
+        "peekOfCode": "SETTINGS_MENU = 92\n# Additional flow of the listing command\nCASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\nADVERTISER_CONFIRMATION = 104  # New state for confirming the reward transfer\nENTER_PUBLIC_KEY = 105  # New state for entering the public key of the finder\nCONFIRM_TRANSFER = 106  # New state for confirming the SOL transfer\n# ======================",
         "detail": "src.constants",
         "documentation": {}
     },
@@ -3162,7 +3244,7 @@
         "kind": 5,
         "importPath": "src.constants",
         "description": "src.constants",
-        "peekOfCode": "CASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",",
+        "peekOfCode": "CASE_LIST = 100\nCASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\nADVERTISER_CONFIRMATION = 104  # New state for confirming the reward transfer\nENTER_PUBLIC_KEY = 105  # New state for entering the public key of the finder\nCONFIRM_TRANSFER = 106  # New state for confirming the SOL transfer\n# ======================\n# Language Data & Constants\n# ======================",
         "detail": "src.constants",
         "documentation": {}
     },
@@ -3171,7 +3253,7 @@
         "kind": 5,
         "importPath": "src.constants",
         "description": "src.constants",
-        "peekOfCode": "CASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",",
+        "peekOfCode": "CASE_DETAILS = 101\nUPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\nADVERTISER_CONFIRMATION = 104  # New state for confirming the reward transfer\nENTER_PUBLIC_KEY = 105  # New state for entering the public key of the finder\nCONFIRM_TRANSFER = 106  # New state for confirming the SOL transfer\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {",
         "detail": "src.constants",
         "documentation": {}
     },
@@ -3180,7 +3262,7 @@
         "kind": 5,
         "importPath": "src.constants",
         "description": "src.constants",
-        "peekOfCode": "UPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",",
+        "peekOfCode": "UPLOAD_PROOF = 102  # New state for uploading proof\nENTER_LOCATION = 103  # New state for entering the location where the person was found\nADVERTISER_CONFIRMATION = 104  # New state for confirming the reward transfer\nENTER_PUBLIC_KEY = 105  # New state for entering the public key of the finder\nCONFIRM_TRANSFER = 106  # New state for confirming the SOL transfer\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {",
         "detail": "src.constants",
         "documentation": {}
     },
@@ -3189,7 +3271,34 @@
         "kind": 5,
         "importPath": "src.constants",
         "description": "src.constants",
-        "peekOfCode": "ENTER_LOCATION = 103  # New state for entering the location where the person was found\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",\n        \"choose_country\": \"Please enter your country name (partial name allowed):\",",
+        "peekOfCode": "ENTER_LOCATION = 103  # New state for entering the location where the person was found\nADVERTISER_CONFIRMATION = 104  # New state for confirming the reward transfer\nENTER_PUBLIC_KEY = 105  # New state for entering the public key of the finder\nCONFIRM_TRANSFER = 106  # New state for confirming the SOL transfer\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "ADVERTISER_CONFIRMATION",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "ADVERTISER_CONFIRMATION = 104  # New state for confirming the reward transfer\nENTER_PUBLIC_KEY = 105  # New state for entering the public key of the finder\nCONFIRM_TRANSFER = 106  # New state for confirming the SOL transfer\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "ENTER_PUBLIC_KEY",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "ENTER_PUBLIC_KEY = 105  # New state for entering the public key of the finder\nCONFIRM_TRANSFER = 106  # New state for confirming the SOL transfer\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",",
+        "detail": "src.constants",
+        "documentation": {}
+    },
+    {
+        "label": "CONFIRM_TRANSFER",
+        "kind": 5,
+        "importPath": "src.constants",
+        "description": "src.constants",
+        "peekOfCode": "CONFIRM_TRANSFER = 106  # New state for confirming the SOL transfer\n# ======================\n# Language Data & Constants\n# ======================\nLANG_DATA = {\n    \"en\": {\n        \"lang_choice\": \"English\",\n        \"lang_button\": \"English\",\n        \"start_msg\": \"Hello! Welcome to People Finder Bot.\\nPlease select your language:\",\n        \"choose_country\": \"Please enter your country name (partial name allowed):\",",
         "detail": "src.constants",
         "documentation": {}
     },
