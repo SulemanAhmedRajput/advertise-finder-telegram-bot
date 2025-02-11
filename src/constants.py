@@ -160,6 +160,30 @@ LANG_DATA = {
         "province_not_found": "No matching provinces found. Please try again:",
         "province_multi": "Multiple provinces found (Page {page} of {total}):",
         "province_selected": "You have selected",
+        "missing_information": "❌ Missing information. Please start over.",
+        "notification_text": (
+            "🚨 Potential Match Alert! 🚨\n\n"
+            "Case #{case_no}: {person_name}\n"
+            "📍 Reported Location: {location}\n"
+            "🔗 Proof File: {proof_path}"
+        ),
+        "reply_to_advertiser": "✅ The case owner has been notified!\n\n"
+        "Thank you for your contribution. We'll contact you if more information is needed.",
+        "error_sending_notification": "❌ Error sending notification. Please try again later.",
+        "proof_upload": "Please upload photo/video proof:",
+        "error_processing_proof": "❌ Error processing your proof. Please try again.",
+        "case_not_found": "❌ Case not found.",
+        "proof_received": "✅ Proof received. \n \n  Please enter the location where you found this person:",
+        "error_upload_proof": "❌ Please upload a photo or video.",
+        "no_case_selected": "Error: No case selected. Please start over.",
+        "error_loading_case": "Error loading case details, Please try again.",
+        "mark_as_found": "✅ Mark as Found",
+        "back_to_list": "🔙 Back to List",
+        "case_not_found_in_province": "No cases found in this province.",
+        "select_province": "Please select a province first.",
+        "no_case_found_in_province": "No cases found for {province}.",
+        # Remaining messages
+        "invalid_mobile_number": "❌ Invalid mobile number. Please enter a valid 10-digit number.",
     },
     "zh": {
         "lang_choice": "中文",
@@ -275,6 +299,28 @@ LANG_DATA = {
         "province_not_found": "未找到匹配的省份。请重试：",
         "province_multi": "找到多个省份 (第 {page} 页，共 {total} 页)：",
         "province_selected": "已记录省份：",
+        "missing_information": "❌ 缺少信息。请重新开始。",
+        "notification_text": (
+            "🚨 潜在匹配警报！🚨\n\n"
+            "案件 #{case_no}: {person_name}\n"
+            "📍 报告位置: {location}\n"
+            "🔗 证据文件: {proof_path}"
+        ),
+        "reply_to_advertiser": "✅ 案件所有者已收到通知！\n\n"
+        "感谢您的贡献。如果需要更多信息，我们会联系您。",
+        "error_sending_notification": "❌ 发送通知时出错。请稍后再试。",
+        "proof_upload": "请上传照片/视频证据：",
+        "error_processing_proof": "❌ 处理您的证据时出错。请重试。",
+        "case_not_found": "❌ 未找到案件。",
+        "proof_received": "✅ 证据已收到。\n\n请输入您发现此人的位置：",
+        "error_upload_proof": "❌ 请上传照片或视频。",
+        "no_case_selected": "错误: 未选择案件。请重新开始。",
+        "error_loading_case": "加载案件详情时出错，请重试。",
+        "mark_as_found": "✅ 标记为已找到",
+        "back_to_list": "🔙 返回列表",
+        "case_not_found_in_province": "该省份未找到案件。",
+        "select_province": "请先选择一个省份。",
+        "no_case_found_in_province": "在 {province} 没有找到相关案件。",
     },
 }
 

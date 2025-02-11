@@ -65,3 +65,9 @@ if __name__ == "__main__":
         loop.run_until_complete(main())
     except RuntimeError:
         asyncio.run(main())
+
+
+# TODO: Add a check to see if the user has already been notified
+# TODO: Check the twilio account
+# TODO: Finder Functionality
+# TODO: Functionality that the user are not able to do the finder functionality again and again

@@ -741,6 +741,14 @@
         "documentation": {}
     },
     {
+        "label": "user_data_store",
+        "importPath": "constants",
+        "description": "constants",
+        "isExtraImport": true,
+        "detail": "constants",
+        "documentation": {}
+    },
+    {
         "label": "CASE_DETAILS",
         "importPath": "constants",
         "description": "constants",
@@ -2188,6 +2196,14 @@
         "documentation": {}
     },
     {
+        "label": "validator",
+        "importPath": "pydantic",
+        "description": "pydantic",
+        "isExtraImport": true,
+        "detail": "pydantic",
+        "documentation": {}
+    },
+    {
         "label": "cloudinary",
         "kind": 6,
         "isExtraImport": true,
@@ -2669,17 +2685,17 @@
         "kind": 6,
         "importPath": "src.models.case_model",
         "description": "src.models.case_model",
-        "peekOfCode": "class Case(Document):\n    user_id: int\n    case_no: str\n    name: str\n    mobile: str\n    person_name: str\n    relationship: str\n    photo_path: Optional[str]\n    last_seen_location: str\n    sex: str",
+        "peekOfCode": "class Case(Document):\n    user_id: int\n    case_no: str\n    name: str\n    mobile: str\n    person_name: str\n    relationship: str\n    photo_path: Optional[str] = None\n    last_seen_location: str\n    sex: str",
         "detail": "src.models.case_model",
         "documentation": {}
     },
     {
         "label": "Token",
         "kind": 6,
-        "importPath": "src.models.token_model",
-        "description": "src.models.token_model",
+        "importPath": "src.models.wallet_model",
+        "description": "src.models.wallet_model",
         "peekOfCode": "class Token(Document):\n    public_key: str\n    private_key: str\n    case_no: str\n    user_id: str",
-        "detail": "src.models.token_model",
+        "detail": "src.models.wallet_model",
         "documentation": {}
     },
     {

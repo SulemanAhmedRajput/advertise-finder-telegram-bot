@@ -87,13 +87,6 @@ def create_sol_wallet(wallet_name):
             "secret_key": secret_key,
         }
 
-        if not os.path.exists(WALLETS_DIR):
-            os.makedirs(WALLETS_DIR)
-
-        wallet_filename = os.path.join(WALLETS_DIR, f"{public_key}.json")
-        with open(wallet_filename, "w") as f:
-            json.dump(wallet, f, indent=4)
-
         # Fetch balance
         balance_response = client.get_balance(Pubkey.from_string(public_key))
         balance_lamports = balance_response.value if balance_response else 0

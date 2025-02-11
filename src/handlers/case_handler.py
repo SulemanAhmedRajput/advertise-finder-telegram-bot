@@ -30,6 +30,7 @@ from constants import (
     CREATE_CASE_WEIGHT,
     CREATE_CASE_DISTINCTIVE_FEATURES,
     END,
+    user_data_store,
 )
 import utils.cloudinary
 from utils.twilio import generate_tac, send_sms, verify_tac
@@ -41,6 +42,7 @@ from solana.rpc.api import Client
 from solders.system_program import transfer, TransferParams
 from solders.transaction import Transaction
 from solders.message import Message
+
 
 client = Client("https://api.devnet.solana.com")
 
@@ -72,6 +74,8 @@ async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     tac = generate_tac()  # Implement this function to generate a random TAC
     context.user_data["tac"] = tac
     context.user_data["mobile"] = mobile
+    user_data_store[user_id]["tac"] = tac
+    user_data_store[user_id]["mobile"] = mobile
 
     # # Send TAC via Twilio
     # message = send_sms(mobile, tac)
@@ -81,10 +85,8 @@ async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     #     return CREATE_CASE_MOBILE
 
     # Validate the mobile number (basic validation for example purposes)
-    if not mobile.isdigit() or len(mobile) < 10:
-        await update.message.reply_text(
-            "Invalid mobile number. Please enter a valid 10-digit number."
-        )
+    if not mobile.replace("+", "").isdigit() or len(mobile) < 10:
+        await update.message.reply_text(get_text(user_id, "invalid_mobile_number"))
         return CREATE_CASE_MOBILE
 
     await update.message.reply_text(get_text(user_id, "enter_tac"))
@@ -96,6 +98,8 @@ async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = update.effective_user.id
     user_tac = update.message.text.strip()
     stored_tac = context.user_data.get("tac")
+
+    print(f"Getting the number which are: {context.user_data.get("mobile")}")
 
     # if user_tac == stored_tac:
     if user_tac == "123456":
@@ -278,8 +282,7 @@ async def handle_last_seen_location(
                 InlineKeyboardButton("Female", callback_data="female"),
             ],
             [
-                InlineKeyboardButton("Transgender", callback_data="transgender"),
-                InlineKeyboardButton("Neutral", callback_data="neutral"),
+                InlineKeyboardButton("Other", callback_data="other"),
             ],
         ]
     )
@@ -532,7 +535,7 @@ async def handle_transfer_confirmation(
                 user_id=user_id,
                 case_no=case_no,
                 name=case_data.get("name", ""),
-                mobile=case_data.get("mobile", ""),
+                mobile=context.user_data.get("mobile"),
                 person_name=case_data.get("person_name", ""),
                 relationship=case_data.get("relationship", ""),
                 photo_path=case_data.get("photo_path", ""),
@@ -548,6 +551,13 @@ async def handle_transfer_confirmation(
                 reward_type=case_data.get("reward_type", "SOL"),
             )
             await case.insert()
+
+            wallet = await Token(
+                public_key=user_data_store[user_id]["wallet"]["public_key"],
+                private_key=user_data_store[user_id]["wallet"]["secret_key"],
+                case_no=case_no,
+                user_id=user_id,
+            )
 
             await query.message.reply_text("✅ Your transaction has been confirmed.")
 

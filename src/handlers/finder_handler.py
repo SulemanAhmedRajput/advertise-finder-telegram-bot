@@ -102,7 +102,9 @@ async def choose_province(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
         if not cases:
             await update.message.reply_text(
-                f"No cases found for {selected_province}.",
+                get_text(user_id, "no_case_found_in_province").format(
+                    province=selected_province
+                ),
                 parse_mode="Markdown",
             )
             return CHOOSE_PROVINCE
@@ -177,7 +179,7 @@ async def province_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     query = update.callback_query
     await query.answer()
     data = query.data
-    user_id = query.from_user.id
+    user_id = update.effective_user.id
 
     if data.startswith("province_select_"):
         province = data.replace("province_select_", "")
@@ -240,11 +242,13 @@ async def show_advertisements(
     """Show listings of advertisements with pagination"""
     print("\033show_advertisements\033[0m")
     query = update.callback_query
+    user_id = update.effective_user.id
+
     await query.answer() if query else None
 
     province = context.user_data.get("province")
     if not province:
-        await update.effective_message.reply_text("Please select a province first.")
+        await update.effective_message.reply_text(get_text(user_id, "select_province"))
         return CHOOSE_PROVINCE
 
     try:
@@ -258,7 +262,7 @@ async def show_advertisements(
 
         if not all_cases:
             await update.effective_message.reply_text(
-                "No cases found in this province."
+                get_text(user_id, "case_not_found_in_province")
             )
             return END
 
@@ -303,7 +307,7 @@ async def show_advertisements(
     except Exception as e:
         logger.error(f"Error showing advertisements: {e}")
         await update.effective_message.reply_text(
-            "Error loading cases. Please try again."
+            get_text(user_id, "error_loading_cases")
         )
         return END
 
@@ -312,6 +316,7 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     """Show detailed information about a case"""
     print("case_details_callback")
     query = update.callback_query
+    user_id = update.effective_user.id
     await query.answer()
 
     try:
@@ -321,7 +326,7 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         case = await fetch_case_by_number(case_no)
 
         if not case:
-            await query.edit_message_text("Case not found.")
+            await query.edit_message_text(get_text(user_id, "case_not_found"))
             return END
 
         details = (
@@ -341,10 +346,15 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             # ],
             [
                 InlineKeyboardButton(
-                    "✅ Mark as Found", callback_data=f"found_{case.case_no}"
+                    get_text(user_id, "mark_as_found"),
+                    callback_data=f"found_{case.id}",
                 )
             ],
-            [InlineKeyboardButton("🔙 Back to List", callback_data="back_to_list")],
+            [
+                InlineKeyboardButton(
+                    get_text(user_id, "back_to_list"), callback_data="back_to_list"
+                )
+            ],
         ]
 
         await query.edit_message_text(
@@ -354,7 +364,7 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
     except Exception as e:
         logger.error(f"Error showing case details: {e}")
-        await query.edit_message_text("Error loading case details.")
+        await query.edit_message_text(get_text(user_id, "error_loading_case"))
         return END
 
 
@@ -366,9 +376,7 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         case_no = context.user_data.get("found_case_no")
 
         if not case_no:
-            await update.message.reply_text(
-                "Error: No case selected. Please start over."
-            )
+            await update.message.reply_text(get_text(user_id, "no_case_selected"))
             return END
 
         # Ensure 'proofs' directory exists
@@ -384,7 +392,7 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             file_id = update.message.video.file_id
             file_extension = "mp4"
         else:
-            await update.message.reply_text("❌ Please upload a photo or video.")
+            await update.message.reply_text(get_text(user_id, "error_upload_proof"))
             return UPLOAD_PROOF
 
         # Generate unique filename
@@ -406,47 +414,43 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         # Store proof path in context
         context.user_data["proof_path"] = file_path
 
-        await update.message.reply_text(
-            "✅ Proof received. \n  Please enter the location where you found this person:"
-        )
+        await update.message.reply_text(get_text(user_id, "proof_received"))
         return ENTER_LOCATION
 
     except Exception as e:
         print(f"Error handling proof: {e}")
-        await update.message.reply_text(
-            "❌ Error processing your proof. Please try again."
-        )
+        await update.message.reply_text(get_text(user_id, "error_processing_proof"))
         return UPLOAD_PROOF
 
 
+# TODO: Add a check to see if the user has already been notified
 async def notify_advertiser(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Complete notification implementation"""
+    user_id = update.effective_user.id
     try:
         location = update.message.text.strip()
         case_no = context.user_data.get("found_case_no")
         proof_path = context.user_data.get("proof_path")
 
         if not all([case_no, location, proof_path]):
-            await update.message.reply_text(
-                "❌ Missing information. Please start over."
-            )
+            await update.message.reply_text(get_text(user_id, "missing_information"))
             return END
 
         # Fetch case details
         case = await fetch_case_by_number(case_no)
         if not case:
-            await update.message.reply_text("❌ Case not found.")
+            await update.message.reply_text(get_text(user_id, "case_not_found"))
             return END
 
         # Get advertiser's chat ID
         advertiser_chat_id = case.user_id
 
         # Send notification to advertiser
-        notification_text = (
-            f"🚨 Potential Match Alert! 🚨\n\n"
-            f"Case #{case.case_no}: {case.person_name}\n"
-            f"📍 Reported Location: {location}\n"
-            f"🔗 Proof File: {proof_path}"
+        notification_text = get_text(user_id, "notification_text").format(
+            case_no=case.case_no,
+            person_name=case.person_name,
+            location=location,
+            proof_path="Dev Mode",
         )
 
         await context.bot.send_message(
@@ -454,10 +458,7 @@ async def notify_advertiser(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         )
 
         # Confirm to finder
-        await update.message.reply_text(
-            "✅ The case owner has been notified!\n\n"
-            "Thank you for your contribution. We'll contact you if more information is needed."
-        )
+        await update.message.reply_text(get_text(user_id, "reply_to_advertiser"))
 
         # Cleanup context
         context.user_data.pop("found_case_no", None)
@@ -467,15 +468,14 @@ async def notify_advertiser(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     except Exception as e:
         logger.error(f"Error notifying advertiser: {e}")
-        await update.message.reply_text(
-            "❌ Error sending notification. Please try again later."
-        )
+        await update.message.reply_text(get_text(user_id, "error_sending_notification"))
         return END
 
 
 async def handle_found_case(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle 'Found' button clicks from case details"""
     print(f"Inside the handle_found_case function")
+    user_id = update.effective_user.id
     query = update.callback_query
     await query.answer()
 
@@ -485,10 +485,10 @@ async def handle_found_case(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         context.user_data["found_case_no"] = case_no
 
         # Ask for proof upload
-        await query.edit_message_text("Please upload photo/video proof:")
+        await query.edit_message_text(get_text(user_id, "proof_upload"))
         return UPLOAD_PROOF
 
     except Exception as e:
         logger.error(f"Error handling found case: {e}")
-        await query.edit_message_text("Error processing request. Please try again.")
+        await query.edit_message_text(get_text(user_id, "error_processing_proof"))
         return END
