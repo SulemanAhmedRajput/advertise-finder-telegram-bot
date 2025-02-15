@@ -13,6 +13,8 @@ from telegram.ext import (
     ContextTypes,
 )
 
+from services.user_service import save_user_lang
+
 
 async def settings_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Entry point for /settings command - shows an inline menu."""
@@ -86,11 +88,19 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
     # Handling the dynamic callback for language changes
     elif choice.startswith("setlang_"):
         new_lang = choice.replace("setlang_", "")
+        if new_lang:
+            await save_user_lang(user_id, new_lang)
+        
+        print(user_id)
+        context.user_data["lang"] = new_lang
+        if user_id not in user_data_store:
+            user_data_store[user_id] = {}
         user_data_store[user_id]["lang"] = new_lang
+        print("User data", user_data_store)
         await query.edit_message_text(
             get_text(user_id, "lang_updated"), parse_mode="HTML"
         )
-        return SETTINGS_MENU
+        return END
 
     else:
         await query.edit_message_text(

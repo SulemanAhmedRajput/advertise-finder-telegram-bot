@@ -1,6 +1,6 @@
 import asyncio
 import logging
-import models.wallet_model
+from models.user_model import User
 import os
 import sys
 
@@ -14,16 +14,17 @@ from telegram.ext import ApplicationBuilder
 
 from config.config_manager import MONGODB_NAME, MONGODB_URI
 from handlers.handlers import (
-    case_listing_handler,
-    conv_handler,
-    settings_conv_handler,
-    wallet_conv_handler,
+    # case_listing_handler,
+    start_handler,
+    settings_handler
+    # settings_conv_handler,
+    # wallet_conv_handler,
 )
-from handlers.start_handler import error_handler, setup_logging
+from handlers.start_handler import error_handler
 from models.case_model import Case
 from config.config_manager import TOKEN
 from models.wallet_model import Wallet
-
+from utils.helper import setup_logging
 
 setup_logging()
 
@@ -31,10 +32,10 @@ setup_logging()
 async def main_setup():
     application = ApplicationBuilder().token(TOKEN).build()
 
-    application.add_handler(conv_handler)
-    application.add_handler(wallet_conv_handler)
-    application.add_handler(settings_conv_handler)
-    application.add_handler(case_listing_handler)
+    application.add_handler(start_handler)
+    # application.add_handler(wallet_conv_handler)
+    application.add_handler(settings_handler)
+    # application.add_handler(case_listing_handler)
 
     application.add_error_handler(error_handler)
 
@@ -45,8 +46,9 @@ async def main_setup():
 
 async def init_db():
     try:
+        print(f"MONGODB_URI = {MONGODB_URI}")
         client = AsyncIOMotorClient(MONGODB_URI)
-        await init_beanie(database=client[MONGODB_NAME], document_models=[Case, Wallet])
+        await init_beanie(database=client[MONGODB_NAME], document_models=[User, Case, Wallet])
         print("Database Connected Successfully 🚀.")
         await main_setup()
     except Exception as e:

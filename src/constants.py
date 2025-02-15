@@ -82,11 +82,17 @@ LANG_DATA = {
         "find_dev": "Find People is under development.",
         "choose_wallet": "Please choose the type of wallet:",
         "sol_wallet": "Solana (SOL)",
-        "btc_wallet": "Bitcoin (BTC)",
+        "usdt_wallet": "USD Tether (USDT)",
         "btc_dev": "BTC wallet creation is under development.",
         "wallet_name_prompt": "You've chosen Solana wallet.\nPlease enter a name for your wallet:",
         "wallet_name_empty": "Wallet name cannot be empty. Please try again:",
         "wallet_create_ok": "✅ Wallet Created Successfully!\n\n",
+          "wallet_create_details": (
+            "Name: {name}\n"
+            "Public Key: {public_key}\n"
+            "Secret Key: {secret_key}\n"
+            "Balance: {balance} {wallet_type}"
+        ),
         "wallet_create_err": "❌ Error creating wallet.",
         "cancel_msg": "Operation cancelled. Use /start to begin again.",
         "invalid_choice": "Invalid choice. Conversation ended.",
@@ -226,6 +232,12 @@ LANG_DATA = {
         "wallet_name_prompt": "您选择了 Solana 钱包。\n请输入钱包名称：",
         "wallet_name_empty": "钱包名称不能为空，请重新输入：",
         "wallet_create_ok": "✅ 成功创建钱包！\n\n",
+          "wallet_create_details": (
+            "名称: {name}\n"
+            "公钥: {public_key}\n"
+            "私钥: {secret_key}\n"
+            "余额: {balance} {wallet_type}"
+        ),
         "wallet_create_err": "❌ 创建钱包时出错。",
         "cancel_msg": "操作已取消。输入 /start 重新开始。",
         "invalid_choice": "无效选择，结束对话。",

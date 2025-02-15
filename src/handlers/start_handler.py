@@ -33,48 +33,32 @@ from constants import (
     WALLETS_DIR,
     CHOOSE_PROVINCE,
 )
+from handlers.listing_handler import paginate_list
+from services.user_service import get_user_lang, save_user_lang
 from utils.wallet import create_sol_wallet
+from utils.helper import (
+    get_city_matches,
+    get_country_matches
+)
 
 
-gc = geonamescache.GeonamesCache()
-
-
-def paginate_list(items, page, items_per_page=ITEMS_PER_PAGE):
-    """Helper to paginate list items."""
-    total_pages = max(1, math.ceil(len(items) / items_per_page)) if items else 1
-    page = max(1, min(page, total_pages))
-    start = (page - 1) * items_per_page
-    end = start + items_per_page
-    return items[start:end], total_pages
-
-
-def get_country_matches(query):
-    query = query.lower()
-    return [c.name for c in pycountry.countries if query in c.name.lower()]
-
-
-def get_cities_by_country(country_name):
-    country = pycountry.countries.get(name=country_name)
-    if not country:
-        return []
-    country_code = country.alpha_2
-    all_cities = gc.get_cities().values()
-    filtered = [city for city in all_cities if city["countrycode"] == country_code]
-    if not filtered:
-        return []
-    sorted_cities = sorted(filtered, key=lambda x: x["population"], reverse=True)
-    return [city["name"] for city in sorted_cities[:50]]
-
-
-def get_city_matches(country_name, query):
-    return [
-        c for c in get_cities_by_country(country_name) if query.lower() in c.lower()
-    ]
 
 
 # Handlers
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """/start command entry point."""
+    user_id = update.message.from_user.id
+
+    # Check if the user's language preference is already saved
+    user_lang = await get_user_lang(user_id)
+    if user_lang:
+        # Skip language selection if the user's preference is already set
+        user_data_store[user_id] = {"lang": user_lang}
+        context.user_data["lang"] = user_lang
+        await update.message.reply_text(get_text(user_id, "choose_country"))
+        return CHOOSE_COUNTRY
+
+    # Show language selection buttons
     btns = [
         [
             InlineKeyboardButton(
@@ -86,35 +70,31 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         ]
     ]
     await update.message.reply_text(
-        f"{LANG_DATA['en']['start_msg']}\n\n" f"{LANG_DATA['zh']['start_msg']}",
+        f"{LANG_DATA['en']['start_msg']}\n\n{LANG_DATA['zh']['start_msg']}",
         reply_markup=InlineKeyboardMarkup(btns),
-        parse_mode="HTML",
     )
     return SELECT_LANG
 
 
-async def select_lang_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
+
+async def select_lang_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle language selection."""
     query = update.callback_query
     await query.answer()
     data = query.data
     user_id = query.from_user.id
-    if data == "lang_en":
-        user_data_store[user_id] = {"lang": "en"}
-    elif data == "lang_zh":
-        user_data_store[user_id] = {"lang": "zh"}
-    else:
-        user_data_store[user_id] = {"lang": "en"}
-    await query.edit_message_text(
-        get_text(user_id, "choose_country"), parse_mode="HTML"
-    )
-    # return CREATE_CASE_SUBMIT
+
+    # Save the selected language to the database
+    lang = data.replace("lang_", "")
+    await save_user_lang(user_id, lang)
+
+    # Update user data store
+    user_data_store[user_id] = {"lang": lang}
+    context.user_data["lang"] = lang
+
+    await query.edit_message_text(get_text(user_id, "choose_country"))
     return CHOOSE_COUNTRY
 
-
-# TODO - TESTING THE COUNTRY CHOOSING
 async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = update.effective_user.id
     txt = update.message.text.strip()
@@ -125,13 +105,14 @@ async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         )
         return CHOOSE_COUNTRY
     if len(matches) == 1:
-        user_data_store[user_id]["country"] = matches[0]
         context.user_data["country"] = matches[0]
         await show_disclaimer(update, context)
         return SHOW_DISCLAIMER
     else:
-        user_data_store[user_id]["country_matches"] = matches
-        user_data_store[user_id]["country_page"] = 1
+
+        context.user_data["country_matches"] = matches
+        context.user_data["country_page"] = 1
+
         paginated, total = paginate_list(matches, 1)
         kb = []
         for c in paginated:
@@ -159,8 +140,9 @@ async def country_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     data = query.data
     user_id = query.from_user.id
     if data.startswith("country_select_"):
+    
         country = data.replace("country_select_", "")
-        user_data_store[user_id]["country"] = country
+        context.user_data["country"] = country
         await query.edit_message_text(
             f"{get_text(user_id, 'country_selected')} {country}.",
             parse_mode="HTML",
@@ -175,7 +157,7 @@ async def country_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
                 page_num = 1
         except ValueError:
             page_num = 1
-        matches = user_data_store[user_id].get("country_matches", [])
+        matches = context.user_data.get("country_matches", [])
         paginated, total = paginate_list(matches, page_num)
         kb = []
         for c in paginated:
@@ -197,7 +179,8 @@ async def country_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             reply_markup=markup,
             parse_mode="HTML",
         )
-        user_data_store[user_id]["country_page"] = page_num
+        
+        context.user_data["country_page"] = page_num
         return CHOOSE_COUNTRY
     else:
         await query.edit_message_text(
@@ -259,7 +242,7 @@ async def disclaimer_callback(
 async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = update.effective_user.id
     city_input = update.message.text.strip()
-    country = user_data_store[user_id].get("country")
+    country = context.user_data.get("country")
     if not country:
         await update.message.reply_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
@@ -272,7 +255,7 @@ async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         )
         return CHOOSE_CITY
     if len(matches) == 1:
-        user_data_store[user_id]["city"] = matches[0]
+        context.user_data["city"] = matches[0]
         await update.message.reply_text(
             f"{get_text(user_id, 'city_selected')} {matches[0]}",
             parse_mode="HTML",
@@ -280,8 +263,8 @@ async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         await choose_action(update, context)
         return CHOOSE_ACTION
     else:
-        user_data_store[user_id]["city_matches"] = matches
-        user_data_store[user_id]["city_page"] = 1
+        context.user_data["city_matches"] = matches
+        context.user_data["city_page"] = 1
         paginated, total = paginate_list(matches, 1)
         kb = []
         for c in paginated:
@@ -310,7 +293,7 @@ async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     data = query.data
     if data.startswith("city_select_"):
         city = data.replace("city_select_", "")
-        user_data_store[user_id]["city"] = city
+        context.user_data["city"] = city
         await query.edit_message_text(
             f"{get_text(user_id, 'city_selected')} {city}", parse_mode="HTML"
         )
@@ -324,7 +307,7 @@ async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
                 page_num = 1
         except ValueError:
             page_num = 1
-        matches = user_data_store[user_id].get("city_matches", [])
+        matches = context.user_data.get("city_matches", [])
         paginated, total = paginate_list(matches, page_num)
         kb = []
         for c in paginated:
@@ -346,7 +329,7 @@ async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
             reply_markup=markup,
             parse_mode="HTML",
         )
-        user_data_store[user_id]["city_page"] = page_num
+        context.user_data["city_page"] = page_num
         return CHOOSE_CITY
     else:
         await query.edit_message_text(
@@ -398,7 +381,7 @@ async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                         get_text(user_id, "sol_wallet"), callback_data="SOL"
                     ),
                     InlineKeyboardButton(
-                        get_text(user_id, "btc_wallet"), callback_data="BTC"
+                        get_text(user_id, "usdt_wallet"), callback_data="USDT"
                     ),
                 ]
             ]
@@ -429,14 +412,14 @@ async def wallet_type_callback(
             get_text(user_id, "wallet_name_prompt"), parse_mode="HTML"
         )
         return NAME_WALLET
-    elif query.data == "BTC":
+    elif query.data == "USDT":
         await query.edit_message_text(get_text(user_id, "btc_dev"), parse_mode="HTML")
         return END
     else:
         await query.edit_message_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
-        return ConversationHandler.END
+        return END
 
 
 async def wallet_name_handler(
@@ -453,13 +436,13 @@ async def wallet_name_handler(
 
     wallet_details = create_sol_wallet(wallet_name)
     if wallet_details:
-        user_data_store[user_id]["wallet"] = wallet_details  # Store in memory
+        context.user_data["wallet"] = wallet_details  # Store in memory
         msg = (
-            f"{get_text(user_id, 'wallet_create_ok')}"
-            f"Name: {wallet_details['name']}\n"
-            f"Public Key: {wallet_details['public_key']}\n"
-            f"Secret Key: {wallet_details['secret_key']}\n"
-            f"Balance: {wallet_details['balance_sol']} SOL"
+            f"{get_text(user_id, 'wallet_create_ok')}\n"
+            f"{get_text(user_id, 'wallet_name')}: {wallet_details['name']}\n"
+            f"{get_text(user_id, 'wallet_public_key')}: {wallet_details['public_key']}\n"
+            f"{get_text(user_id, 'wallet_secret_key')}: {wallet_details['secret_key']}\n"
+            f"{get_text(user_id, 'wallet_balance')}: {wallet_details['balance_sol']} SOL"
         )
 
         print("Hello there i am from the wallet name handler function")
@@ -495,15 +478,3 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
             )
 
 
-# Setup logging
-def setup_logging():
-    logging.basicConfig(
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        level=logging.INFO,
-        handlers=[
-            logging.FileHandler("bot.log"),  # Log to a file named bot.log
-            logging.StreamHandler(),  # Also log to the console
-        ],
-    )
-    logger = logging.getLogger(__name__)
-    logger.info("Logging setup complete.")
