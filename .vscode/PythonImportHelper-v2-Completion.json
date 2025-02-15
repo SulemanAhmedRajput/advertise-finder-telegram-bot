@@ -49,16 +49,23 @@
         "documentation": {}
     },
     {
-        "label": "beanie",
-        "kind": 6,
-        "isExtraImport": true,
+        "label": "init_beanie",
         "importPath": "beanie",
         "description": "beanie",
+        "isExtraImport": true,
         "detail": "beanie",
         "documentation": {}
     },
     {
-        "label": "init_beanie",
+        "label": "Document",
+        "importPath": "beanie",
+        "description": "beanie",
+        "isExtraImport": true,
+        "detail": "beanie",
+        "documentation": {}
+    },
+    {
+        "label": "Indexed",
         "importPath": "beanie",
         "description": "beanie",
         "isExtraImport": true,
@@ -1728,6 +1735,31 @@
         "documentation": {}
     },
     {
+        "label": "models.wallet_model",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "models.wallet_model",
+        "description": "models.wallet_model",
+        "detail": "models.wallet_model",
+        "documentation": {}
+    },
+    {
+        "label": "Wallet",
+        "importPath": "models.wallet_model",
+        "description": "models.wallet_model",
+        "isExtraImport": true,
+        "detail": "models.wallet_model",
+        "documentation": {}
+    },
+    {
+        "label": "Wallet",
+        "importPath": "models.wallet_model",
+        "description": "models.wallet_model",
+        "isExtraImport": true,
+        "detail": "models.wallet_model",
+        "documentation": {}
+    },
+    {
         "label": "ObjectId",
         "importPath": "bson",
         "description": "bson",
@@ -2772,11 +2804,11 @@
         "documentation": {}
     },
     {
-        "label": "Token",
+        "label": "Wallet",
         "kind": 6,
         "importPath": "src.models.wallet_model",
         "description": "src.models.wallet_model",
-        "peekOfCode": "class Token(Document):\n    public_key: str\n    private_key: str\n    case_no: str\n    user_id: str",
+        "peekOfCode": "class Wallet(Document):\n    public_key: str\n    private_key: str\n    case_no: str\n    user_id: str",
         "detail": "src.models.wallet_model",
         "documentation": {}
     },

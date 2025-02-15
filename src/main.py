@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import models.wallet_model
 import os
 import sys
 
@@ -21,6 +22,7 @@ from handlers.handlers import (
 from handlers.start_handler import error_handler, setup_logging
 from models.case_model import Case
 from config.config_manager import TOKEN
+from models.wallet_model import Wallet
 
 
 setup_logging()
@@ -44,7 +46,7 @@ async def main_setup():
 async def init_db():
     try:
         client = AsyncIOMotorClient(MONGODB_URI)
-        await init_beanie(database=client[MONGODB_NAME], document_models=[Case])
+        await init_beanie(database=client[MONGODB_NAME], document_models=[Case, Wallet])
         print("Database Connected Successfully 🚀.")
         await main_setup()
     except Exception as e:

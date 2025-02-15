@@ -42,6 +42,7 @@ from solana.rpc.api import Client
 from solders.system_program import transfer, TransferParams
 from solders.transaction import Transaction
 from solders.message import Message
+from models.wallet_model import Wallet
 
 
 client = Client("https://api.devnet.solana.com")
@@ -77,12 +78,12 @@ async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     user_data_store[user_id]["tac"] = tac
     user_data_store[user_id]["mobile"] = mobile
 
-    # # Send TAC via Twilio
-    # message = send_sms(mobile, tac)
+    # Send TAC via Twilio
+    message = send_sms(mobile, tac)
 
-    # if not message:  # Check if SMS was sent successfully
-    #     await update.message.reply_text(get_text(user_id, "enter_mobile"))
-    #     return CREATE_CASE_MOBILE
+    if not message:  # Check if SMS was sent successfully
+        await update.message.reply_text(get_text(user_id, "enter_mobile"))
+        return CREATE_CASE_MOBILE
 
     # Validate the mobile number (basic validation for example purposes)
     if not mobile.replace("+", "").isdigit() or len(mobile) < 10:
@@ -101,8 +102,8 @@ async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     print(f"Getting the number which are: {context.user_data.get("mobile")}")
 
-    # if user_tac == stored_tac:
-    if user_tac == "123456":
+    if user_tac == stored_tac:
+        # if user_tac == "123456":
         await update.message.reply_text(get_text(user_id, "tac_verified"))
         await show_disclaimer_2(update, context)
         return CREATE_CASE_DISCLAIMER
@@ -445,6 +446,8 @@ async def handle_private_key(update: Update, context: ContextTypes.DEFAULT_TYPE)
         recent_blockhash = blockhash_response.value.blockhash
         logger.info(f"Latest blockhash fetched: {recent_blockhash}")
 
+        print(f"Transaction Lamport: {int(total_sol * 1e9)}")
+
         # Create a transfer instruction
         instruction = transfer(
             TransferParams(
@@ -552,12 +555,14 @@ async def handle_transfer_confirmation(
             )
             await case.insert()
 
-            wallet = await Token(
+            wallet = Wallet(
                 public_key=user_data_store[user_id]["wallet"]["public_key"],
                 private_key=user_data_store[user_id]["wallet"]["secret_key"],
                 case_no=case_no,
                 user_id=user_id,
             )
+
+            await wallet.insert()
 
             await query.message.reply_text("✅ Your transaction has been confirmed.")
 

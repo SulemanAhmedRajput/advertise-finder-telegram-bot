@@ -28,14 +28,6 @@ class Case(Document):
     class Settings:
         name = "cases"  # The name of the collection in MongoDB
 
-    @validator("mobile")
-    def validate_mobile(cls, v):
-        if not (v.isdigit() or (v.startswith("+") and v[1:].isdigit())) or len(
-            v
-        ) not in [10, 11, 12, 13, 14, 15]:
-            raise ValueError("Invalid mobile number")
-        return v
-
     @validator("sex")
     def validate_sex(cls, v):
         if v not in ["male", "female", "other"]:
