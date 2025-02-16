@@ -1,11 +1,17 @@
-from beanie import Document, Indexed
-from pydantic import BaseModel, Field, validator
 from typing import Optional, List
 from datetime import datetime
+from enum import Enum
+from datetime import timezone
+from beanie import Document, Indexed
+from pydantic import BaseModel, Field, validator
 
+class CaseStatus(Enum):
+    DRAFT = "draft"
+    ADVERTISE = "advertise"
 
 class Case(Document):
     user_id: int
+    status: CaseStatus = Field(default=CaseStatus.DRAFT)
     case_no: str
     name: str
     mobile: str
@@ -22,8 +28,7 @@ class Case(Document):
     distinctive_features: Optional[str] = None
     reward: Optional[float] = None
     reward_type: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    finder: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Settings:
         name = "cases"  # The name of the collection in MongoDB

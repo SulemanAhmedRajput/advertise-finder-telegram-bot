@@ -44,7 +44,10 @@ ENTER_LOCATION = 103  # New state for entering the location where the person was
 ADVERTISER_CONFIRMATION = 104  # New state for confirming the reward transfer
 ENTER_PUBLIC_KEY = 105  # New state for entering the public key of the finder
 CONFIRM_TRANSFER = 106  # New state for confirming the SOL transfer
+MOBILE_VERIFICATION = 107
+MOBILE_MANAGEMENT = 108
 
+CREATE_WALLET=109
 
 # ======================
 # Language Data & Constants
@@ -101,7 +104,7 @@ LANG_DATA = {
         "menu_wallet_title": "Wallet Menu",
         "btn_refresh": "🔄 Refresh",
         "btn_sol": "SOL",
-        "btn_btc": "BTC",
+        "btn_usdt": "USDT",
         "btn_show_address": "Show Address",
         "btn_create_wallet": "Create Wallet",
         "btn_delete_wallet": "Delete Wallet",

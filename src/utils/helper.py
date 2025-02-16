@@ -6,6 +6,7 @@ import geonamescache
 import pycountry
 
 from constants import ITEMS_PER_PAGE
+from models.user_model import User
 
 
 def generate_tac():
@@ -85,3 +86,7 @@ def setup_logging():
     )
     logger = logging.getLogger(__name__)
     logger.info("Logging setup complete.")
+
+
+
+

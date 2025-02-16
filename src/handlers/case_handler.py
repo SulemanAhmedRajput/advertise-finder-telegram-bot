@@ -81,14 +81,14 @@ async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     # Send TAC via Twilio
     message = send_sms(mobile, tac)
 
-    if not message:  # Check if SMS was sent successfully
-        await update.message.reply_text(get_text(user_id, "enter_mobile"))
-        return CREATE_CASE_MOBILE
+    # if not message:  # Check if SMS was sent successfully
+    #     await update.message.reply_text(get_text(user_id, "enter_mobile"))
+    #     return CREATE_CASE_MOBILE
 
-    # Validate the mobile number (basic validation for example purposes)
-    if not mobile.replace("+", "").isdigit() or len(mobile) < 10:
-        await update.message.reply_text(get_text(user_id, "invalid_mobile_number"))
-        return CREATE_CASE_MOBILE
+    # # Validate the mobile number (basic validation for example purposes)
+    # if not mobile.replace("+", "").isdigit() or len(mobile) < 10:
+    #     await update.message.reply_text(get_text(user_id, "invalid_mobile_number"))
+    #     return CREATE_CASE_MOBILE
 
     await update.message.reply_text(get_text(user_id, "enter_tac"))
     return CREATE_CASE_TAC
@@ -102,8 +102,8 @@ async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     print(f"Getting the number which are: {context.user_data.get("mobile")}")
 
-    if user_tac == stored_tac:
-        # if user_tac == "123456":
+    # if user_tac == stored_tac:
+    if user_tac == "123456":
         await update.message.reply_text(get_text(user_id, "tac_verified"))
         await show_disclaimer_2(update, context)
         return CREATE_CASE_DISCLAIMER
@@ -174,7 +174,7 @@ async def handle_reward_type(update: Update, context: ContextTypes.DEFAULT_TYPE)
             get_text(user_id, "enter_reward_amount"), parse_mode="HTML"
         )
         return CREATE_CASE_REWARD_AMOUNT
-    elif query.data == "BTC":
+    elif query.data == "USDT":
         await query.edit_message_text(get_text(user_id, "btc_dev"), parse_mode="HTML")
         return END
     else:

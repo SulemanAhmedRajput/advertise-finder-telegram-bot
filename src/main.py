@@ -16,7 +16,8 @@ from config.config_manager import MONGODB_NAME, MONGODB_URI
 from handlers.handlers import (
     # case_listing_handler,
     start_handler,
-    settings_handler
+    settings_handler,
+    wallet_handler
     # settings_conv_handler,
     # wallet_conv_handler,
 )
@@ -33,7 +34,8 @@ async def main_setup():
     application = ApplicationBuilder().token(TOKEN).build()
 
     application.add_handler(start_handler)
-    # application.add_handler(wallet_conv_handler)
+    
+    application.add_handler(wallet_handler)
     application.add_handler(settings_handler)
     # application.add_handler(case_listing_handler)
 

@@ -1,3 +1,4 @@
+from services.wallet_service import WalletService
 from telegram import (
     Update,
     InlineKeyboardMarkup,
@@ -9,128 +10,117 @@ from telegram.ext import (
     ContextTypes,
 )
 
-from constants import NAME_WALLET, WALLET_MENU, get_text, user_data_store
+from constants import CREATE_WALLET, NAME_WALLET, WALLET_MENU, get_text, user_data_store
 from utils.wallet import delete_user_wallet, load_user_wallet
 
 
 async def wallet_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Entry point for /wallet command - shows an inline menu."""
+    """Entry point for /wallet command."""
     user_id = update.effective_user.id
-    # Build the wallet menu inline keyboard
+    print(user_id)
+    wallets = await WalletService.get_wallet_by_user(user_id)
+
     kb = [
-        [
-            InlineKeyboardButton(
-                get_text(user_id, "btn_refresh"), callback_data="wallet_refresh"
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                get_text(user_id, "btn_sol"), callback_data="wallet_sol"
-            ),
-            InlineKeyboardButton(
-                get_text(user_id, "btn_btc"), callback_data="wallet_btc"
-            ),
-        ],
-        [
-            InlineKeyboardButton(
-                get_text(user_id, "btn_show_address"), callback_data="wallet_show"
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                get_text(user_id, "btn_create_wallet"), callback_data="wallet_create"
-            ),
-            InlineKeyboardButton(
-                get_text(user_id, "btn_delete_wallet"), callback_data="wallet_delete"
-            ),
-        ],
+        [InlineKeyboardButton("🔄 Refresh", callback_data="refresh_wallets")],
+        [InlineKeyboardButton("🪙 SOL", callback_data="sol_wallets"), InlineKeyboardButton("💵 USDT", callback_data="usdt_wallets")],
+        [InlineKeyboardButton("💼 Show Address", callback_data="show_address")],
+        [InlineKeyboardButton("➕ Create Wallet", callback_data="create_wallet")],
+        [InlineKeyboardButton("❌ Delete Wallet", callback_data="delete_wallet")],
     ]
     await update.message.reply_text(
-        get_text(user_id, "menu_wallet_title"),
+        "Welcome to the Wallet Menu!",
         reply_markup=InlineKeyboardMarkup(kb),
-        parse_mode=ParseMode.HTML,
     )
     return WALLET_MENU
 
-
 async def wallet_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle the wallet menu button actions."""
     query = update.callback_query
-    user_id = query.from_user.id
     await query.answer()
-
     choice = query.data
 
-    # ---------------- REFRESH BALANCE ----------------
-    if choice == "wallet_refresh":
-        user_wallet = load_user_wallet(user_id)
-        if user_wallet:
-            # Show updated info
-            msg = get_text(user_id, "wallet_refreshed").format(
-                name=user_wallet["name"],
-                pub=user_wallet["public_key"],
-                bal=user_wallet.get("balance_sol", 0),
-            )
-            await query.edit_message_text(msg, parse_mode=ParseMode.HTML)
+    if choice == "refresh_wallets":
+        user_id = update.effective_user.id
+        wallets = await WalletService.get_wallet_by_user(user_id)
+        if wallets:
+            msg = "🔄 Wallets refreshed:\n"
+            for wallet in wallets:
+                msg += f"- {wallet.public_key} ({'Deleted' if wallet.deleted else 'Active'})\n"
         else:
-            await query.edit_message_text(
-                get_text(user_id, "wallet_no_exists"), parse_mode=ParseMode.HTML
-            )
-        return WALLET_MENU
+            msg = "❌ No wallets found."
+        await query.edit_message_text(msg)
 
-    # ---------------- SOL or BTC BUTTON (PLACEHOLDER) ----------------
-    elif choice == "wallet_sol":
-        # You could switch the user to a "default chain" = SOL if needed
-        await query.edit_message_text(
-            "Selected SOL (placeholder).", parse_mode=ParseMode.HTML
-        )
-        return WALLET_MENU
-
-    elif choice == "wallet_btc":
-        await query.edit_message_text(
-            "Selected BTC (placeholder).", parse_mode=ParseMode.HTML
-        )
-        return WALLET_MENU
-
-    # ---------------- SHOW ADDRESS ----------------
-    elif choice == "wallet_show":
-        user_wallet = user_data_store[user_id].get("wallet")
-        if user_wallet:
-            msg = get_text(user_id, "wallet_exists").format(
-                name=user_wallet["name"],
-                pub=user_wallet["public_key"],
-                bal=user_wallet.get("balance_sol", 0),
-            )
-            await query.edit_message_text(msg, parse_mode=ParseMode.HTML)
+    elif choice == "sol_wallets":
+        user_id = update.effective_user.id
+        wallets = await WalletService.get_wallet_by_user(user_id)
+        sol_wallets = [wallet for wallet in wallets if wallet.wallet_type == "SOL"]
+        if sol_wallets:
+            msg = "🪙 SOL Wallets:\n"
+            for wallet in sol_wallets:
+                balance = await WalletService.get_sol_balance(wallet.public_key)
+                msg += f"- {wallet.public_key}\n  Balance: {balance} SOL\n"
         else:
+            msg = "❌ No SOL wallets found."
+        await query.edit_message_text(msg)
+
+    elif choice == "usdt_wallets":
+        user_id = update.effective_user.id
+        wallets = await WalletService.get_wallet_by_user(user_id)
+        usdt_wallets = [wallet for wallet in wallets if wallet.wallet_type == "USDT"]
+        if usdt_wallets:
+            msg = "💵 USDT Wallets:\n"
+            for wallet in usdt_wallets:
+                balance = await WalletService.get_usdt_balance(wallet.public_key)
+                msg += f"- {wallet.public_key}\n  Balance: {balance} USDT\n"
+        else:
+            msg = "❌ No USDT wallets found."
+        await query.edit_message_text(msg)
+
+    elif choice == "show_address":
+        user_id = update.effective_user.id
+        wallets = await WalletService.get_wallet_by_user(user_id)
+        if wallets:
+            msg = "💼 Wallet Addresses:\n"
+            for wallet in wallets:
+                msg += f"- {wallet.public_key}\n"
+        else:
+            msg = "❌ No wallets found."
+        await query.edit_message_text(msg)
+
+    elif choice == "create_wallet":
+        await query.edit_message_text("Enter the type of wallet (e.g., SOL or USDT):")
+        return CREATE_WALLET
+
+    elif choice == "delete_wallet":
+        user_id = update.effective_user.id
+        wallets = await WalletService.get_wallet_by_user(user_id)
+        if wallets:
+            kb = [
+                [InlineKeyboardButton(f"❌ {wallet.public_key}", callback_data=f"delete_{wallet.id}")]
+                for wallet in wallets
+            ]
+            kb.append([InlineKeyboardButton("🔙 Back", callback_data="back_to_menu")])
             await query.edit_message_text(
-                get_text(user_id, "wallet_no_exists"), parse_mode=ParseMode.HTML
+                "Select a wallet to delete:", reply_markup=InlineKeyboardMarkup(kb)
             )
-        return WALLET_MENU
+        else:
+            await query.edit_message_text("❌ No wallets found.")
 
-    # ---------------- CREATE WALLET ----------------
-    elif choice == "wallet_create":
-        # Move to the same logic used in the conversation (or do a simpler approach).
-        await query.edit_message_text(
-            get_text(user_id, "wallet_name_prompt"), parse_mode=ParseMode.HTML
-        )
-        return NAME_WALLET  # Reuse existing conversation state for naming
-
-    # ---------------- DELETE WALLET ----------------
-    elif choice == "wallet_delete":
-        success = delete_user_wallet(user_id)
+    elif choice.startswith("delete_"):
+        wallet_id = choice.replace("delete_", "")
+        success = await WalletService.soft_delete_wallet(wallet_id)
         if success:
-            await query.edit_message_text(
-                get_text(user_id, "wallet_deleted"), parse_mode=ParseMode.HTML
-            )
+            await query.edit_message_text("✅ Wallet deleted successfully!")
         else:
-            await query.edit_message_text(
-                get_text(user_id, "wallet_not_deleted"), parse_mode=ParseMode.HTML
-            )
+            await query.edit_message_text("❌ Failed to delete wallet.")
         return WALLET_MENU
 
-    else:
-        await query.edit_message_text(
-            get_text(user_id, "invalid_choice"), parse_mode=ParseMode.HTML
-        )
-        return ConversationHandler.END
+    elif choice == "back_to_menu":
+        await wallet_command(update, context)
+        return WALLET_MENU
+
+async def create_wallet_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    wallet_type = update.message.text.strip()
+    wallet = await WalletService.create_wallet(user_id, wallet_type)
+    await update.message.reply_text(f"✅ Wallet created!\nPublic Key: {wallet.public_key}")
+    return WALLET_MENU

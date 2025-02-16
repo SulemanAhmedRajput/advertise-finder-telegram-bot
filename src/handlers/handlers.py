@@ -1,4 +1,4 @@
-from handlers.case_handler import handle_name
+from handlers.case_handler import disclaimer_2_callback, handle_age, handle_distinctive_features, handle_eye_color, handle_hair_color, handle_height, handle_last_seen_location, handle_mobile, handle_name, handle_person_name, handle_photo, handle_private_key, handle_reason_for_finding, handle_relationship, handle_reward_amount, handle_reward_type, handle_sex, handle_tac, handle_transfer_confirmation, handle_weight
 from handlers.finder_handler import (
     show_advertisements,
     case_details,
@@ -16,6 +16,7 @@ from handlers.listing_handler import (
     listing_command,
     pagination_callback,
 )
+from handlers.wallet_handler import create_wallet_handler, wallet_command, wallet_menu_callback
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
     Application,
@@ -35,8 +36,11 @@ from constants import (
     CREATE_CASE_PHOTO,
     CREATE_CASE_REWARD_TYPE,
     CREATE_CASE_SUBMIT,
+    CREATE_WALLET,
     ENTER_LOCATION,
     ENTER_PRIVATE_KEY,
+    MOBILE_MANAGEMENT,
+    MOBILE_VERIFICATION,
     TRANSFER_CONFIRMATION,
     UPLOAD_PROOF,
     get_text,
@@ -75,7 +79,7 @@ from constants import (
     CONFIRM_TRANSFER,
     ENTER_PUBLIC_KEY,
 )
-from handlers.settings_handler import mobile_number_handler, settings_command, settings_menu_callback
+from handlers.settings_handler import  handle_setting_mobile, handle_setting_tac, settings_command, settings_menu_callback
 from utils.wallet import load_user_wallet
 from handlers.start_handler import (
     action_callback,
@@ -166,94 +170,92 @@ start_handler = ConversationHandler(
         CREATE_CASE_NAME: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_name)
         ],
-#         CREATE_CASE_MOBILE: [
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_mobile)
-#         ],try_points=[CommandHandler("start", start)],
-    # states={
-    #     SELECT_LANG: [Cal
-#         CREATE_CASE_TAC: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_tac)],
-#         CREATE_CASE_DISCLAIMER: [
-#             CallbackQueryHandler(disclaimer_2_callback, pattern="^(agree|disagree)$")
-#         ],
-#         CREATE_CASE_REWARD_TYPE: [
-#             CallbackQueryHandler(handle_reward_type, pattern="^(SOL|BTC)$"),
-#         ],
-#         CREATE_CASE_REWARD_AMOUNT: [
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reward_amount),
-#         ],
-#         CREATE_CASE_PERSON_NAME: [
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_person_name)
-#         ],
-#         CREATE_CASE_RELATIONSHIP: [
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_relationship)
-#         ],
-#         CREATE_CASE_PHOTO: [MessageHandler(filters.PHOTO, handle_photo)],
-#         CREATE_CASE_LAST_SEEN_LOCATION: [
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_last_seen_location)
-#         ],
-#         CREATE_CASE_SEX: [CallbackQueryHandler(handle_sex)],
-#         CREATE_CASE_AGE: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_age)],
-#         CREATE_CASE_HAIR_COLOR: [
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_hair_color)
-#         ],
-#         CREATE_CASE_EYE_COLOR: [
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_eye_color)
-#         ],
-#         CREATE_CASE_HEIGHT: [
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_height)
-#         ],
-#         CREATE_CASE_WEIGHT: [
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_weight)
-#         ],
-#         CREATE_CASE_DISTINCTIVE_FEATURES: [
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_distinctive_features)
-#         ],
-#         CREATE_CASE_SUBMIT: [
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reason_for_finding)
-#         ],
-#         ENTER_PRIVATE_KEY: [
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_private_key),
-#         ],
-#         TRANSFER_CONFIRMATION: [
-#             CallbackQueryHandler(
-#                 handle_transfer_confirmation, pattern="^(confirm|cancel)$"
-#             ),
-#         ],
-#         # From here the finder is the one who is going to find the person
-#         CHOOSE_PROVINCE: [
-#             CallbackQueryHandler(
-#                 province_callback, pattern="^(province_select_|province_page_)"
-#             ),
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, choose_province),
-#         ],
-#         CASE_LIST: [
-#             CallbackQueryHandler(show_advertisements, pattern=r"^page_(previous|next)"),
-#             CallbackQueryHandler(case_details, pattern=r"^case_"),
-#             CallbackQueryHandler(show_advertisements, pattern="^back_to_list"),
-#         ],
-#         CASE_DETAILS: [
-#             CallbackQueryHandler(case_details, pattern="^case_"),
-#             CallbackQueryHandler(handle_found_case, pattern="^found_"),  # Add this line
-#             CallbackQueryHandler(show_advertisements, pattern="^back_to_list"),
-#         ],
-#         UPLOAD_PROOF: [MessageHandler(filters.PHOTO | filters.VIDEO, handle_proof)],
-#         ENTER_LOCATION: [
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, notify_advertiser)
-#         ],
-#         ADVERTISER_CONFIRMATION: [  # NEW: Advertiser confirms reward
-#             CallbackQueryHandler(
-#                 handle_advertiser_confirmation,
-#                 pattern="^(approve_reward|reject_reward)$",
-#             )
-#         ],
-#         ENTER_PUBLIC_KEY: [  # NEW: Finder enters their Solana public key
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_public_key)
-#         ],
-#         CONFIRM_TRANSFER: [  # NEW: Advertiser confirms SOL transfer
-#             CallbackQueryHandler(
-#                 handle_transfer, pattern="^(confirm_transfer|cancel_transfer)$"
-#             )
-#         ],
+        CREATE_CASE_MOBILE: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_mobile)
+        ],
+        CREATE_CASE_TAC: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_tac)],
+        CREATE_CASE_DISCLAIMER: [
+            CallbackQueryHandler(disclaimer_2_callback, pattern="^(agree|disagree)$")
+        ],
+        CREATE_CASE_REWARD_TYPE: [
+            CallbackQueryHandler(handle_reward_type, pattern="^(SOL|USDT)$"),
+        ],
+        CREATE_CASE_REWARD_AMOUNT: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reward_amount),
+        ],
+        CREATE_CASE_PERSON_NAME: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_person_name)
+        ],
+        CREATE_CASE_RELATIONSHIP: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_relationship)
+        ],
+        CREATE_CASE_PHOTO: [MessageHandler(filters.PHOTO, handle_photo)],
+        CREATE_CASE_LAST_SEEN_LOCATION: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_last_seen_location)
+        ],
+        CREATE_CASE_SEX: [CallbackQueryHandler(handle_sex)],
+        CREATE_CASE_AGE: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_age)],
+        CREATE_CASE_HAIR_COLOR: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_hair_color)
+        ],
+        CREATE_CASE_EYE_COLOR: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_eye_color)
+        ],
+        CREATE_CASE_HEIGHT: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_height)
+        ],
+        CREATE_CASE_WEIGHT: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_weight)
+        ],
+        CREATE_CASE_DISTINCTIVE_FEATURES: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_distinctive_features)
+        ],
+        CREATE_CASE_SUBMIT: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reason_for_finding)
+        ],
+        ENTER_PRIVATE_KEY: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_private_key),
+        ],
+        TRANSFER_CONFIRMATION: [
+            CallbackQueryHandler(
+                handle_transfer_confirmation, pattern="^(confirm|cancel)$"
+            ),
+        ],
+        # From here the finder is the one who is going to find the person
+        CHOOSE_PROVINCE: [
+            CallbackQueryHandler(
+                province_callback, pattern="^(province_select_|province_page_)"
+            ),
+            MessageHandler(filters.TEXT & ~filters.COMMAND, choose_province),
+        ],
+        CASE_LIST: [
+            CallbackQueryHandler(show_advertisements, pattern=r"^page_(previous|next)"),
+            CallbackQueryHandler(case_details, pattern=r"^case_"),
+            CallbackQueryHandler(show_advertisements, pattern="^back_to_list"),
+        ],
+        CASE_DETAILS: [
+            CallbackQueryHandler(case_details, pattern="^case_"),
+            CallbackQueryHandler(handle_found_case, pattern="^found_"),  # Add this line
+            CallbackQueryHandler(show_advertisements, pattern="^back_to_list"),
+        ],
+        UPLOAD_PROOF: [MessageHandler(filters.PHOTO | filters.VIDEO, handle_proof)],
+        ENTER_LOCATION: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, notify_advertiser)
+        ],
+        ADVERTISER_CONFIRMATION: [  # NEW: Advertiser confirms reward
+            CallbackQueryHandler(
+                handle_advertiser_confirmation,
+                pattern="^(approve_reward|reject_reward)$",
+            )
+        ],
+        ENTER_PUBLIC_KEY: [  # NEW: Finder enters their Solana public key
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_public_key)
+        ],
+        CONFIRM_TRANSFER: [  # NEW: Advertiser confirms SOL transfer
+            CallbackQueryHandler(
+                handle_transfer, pattern="^(confirm_transfer|cancel_transfer)$"
+            )
+        ],
         END: [CommandHandler("start", start)],
     },
     fallbacks=[CommandHandler("cancel", cancel)],
@@ -261,22 +263,18 @@ start_handler = ConversationHandler(
 )
 
 # # Wallet conversation handler
-# wallet_conv_handler = ConversationHandler(
-#     entry_points=[CommandHandler("wallet", wallet_command)],
-#     states={
-#         WALLET_MENU: [
-#             CallbackQueryHandler(
-#                 wallet_menu_callback,
-#                 pattern="^(wallet_refresh|wallet_sol|wallet_btc|wallet_show|wallet_create|wallet_delete)$",
-#             )
-#         ],
-#         NAME_WALLET: [
-#             MessageHandler(filters.TEXT & ~filters.COMMAND, wallet_name_handler)
-#         ],
-#         END: [CommandHandler("wallet", wallet_command)],
-#     },
-#     fallbacks=[CommandHandler("cancel", cancel)],
-# )
+wallet_handler = ConversationHandler(
+    entry_points=[CommandHandler("wallet", wallet_command)],
+    states={
+        WALLET_MENU: [
+            CallbackQueryHandler(wallet_menu_callback, pattern="^(refresh_wallets|sol_wallets|usdt_wallets|show_address|create_wallet|delete_wallet|delete_|back_to_menu)$"),
+        ],
+        CREATE_WALLET: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, create_wallet_handler),
+        ],
+    },
+    fallbacks=[CommandHandler("cancel", lambda update, context: END)],
+)
 
 
 # # Define ConversationHandler
@@ -293,43 +291,30 @@ start_handler = ConversationHandler(
 #     fallbacks=[CommandHandler("cancel", lambda update, context: END)],
 # )
 
-# Settings conversation handler
+# Settings conversation handler  -- TODO: Completed
 settings_handler = ConversationHandler(
     entry_points=[CommandHandler("settings", settings_command)],
     states={
         SETTINGS_MENU: [
-            CallbackQueryHandler(
-                settings_menu_callback,
-                pattern="^(settings_language|settings_mobile|settings_close|setlang_)",
-            )
+            CallbackQueryHandler(settings_menu_callback, pattern="^(settings_language|settings_mobile|settings_close|setlang_)"),
         ],
         WAITING_FOR_MOBILE: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, mobile_number_handler)
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_setting_mobile),
         ],
+        MOBILE_MANAGEMENT: [
+            CallbackQueryHandler(settings_menu_callback, pattern="^(mobile_|remove_)"),
+        ],
+        MOBILE_VERIFICATION: [
+            CallbackQueryHandler(settings_menu_callback, pattern="^(remove_|settings_mobile)"),
+        ],
+        CREATE_CASE_TAC: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_setting_tac),
+        ],
+      
         END: [CommandHandler("settings", settings_command)],
     },
-    fallbacks=[CommandHandler("cancel", cancel)],
+    fallbacks=[CommandHandler("cancel", lambda update, context: ConversationHandler.END)],
 )
-
 # --- Application Setup ---
 
 
-def main() -> None:
-    # Create the Application and pass it your bot's token.
-    application = Application.builder().token("YOUR_TELEGRAM_BOT_TOKEN").build()
-
-    # Add conversation handlers
-    application.add_handler(conv_handler)
-    application.add_handler(case_listing_handler)
-    application.add_handler(wallet_conv_handler)
-    application.add_handler(settings_conv_handler)
-
-    # Add error handler
-    application.add_error_handler(error_handler)
-
-    # Run the bot until the user presses Ctrl-C
-    application.run_polling()
-
-
-if __name__ == "__main__":
-    main()
