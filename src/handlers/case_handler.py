@@ -32,6 +32,7 @@ from constants import (
     END,
     user_data_store,
 )
+from services.case_service import update_or_create_case
 import utils.cloudinary
 from utils.twilio import generate_tac, send_sms, verify_tac
 from utils.wallet import load_user_wallet, transfer_solana_funds
@@ -61,6 +62,7 @@ async def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     """Handle the user's name input."""
     user_id = update.effective_user.id
     name = update.message.text.strip()
+    await update_or_create_case(user_id, name=name)
     context.user_data["case"] = {"name": name}
 
     await update.message.reply_text(get_text(user_id, "enter_mobile"))
@@ -173,6 +175,7 @@ async def handle_reward_type(update: Update, context: ContextTypes.DEFAULT_TYPE)
     user_id = query.from_user.id
     logger.info(f"Reward type selected: {query.data}")  # Debugging line
     if query.data == "SOL":
+        await update_or_create_case(user_id, reward_type=query.data)
         await query.edit_message_text(
             get_text(user_id, "enter_reward_amount"), parse_mode="HTML"
         )
@@ -198,6 +201,7 @@ async def handle_reward_amount(
         await update.message.reply_text("Invalid amount, please enter a valid number.")
         return CREATE_CASE_REWARD_AMOUNT
 
+    await update_or_create_case(user_id, reward=reward)
     context.user_data["case"]["reward"] = reward
 
     await update.message.reply_text("Please enter the person's name.")
@@ -208,6 +212,7 @@ async def handle_person_name(update: Update, context: ContextTypes.DEFAULT_TYPE)
     """Handle input for the person's name (the case target)."""
     user_id = update.effective_user.id
     person_name = update.message.text.strip()
+    await update_or_create_case(user_id, person_name=person_name)
     context.user_data["case"]["person_name"] = person_name
     logger.info(f"User {user_id} entered person name: {person_name}")
     await update.message.reply_text(get_text(user_id, "relationship"))
@@ -220,6 +225,7 @@ async def handle_relationship(
     """Handle input for relationship detail."""
     user_id = update.effective_user.id
     relationship = update.message.text.strip()
+    await update_or_create_case(user_id, relationship=relationship)
     context.user_data["case"]["relationship"] = relationship
     logger.info(f"User {user_id} entered relationship: {relationship}")
     # await update.message.reply_text(get_text(user_id, "send_photo"))
@@ -260,6 +266,8 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     upload_result = await upload_image(photo_path)
     if upload_result:
         logger.info(f"Uploaded Photo URL: {upload_result}")
+
+        await update_or_create_case(user_id, case_photo=upload_result)
         context.user_data["case"][
             "photo_url"
         ] = upload_result  # Store URL instead of local path
@@ -275,6 +283,7 @@ async def handle_last_seen_location(
     """Handle input for last seen location."""
     user_id = update.effective_user.id
     location = update.message.text.strip()
+    await update_or_create_case(user_id, last_seen_location=location)
     context.user_data["case"]["last_seen_location"] = location
     logger.info(f"User {user_id} entered last seen location: {location}")
 
@@ -300,6 +309,7 @@ async def handle_sex(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await query.answer()
     user_id = query.from_user.id
     sex = query.data
+    await update_or_create_case(user_id, gender=sex)
     context.user_data["case"]["sex"] = sex
     logger.info(f"User {user_id} selected sex: {sex}")
     await query.edit_message_text(get_text(user_id, "age"))
@@ -315,6 +325,7 @@ async def handle_age(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         await update.message.reply_text("Please enter a valid number for age.")
         return CREATE_CASE_AGE
 
+    await update_or_create_case(user_id, age=age)
     context.user_data["case"]["age"] = age
     logger.info(f"User {user_id} entered age: {age}")
     await update.message.reply_text(get_text(user_id, "hair_color"))
@@ -325,6 +336,7 @@ async def handle_hair_color(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     """Handle input for hair color."""
     user_id = update.effective_user.id
     hair_color = update.message.text.strip()
+    await update_or_create_case(user_id, hair_color=hair_color)
     context.user_data["case"]["hair_color"] = hair_color
     logger.info(f"User {user_id} entered hair color: {hair_color}")
     await update.message.reply_text(get_text(user_id, "eye_color"))
@@ -335,6 +347,7 @@ async def handle_eye_color(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     """Handle input for eye color."""
     user_id = update.effective_user.id
     eye_color = update.message.text.strip()
+    await update_or_create_case(user_id, eye_color=eye_color)
     context.user_data["case"]["eye_color"] = eye_color
     logger.info(f"User {user_id} entered eye color: {eye_color}")
     await update.message.reply_text(get_text(user_id, "height"))
@@ -350,6 +363,7 @@ async def handle_height(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         await update.message.reply_text("Please enter a valid number for height.")
         return CREATE_CASE_HEIGHT
 
+    await update_or_create_case(user_id, height=height)
     context.user_data["case"]["height"] = height
     logger.info(f"User {user_id} entered height: {height}")
     await update.message.reply_text(get_text(user_id, "weight"))
@@ -365,6 +379,7 @@ async def handle_weight(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         await update.message.reply_text("Please enter a valid number for weight.")
         return CREATE_CASE_WEIGHT
 
+    await update_or_create_case(user_id, weight=weight)
     context.user_data["case"]["weight"] = weight
     logger.info(f"User {user_id} entered weight: {weight}")
     await update.message.reply_text(get_text(user_id, "distinctive_features"))
@@ -377,6 +392,8 @@ async def handle_distinctive_features(
     """Handle input for distinctive features."""
     user_id = update.effective_user.id
     features = update.message.text.strip()
+
+    await update_or_create_case(user_id, distinctive_features=features)
     context.user_data["case"]["distinctive_features"] = features
     logger.info(f"User {user_id} entered distinctive features: {features}")
     await update.message.reply_text(get_text(user_id, "reason_for_finding"))

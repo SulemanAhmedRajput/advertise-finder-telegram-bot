@@ -155,12 +155,13 @@ start_handler = ConversationHandler(
             CallbackQueryHandler(action_callback, pattern="^(advertise|find_people)$")
         ],
         CHOOSE_WALLET_TYPE: [
-    CallbackQueryHandler(wallet_type_callback, pattern="^(SOL|USDT)$"),
-    CallbackQueryHandler(wallet_selection_callback, pattern="^wallet_"),
-],
-NAME_WALLET: [
-    MessageHandler(filters.TEXT & ~filters.COMMAND, wallet_name_handler),
-],
+            CallbackQueryHandler(wallet_type_callback, pattern="^(SOL|USDT)$"),
+            CallbackQueryHandler(wallet_selection_callback, pattern="^wallet_"),
+            CallbackQueryHandler(wallet_name_handler, pattern="^create_new_wallet$"),  # Handle create_new_wallet
+        ],
+        NAME_WALLET: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, wallet_name_handler),
+        ],
         
 #         # Create Case Flow:
         CREATE_CASE_NAME: [

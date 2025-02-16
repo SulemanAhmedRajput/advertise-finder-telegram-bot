@@ -101,8 +101,9 @@ async def create_wallet_handler(update: Update, context: ContextTypes.DEFAULT_TY
     user_id = update.effective_user.id
 
     # Create the wallet using the selected type and provided name
+    keyboard =[[InlineKeyboardButton("🔙 Back", callback_data="back_to_menu")]]
     wallet = await WalletService.create_wallet(user_id, wallet_type, wallet_name)
-    await update.message.reply_text(f"✅ {wallet_type} wallet created!\n🔑 Address: `{wallet.public_key}`", parse_mode="Markdown")
+    await update.message.reply_text(f"✅ {wallet_type} wallet created!\n🔑 Address: {wallet.public_key}", reply_markup=InlineKeyboardMarkup(keyboard))  
 
 
     return END
@@ -197,7 +198,7 @@ async def delete_wallet_handler(update: Update, context: ContextTypes.DEFAULT_TY
 
     keyboard = [[InlineKeyboardButton("🔙 Back", callback_data="back_to_menu")]]
     for wallet in wallets:
-        keyboard.insert(0, [InlineKeyboardButton(f"Delete {wallet.wallet_type} - {wallet.public_key[:6]}...", 
+        keyboard.insert(0, [InlineKeyboardButton(f"{wallet.name} ({wallet.wallet_type}) - {wallet.public_key}", 
                                                  callback_data=f"confirm_delete_{wallet.id}")])
 
     await query.edit_message_text("Select a wallet to delete:", reply_markup=InlineKeyboardMarkup(keyboard))

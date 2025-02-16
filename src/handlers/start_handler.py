@@ -108,7 +108,6 @@ async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return CHOOSE_COUNTRY
     if len(matches) == 1:
         context.user_data["country"] = matches[0]
-        await update_or_create_case(user_id, country=matches[0] )
         await show_disclaimer(update, context)
         return SHOW_DISCLAIMER
     else:
@@ -146,7 +145,6 @@ async def country_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     
         country = data.replace("country_select_", "")
         context.user_data["country"] = country
-        await update_or_create_case(user_id, country=country )
         await query.edit_message_text(
             f"{get_text(user_id, 'country_selected')} {country}.",
             parse_mode="HTML",
@@ -260,7 +258,6 @@ async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         return CHOOSE_CITY
     if len(matches) == 1:
         context.user_data["city"] = matches[0]
-        await update_or_create_case(user_id, city=matches[0] )
 
         await update.message.reply_text(
             f"{get_text(user_id, 'city_selected')} {matches[0]}",
@@ -300,7 +297,6 @@ async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     if data.startswith("city_select_"):
         city = data.replace("city_select_", "")
         context.user_data["city"] = city
-        await update_or_create_case(user_id, city=city )
 
         await query.edit_message_text(
             f"{get_text(user_id, 'city_selected')} {city}", parse_mode="HTML"
@@ -335,7 +331,7 @@ async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         await query.edit_message_text(
             get_text(user_id, "city_multi").format(page=page_num, total=total),
             reply_markup=markup,
-            parse_mode="HTML",
+            parse_mode="HTML"
         )
         context.user_data["city_page"] = page_num
         return CHOOSE_CITY
@@ -444,7 +440,6 @@ async def wallet_type_callback(
         )
         return END
 
-
 async def wallet_selection_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle the selection of an existing wallet."""
     query = update.callback_query
@@ -459,17 +454,18 @@ async def wallet_selection_callback(update: Update, context: ContextTypes.DEFAUL
 
     if wallet_details:
         context.user_data["wallet"] = wallet_details  # Store wallet in memory
-        # TODO: This needs to be update later so that it shows the balance - with proper formatting
         msg = (
             f"{get_text(user_id, 'wallet_selected')}\n"
             f"{get_text(user_id, 'wallet_name')}: {wallet_details['name']}\n"
             f"{get_text(user_id, 'wallet_public_key')}: {wallet_details['public_key']}\n"
+            f"{get_text(user_id, 'wallet_secret_key')}: {wallet_details['private_key']}\n"
             # f"{get_text(user_id, 'wallet_balance')}: {wallet_details['balance_sol']} SOL"
         )
+
         await query.edit_message_text(msg, parse_mode="HTML")
 
         # Transition to the Create Case flow
-        await query.message.reply_text(f"<b>{get_text(user_id, 'create_case_title')}</b>", parse_mode="HTML")
+        await query.message.reply_text(get_text(user_id, "create_case_title"))
         await query.message.reply_text(get_text(user_id, "enter_name"))
         return CREATE_CASE_NAME
     else:
@@ -484,6 +480,17 @@ async def wallet_name_handler(
 ) -> int:
     """Handle wallet name input and transition to Create Case flow."""
     user_id = update.effective_user.id
+
+    # Check if the update is a callback query or a message
+    if update.callback_query:
+        # If it's a callback query, prompt the user to enter a wallet name
+        await update.callback_query.answer()
+        await update.callback_query.edit_message_text(
+            get_text(user_id, "wallet_name_prompt"), parse_mode="HTML"
+        )
+        return NAME_WALLET
+
+    # If it's a text message, process the wallet name
     wallet_name = update.message.text.strip()
 
     if not wallet_name:
@@ -500,7 +507,7 @@ async def wallet_name_handler(
             f"{get_text(user_id, 'wallet_name')}: {wallet_details['name']}\n"
             f"{get_text(user_id, 'wallet_public_key')}: {wallet_details['public_key']}\n"
             f"{get_text(user_id, 'wallet_secret_key')}: {wallet_details['secret_key']}\n"
-            f"{get_text(user_id, 'wallet_balance')}: {wallet_details['balance_sol']} SOL"
+            # f"{get_text(user_id, 'wallet_balance')}: {wallet_details['balance_sol']} SOL"
         )
 
         await update.message.reply_text(msg, parse_mode="HTML")

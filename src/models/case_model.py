@@ -1,8 +1,10 @@
 from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, Field, validator
-from beanie import Document
+from beanie import Document, Link
 from enum import Enum
+
+from models.wallet_model import Wallet
 
 class CaseStatus(Enum):
     DRAFT = "draft"
@@ -12,15 +14,16 @@ class Case(Document):
     user_id: int
     country: Optional[str] = None
     city: Optional[str] = None
+    wallet: Link[Wallet] = None
     status: CaseStatus = Field(default=CaseStatus.DRAFT)
     case_no: Optional[str] = None
     name: Optional[str] = None
     mobile: Optional[str] = None
     person_name: Optional[str] = None
     relationship: Optional[str] = None
-    photo_path: Optional[str] = None
+    case_photo: Optional[str] = None
     last_seen_location: Optional[str] = None
-    sex: Optional[str] = None
+    gender: Optional[str] = None
     age: Optional[int] = None
     hair_color: Optional[str] = None
     eye_color: Optional[str] = None
@@ -34,19 +37,19 @@ class Case(Document):
     class Settings:
         name = "cases"  # The name of the collection in MongoDB
 
-    @validator("sex")
-    def validate_sex(cls, v):
+    @validator("gender", check_fields=False)
+    def validate_gender(cls, v):
         if v and v not in ["male", "female", "other"]:
-            raise ValueError("Invalid sex")
+            raise ValueError("Invalid gender")
         return v
 
-    @validator("age")
+    @validator("age", check_fields=False)
     def validate_age(cls, v):
         if v and v < 0:
             raise ValueError("Age must be a positive integer")
         return v
 
-    @validator("height", "weight")
+    @validator("height", "weight", check_fields=False)
     def validate_positive(cls, v):
         if v and v <= 0:
             raise ValueError("Height and weight must be positive values")

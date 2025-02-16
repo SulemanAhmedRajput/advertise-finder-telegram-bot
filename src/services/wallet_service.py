@@ -179,6 +179,6 @@ class WalletService:
         """
         wallet = await Wallet.find_one(Wallet.user_id == user_id, Wallet.name == wallet_name)
         if wallet:
-            return wallet.dict()
+            return wallet.model_dump()
         else:
             return None
