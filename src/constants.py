@@ -48,6 +48,9 @@ MOBILE_VERIFICATION = 107
 MOBILE_MANAGEMENT = 108
 
 CREATE_WALLET=109
+HISTORY_MENU=110
+
+SELECT_WALLET = 111
 
 # ======================
 # Language Data & Constants
@@ -86,6 +89,7 @@ LANG_DATA = {
         "choose_wallet": "Please choose the type of wallet:",
         "sol_wallet": "Solana (SOL)",
         "usdt_wallet": "USD Tether (USDT)",
+        "choose_existing_or_new_wallet": "Choose Existing Wallet or Create New One",
         "btc_dev": "BTC wallet creation is under development.",
         "wallet_name_prompt": "You've chosen Solana wallet.\nPlease enter a name for your wallet:",
         "wallet_name_empty": "Wallet name cannot be empty. Please try again:",
@@ -115,6 +119,7 @@ LANG_DATA = {
         "wallet_refreshed": "Balance updated:\nName: {name}\nPublic Key: {pub}\nBalance: {bal} SOL",
         "menu_settings_title": "Settings Menu",
         "btn_language": "Change Language",
+        "create_new_wallet": "Create New Wallet",
         "btn_mobile_number": "Mobile Number",
         "btn_close_menu": "Close Menu",
         "enter_mobile": "Please type your mobile number:",

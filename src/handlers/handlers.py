@@ -11,15 +11,8 @@ from handlers.finder_handler import (
     handle_public_key,
     handle_transfer,
 )
-from handlers.listing_handler import (
-    case_details_callback,
-    listing_command,
-    pagination_callback,
-)
-from handlers.wallet_handler import create_wallet_handler, wallet_command, wallet_menu_callback
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
+from handlers.wallet_handler import cancel_delete_wallet_handler, confirm_delete_wallet_handler, create_wallet_handler,  create_wallet_type_handler, delete_wallet_cancel_handler, delete_wallet_confirm_handler, delete_wallet_handler, refresh_wallets_handler, select_wallet_type_handler, show_address_handler, show_wallets_handler, view_transaction_history_handler, wallet_command
 from telegram.ext import (
-    Application,
     CommandHandler,
     CallbackQueryHandler,
     MessageHandler,
@@ -39,6 +32,7 @@ from constants import (
     CREATE_WALLET,
     ENTER_LOCATION,
     ENTER_PRIVATE_KEY,
+    HISTORY_MENU,
     MOBILE_MANAGEMENT,
     MOBILE_VERIFICATION,
     TRANSFER_CONFIRMATION,
@@ -98,6 +92,7 @@ from handlers.start_handler import (
     cancel,
     error_handler,
     wallet_name_handler,
+    wallet_selection_callback,
     wallet_type_callback,
 )
 # from handlers.wallet_handler import wallet_command, wallet_menu_callback
@@ -160,11 +155,12 @@ start_handler = ConversationHandler(
             CallbackQueryHandler(action_callback, pattern="^(advertise|find_people)$")
         ],
         CHOOSE_WALLET_TYPE: [
-            CallbackQueryHandler(wallet_type_callback, pattern="^(SOL|USDT)$")
-        ],
-        NAME_WALLET: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, wallet_name_handler)
-        ],
+    CallbackQueryHandler(wallet_type_callback, pattern="^(SOL|USDT)$"),
+    CallbackQueryHandler(wallet_selection_callback, pattern="^wallet_"),
+],
+NAME_WALLET: [
+    MessageHandler(filters.TEXT & ~filters.COMMAND, wallet_name_handler),
+],
         
 #         # Create Case Flow:
         CREATE_CASE_NAME: [
@@ -262,20 +258,37 @@ start_handler = ConversationHandler(
     allow_reentry=True,
 )
 
-# # Wallet conversation handler
+# Wallet conversation handler
+
+# Define conversation handler
 wallet_handler = ConversationHandler(
     entry_points=[CommandHandler("wallet", wallet_command)],
     states={
         WALLET_MENU: [
-            CallbackQueryHandler(wallet_menu_callback, pattern="^(refresh_wallets|sol_wallets|usdt_wallets|show_address|create_wallet|delete_wallet|delete_|back_to_menu)$"),
+            CallbackQueryHandler(select_wallet_type_handler, pattern="^create_wallet$"),
+            CallbackQueryHandler(refresh_wallets_handler, pattern="^refresh_wallets$"),
+            CallbackQueryHandler(lambda u, c: show_wallets_handler(u, c, "SOL"), pattern="^sol_wallets$"),
+            CallbackQueryHandler(lambda u, c: show_wallets_handler(u, c, "USDT"), pattern="^usdt_wallets$"),
+            CallbackQueryHandler(show_address_handler, pattern="^show_address_.*$"),
+            CallbackQueryHandler(delete_wallet_handler, pattern="^delete_wallet$"),
+            CallbackQueryHandler(confirm_delete_wallet_handler, pattern="^confirm_delete_.*$"),
+            CallbackQueryHandler(delete_wallet_confirm_handler, pattern="^delete_wallet_confirm$"),
+            CallbackQueryHandler(delete_wallet_cancel_handler, pattern="^delete_wallet_cancel$"),
+            CallbackQueryHandler(wallet_command, pattern="^back_to_menu$"),
+            CallbackQueryHandler(view_transaction_history_handler, pattern="^view_history$"),
         ],
         CREATE_WALLET: [
+            CallbackQueryHandler(create_wallet_type_handler, pattern="^sol_wallet_type$"),
+            CallbackQueryHandler(create_wallet_type_handler, pattern="^usdt_wallet_type$"),
             MessageHandler(filters.TEXT & ~filters.COMMAND, create_wallet_handler),
         ],
+        HISTORY_MENU: [
+            CallbackQueryHandler(view_transaction_history_handler, pattern="^history_.*$"),
+            CallbackQueryHandler(wallet_command, pattern="^back_to_menu$"),
+        ],
     },
-    fallbacks=[CommandHandler("cancel", lambda update, context: END)],
+    fallbacks=[CommandHandler("cancel", lambda update, context: ConversationHandler.END)],
 )
-
 
 # # Define ConversationHandler
 # case_listing_handler = ConversationHandler(

@@ -62,6 +62,7 @@ async def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     user_id = update.effective_user.id
     name = update.message.text.strip()
     context.user_data["case"] = {"name": name}
+
     await update.message.reply_text(get_text(user_id, "enter_mobile"))
     return CREATE_CASE_MOBILE
 
@@ -79,7 +80,7 @@ async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     user_data_store[user_id]["mobile"] = mobile
 
     # Send TAC via Twilio
-    message = send_sms(mobile, tac)
+    # message = send_sms(mobile, tac)
 
     # if not message:  # Check if SMS was sent successfully
     #     await update.message.reply_text(get_text(user_id, "enter_mobile"))
@@ -89,6 +90,8 @@ async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     # if not mobile.replace("+", "").isdigit() or len(mobile) < 10:
     #     await update.message.reply_text(get_text(user_id, "invalid_mobile_number"))
     #     return CREATE_CASE_MOBILE
+
+    print("Your TAC is " + tac)
 
     await update.message.reply_text(get_text(user_id, "enter_tac"))
     return CREATE_CASE_TAC
@@ -102,8 +105,8 @@ async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     print(f"Getting the number which are: {context.user_data.get("mobile")}")
 
-    # if user_tac == stored_tac:
-    if user_tac == "123456":
+    if user_tac == stored_tac:
+    # if user_tac == "123456":
         await update.message.reply_text(get_text(user_id, "tac_verified"))
         await show_disclaimer_2(update, context)
         return CREATE_CASE_DISCLAIMER

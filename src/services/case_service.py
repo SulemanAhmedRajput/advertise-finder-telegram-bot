@@ -32,3 +32,48 @@ async def add_or_update_case(case_data: dict) -> Case:
         new_case = Case(**case_data)
         await new_case.insert()
         return new_case
+    
+    
+    
+ 
+async def get_case_by_user(user_id: int) -> Optional[Case]:
+    """
+    Retrieve a case by user_id. If not found, return None.
+    
+    Args:
+    - user_id (int): The user ID to search for.
+    
+    Returns:
+    - case (Optional[Case]): The found case or None if not found.
+    """
+    return await Case.find_one({"user_id": user_id})
+    
+async def update_or_create_case(
+    user_id: int,
+    **kwargs
+) -> Case:
+    """
+    Update an existing case or create a new one if it doesn't exist.
+    
+    Args:
+    - user_id (int): The user ID for the case to update or create.
+    - kwargs (dict): The fields that will be updated or created if not already present.
+    
+    Returns:
+    - case (Case): The updated or newly created case.
+    """
+    # Try to find an existing case
+    case = await get_case_by_user(user_id)
+    
+    if not case:
+        # If no case exists, create a new one
+        case = Case(user_id=user_id, status=CaseStatus.DRAFT)
+    
+    # Update fields if provided
+    for key, value in kwargs.items():
+        if value is not None:
+            setattr(case, key, value)
+    
+    # Save the case (update or create)
+    await case.save()
+    return case

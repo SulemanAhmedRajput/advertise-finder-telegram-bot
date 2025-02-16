@@ -90,6 +90,8 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
         new_lang = choice.replace("setlang_", "")
         await save_user_lang(user_id, new_lang)
         context.user_data["lang"] = new_lang
+        if user_id not in user_data_store:
+            user_data_store[user_id] = {}
         user_data_store[user_id]["lang"] = new_lang
         await query.edit_message_text(
             get_text(user_id, "lang_updated"), parse_mode="HTML"

@@ -2,6 +2,8 @@ import logging
 import math
 import pycountry
 import geonamescache
+from services.case_service import update_or_create_case
+from services.wallet_service import WalletService
 from telegram import (
     Update,
     InlineKeyboardMarkup,
@@ -106,6 +108,7 @@ async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return CHOOSE_COUNTRY
     if len(matches) == 1:
         context.user_data["country"] = matches[0]
+        await update_or_create_case(user_id, country=matches[0] )
         await show_disclaimer(update, context)
         return SHOW_DISCLAIMER
     else:
@@ -143,6 +146,7 @@ async def country_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     
         country = data.replace("country_select_", "")
         context.user_data["country"] = country
+        await update_or_create_case(user_id, country=country )
         await query.edit_message_text(
             f"{get_text(user_id, 'country_selected')} {country}.",
             parse_mode="HTML",
@@ -256,6 +260,8 @@ async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         return CHOOSE_CITY
     if len(matches) == 1:
         context.user_data["city"] = matches[0]
+        await update_or_create_case(user_id, city=matches[0] )
+
         await update.message.reply_text(
             f"{get_text(user_id, 'city_selected')} {matches[0]}",
             parse_mode="HTML",
@@ -294,6 +300,8 @@ async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     if data.startswith("city_select_"):
         city = data.replace("city_select_", "")
         context.user_data["city"] = city
+        await update_or_create_case(user_id, city=city )
+
         await query.edit_message_text(
             f"{get_text(user_id, 'city_selected')} {city}", parse_mode="HTML"
         )
@@ -399,19 +407,34 @@ async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
         return END
-
-
 async def wallet_type_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
+
     if query.data == "SOL":
-        await query.edit_message_text(
-            get_text(user_id, "wallet_name_prompt"), parse_mode="HTML"
-        )
-        return NAME_WALLET
+        # Check if there are existing wallets
+        existing_wallets = await WalletService.get_wallet_by_user(user_id)
+        if existing_wallets:
+            print(f"Existing wallets: {existing_wallets}")
+            # Show existing wallets with an option to create a new one
+            kb = [
+                [InlineKeyboardButton(wallet.name, callback_data=f"wallet_{wallet.name}")]
+                for wallet in existing_wallets
+            ]
+            kb.append([InlineKeyboardButton(get_text(user_id, "create_new_wallet"), callback_data="create_new_wallet")])
+            await query.edit_message_text(
+                get_text(user_id, "choose_existing_or_new_wallet"), reply_markup=InlineKeyboardMarkup(kb), parse_mode="HTML"
+            )
+            return CHOOSE_WALLET_TYPE
+        else:
+            # Ask for the name of the wallet
+            await query.edit_message_text(
+                get_text(user_id, "wallet_name_prompt"), parse_mode="HTML"
+            )
+            return NAME_WALLET
     elif query.data == "USDT":
         await query.edit_message_text(get_text(user_id, "btc_dev"), parse_mode="HTML")
         return END
@@ -422,12 +445,47 @@ async def wallet_type_callback(
         return END
 
 
+async def wallet_selection_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handle the selection of an existing wallet."""
+    query = update.callback_query
+    await query.answer()
+    user_id = query.from_user.id
+
+    # Extract wallet name from callback data
+    wallet_name = query.data.replace("wallet_", "")
+
+    # Fetch wallet details (assuming WalletService can fetch by name)
+    wallet_details = await WalletService.get_wallet_by_name(user_id, wallet_name)
+
+    if wallet_details:
+        context.user_data["wallet"] = wallet_details  # Store wallet in memory
+        # TODO: This needs to be update later so that it shows the balance - with proper formatting
+        msg = (
+            f"{get_text(user_id, 'wallet_selected')}\n"
+            f"{get_text(user_id, 'wallet_name')}: {wallet_details['name']}\n"
+            f"{get_text(user_id, 'wallet_public_key')}: {wallet_details['public_key']}\n"
+            # f"{get_text(user_id, 'wallet_balance')}: {wallet_details['balance_sol']} SOL"
+        )
+        await query.edit_message_text(msg, parse_mode="HTML")
+
+        # Transition to the Create Case flow
+        await query.message.reply_text(f"<b>{get_text(user_id, 'create_case_title')}</b>", parse_mode="HTML")
+        await query.message.reply_text(get_text(user_id, "enter_name"))
+        return CREATE_CASE_NAME
+    else:
+        await query.edit_message_text(
+            get_text(user_id, "wallet_not_found"), parse_mode="HTML"
+        )
+        return END
+
+
 async def wallet_name_handler(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
     """Handle wallet name input and transition to Create Case flow."""
     user_id = update.effective_user.id
     wallet_name = update.message.text.strip()
+
     if not wallet_name:
         await update.message.reply_text(
             get_text(user_id, "wallet_name_empty"), parse_mode="HTML"
@@ -445,7 +503,6 @@ async def wallet_name_handler(
             f"{get_text(user_id, 'wallet_balance')}: {wallet_details['balance_sol']} SOL"
         )
 
-        print("Hello there i am from the wallet name handler function")
         await update.message.reply_text(msg, parse_mode="HTML")
 
         # Transition to the Create Case flow
@@ -457,7 +514,6 @@ async def wallet_name_handler(
             get_text(user_id, "wallet_create_err"), parse_mode="HTML"
         )
         return END
-
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = update.effective_user.id

@@ -15,7 +15,7 @@ USDT_MINT_ADDRESS = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
 
 class WalletService:
     @staticmethod
-    async def create_wallet(user_id: str, wallet_type: str) -> Wallet:
+    async def create_wallet(user_id: str, wallet_type: str, wallet_name: str) -> Wallet:
         """
         Create a new wallet and save it to the database.
         :param user_id: The Telegram user ID.
@@ -31,6 +31,7 @@ class WalletService:
             public_key=public_key,
             private_key=private_key,
             user_id=user_id,
+            name= wallet_name,
             wallet_type=wallet_type,
             deleted=False,
         )
@@ -161,3 +162,23 @@ class WalletService:
         except Exception as e:
             print(f"Error transferring USDT: {e}")
             return f"❌ Error: {str(e)}"
+        
+    @staticmethod
+    async def check_wallet_name_used(user_id: int, wallet_name: str) -> bool:
+        # Query the database to check if there's a wallet with the same user_id and name
+        wallet = await Wallet.find_one(Wallet.user_id == user_id, Wallet.name == wallet_name)
+        return wallet is not None
+
+    @staticmethod
+    async def get_wallet_by_name(user_id: int, wallet_name: str) -> dict:
+        """
+        Retrieve a wallet by name.
+        :param user_id: The Telegram user ID.
+        :param wallet_name: The name of the wallet.
+        :return: The wallet details as a dictionary.
+        """
+        wallet = await Wallet.find_one(Wallet.user_id == user_id, Wallet.name == wallet_name)
+        if wallet:
+            return wallet.dict()
+        else:
+            return None
