@@ -1,4 +1,4 @@
-from models.case_model import Case
+from models.case_model import Case, CaseStatus
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
     ContextTypes,
@@ -13,66 +13,62 @@ from bson import ObjectId  # Ensure ObjectId is imported
 import traceback
 import math
 from constants import CASE_DETAILS, END
+from utils.helper import paginate_list
+
 
 # Setup logging
 logger = logging.getLogger(__name__)
 
-ITEMS_PER_PAGE = 5  # Define how many cases to display per page
 
-
-# Helper to paginate list items
-def paginate_list(items, page, items_per_page=ITEMS_PER_PAGE):
-    total_pages = max(1, math.ceil(len(items) / items_per_page)) if items else 1
-    page = max(1, min(page, total_pages))
-    start = (page - 1) * items_per_page
-    end = start + items_per_page
-    return items[start:end], total_pages
-
-
-# Define states
 async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handler for the /listing command."""
     user_id = update.effective_user.id
     logger.info(f"User {user_id} issued /listing command")
-
     try:
-        # Fetch all cases from the database
-        cases = await Case.find().to_list()
-        logger.info(f"Fetched {len(cases)} cases from the database")
+        # Fetch all ADVERTISE cases from the database
+        all_cases = await Case.find({"status": CaseStatus.ADVERTISE}).to_list()
 
-        if not cases:
-            await update.message.reply_text("No cases found in the database.")
+        logger.info(f"Fetched {len(all_cases)} ADVERTISE cases from the database")
+        if not all_cases:
+            await update.message.reply_text("No ADVERTISE cases found.")
             return END
 
         # Save the current page for pagination
         context.user_data["page"] = 1
-        context.user_data["cases"] = cases
+        context.user_data["cases"] = all_cases
 
         # Paginate the case list
-        paginated_cases, total_pages = paginate_list(cases, 1)
+        paginated_cases, total_pages = paginate_list(all_cases, 1)
 
         # Create the inline keyboard
-        keyboard = [
-            [
+        keyboard = []
+        for case in paginated_cases:
+            row = [
                 InlineKeyboardButton(
                     f"Case {case.case_no} - {case.person_name}",
-                    callback_data=f"case_{str(case.id)}",  # Ensure prefix and convert ID to string
+                    callback_data=f"case_{str(case.id)}",
                 )
             ]
-            for case in paginated_cases
-        ]
+            # Add an "Edit" button if the user owns the case
+            if case.user_id == user_id:
+                row.append(
+                    InlineKeyboardButton(
+                        "📝 Edit", callback_data=f"edit_{str(case.id)}"
+                    )
+                )
+            keyboard.append(row)
 
         # Add pagination buttons (previous/next)
         navigation_buttons = []
-        if 1 < total_pages:
+        current_page = context.user_data["page"]
+        if current_page > 1:
             navigation_buttons.append(
                 InlineKeyboardButton("⬅️ Previous", callback_data="page_previous")
             )
-        if 1 < total_pages:
+        if current_page < total_pages:
             navigation_buttons.append(
                 InlineKeyboardButton("➡️ Next", callback_data="page_next")
             )
-
         if navigation_buttons:
             keyboard.append(navigation_buttons)
 
@@ -85,7 +81,6 @@ async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             parse_mode="Markdown",
         )
         return CASE_DETAILS
-
     except Exception as e:
         logger.error(f"Error in listing_command: {str(e)}\n{traceback.format_exc()}")
         await update.message.reply_text("An error occurred while fetching cases.")
@@ -98,10 +93,8 @@ async def case_details_callback(
     """Handler for displaying case details when a button is clicked."""
     query = update.callback_query
     await query.answer()
-
     try:
         case_id = query.data.removeprefix("case_")  # Extract case ID
-
         # Convert case_id to ObjectId before querying
         case = await Case.find_one({"_id": ObjectId(case_id)})
         if not case:
@@ -118,10 +111,22 @@ async def case_details_callback(
             f"📞 **Contact Info:** {case.mobile}\n"
         )
 
-        # Edit the message to show case details
-        await query.message.edit_text(case_message, parse_mode="Markdown")
-        return END
+        # Add an "Edit" button if the user owns the case
+        user_id = update.effective_user.id
+        keyboard = []
+        if case.user_id == user_id:
+            keyboard.append(
+                [InlineKeyboardButton("📝 Edit", callback_data=f"edit_{str(case.id)}")]
+            )
+        reply_markup = InlineKeyboardMarkup(keyboard) if keyboard else None
 
+        # Edit the message to show case details
+        await query.message.edit_text(
+            case_message,
+            reply_markup=reply_markup,
+            parse_mode="Markdown",
+        )
+        return END
     except Exception as e:
         logger.error(
             f"Error in case_details_callback: {str(e)}\n{traceback.format_exc()}"
@@ -132,6 +137,152 @@ async def case_details_callback(
         return END
 
 
+async def edit_case_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handler for editing a case."""
+    query = update.callback_query
+    await query.answer()
+    try:
+        case_id = query.data.removeprefix("edit_")  # Extract case ID
+        # Convert case_id to ObjectId before querying
+        case = await Case.find_one({"_id": ObjectId(case_id)})
+        if not case:
+            await query.message.edit_text("❌ Case not found.")
+            return END
+
+        # Check if the user owns the case
+        user_id = update.effective_user.id
+        if case.user_id != user_id:
+            await query.message.edit_text(
+                "❌ You are not authorized to edit this case."
+            )
+            return END
+
+        # Provide options to edit the case (e.g., name, reward, etc.)
+        keyboard = [
+            [InlineKeyboardButton("Edit Name", callback_data=f"edit_name_{case_id}")],
+            [
+                InlineKeyboardButton(
+                    "Edit Reward", callback_data=f"edit_reward_{case_id}"
+                )
+            ],
+            [InlineKeyboardButton("Cancel", callback_data="cancel_edit")],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        await query.message.edit_text(
+            "📝 **What would you like to edit?**",
+            reply_markup=reply_markup,
+            parse_mode="Markdown",
+        )
+        return CASE_DETAILS
+    except Exception as e:
+        logger.error(f"Error in edit_case_callback: {str(e)}\n{traceback.format_exc()}")
+        await query.message.edit_text("❌ An error occurred while editing the case.")
+        return END
+
+
+async def edit_name_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handler for editing the name of a case."""
+    query = update.callback_query
+    await query.answer()
+    try:
+        case_id = query.data.removeprefix("edit_name_")  # Extract case ID
+        case = await Case.find_one({"_id": ObjectId(case_id)})
+        if not case:
+            await query.message.edit_text("❌ Case not found.")
+            return END
+
+        # Check if the user owns the case
+        user_id = update.effective_user.id
+        if case.user_id != user_id:
+            await query.message.edit_text(
+                "❌ You are not authorized to edit this case."
+            )
+            return END
+
+        # Prompt the user to enter a new name
+        await query.message.edit_text("📝 Please enter the new name for the case:")
+        context.user_data["edit_case_id"] = case_id
+        context.user_data["edit_field"] = "name"
+        return CASE_DETAILS
+    except Exception as e:
+        logger.error(f"Error in edit_name_callback: {str(e)}\n{traceback.format_exc()}")
+        await query.message.edit_text("❌ An error occurred while editing the case.")
+        return END
+
+
+async def edit_reward_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    """Handler for editing the reward of a case."""
+    query = update.callback_query
+    await query.answer()
+    try:
+        case_id = query.data.removeprefix("edit_reward_")  # Extract case ID
+        case = await Case.find_one({"_id": ObjectId(case_id)})
+        if not case:
+            await query.message.edit_text("❌ Case not found.")
+            return END
+
+        # Check if the user owns the case
+        user_id = update.effective_user.id
+        if case.user_id != user_id:
+            await query.message.edit_text(
+                "❌ You are not authorized to edit this case."
+            )
+            return END
+
+        # Prompt the user to enter a new reward
+        await query.message.edit_text(
+            "📝 Please enter the new reward amount for the case:"
+        )
+        context.user_data["edit_case_id"] = case_id
+        context.user_data["edit_field"] = "reward"
+        return CASE_DETAILS
+    except Exception as e:
+        logger.error(
+            f"Error in edit_reward_callback: {str(e)}\n{traceback.format_exc()}"
+        )
+        await query.message.edit_text("❌ An error occurred while editing the case.")
+        return END
+
+
+async def edit_reward_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    """Handler for editing the reward of a case."""
+    query = update.callback_query
+    await query.answer()
+    try:
+        case_id = query.data.removeprefix("edit_reward_")  # Extract case ID
+        case = await Case.find_one({"_id": ObjectId(case_id)})
+        if not case:
+            await query.message.edit_text("❌ Case not found.")
+            return END
+
+        # Check if the user owns the case
+        user_id = update.effective_user.id
+        if case.user_id != user_id:
+            await query.message.edit_text(
+                "❌ You are not authorized to edit this case."
+            )
+            return END
+
+        # Prompt the user to enter a new reward
+        await query.message.edit_text(
+            "📝 Please enter the new reward amount for the case:"
+        )
+        context.user_data["edit_case_id"] = case_id
+        context.user_data["edit_field"] = "reward"
+        return CASE_DETAILS
+    except Exception as e:
+        logger.error(
+            f"Error in edit_reward_callback: {str(e)}\n{traceback.format_exc()}"
+        )
+        await query.message.edit_text("❌ An error occurred while editing the case.")
+        return END
+
+
 async def pagination_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -139,55 +290,91 @@ async def pagination_callback(
     query = update.callback_query
     await query.answer()
 
-    # Get current page and case list from user data
-    current_page = context.user_data.get("page", 1)
-    cases = context.user_data.get("cases", [])
+    try:
+        # Get current page and case list from user data
+        current_page = context.user_data.get("page", 1)
+        cases = context.user_data.get("cases", [])
 
-    # Determine navigation action (next or previous)
-    if query.data == "page_next":
-        new_page = current_page + 1
-    elif query.data == "page_previous":
-        new_page = current_page - 1
-    else:
-        new_page = current_page
+        # Determine navigation action (next or previous)
+        if query.data == "page_next":
+            new_page = current_page + 1
+        elif query.data == "page_previous":
+            new_page = current_page - 1
+        else:
+            new_page = current_page
 
-    # Paginate the case list based on new page
-    paginated_cases, total_pages = paginate_list(cases, new_page)
+        # Paginate the case list based on the new page
+        paginated_cases, total_pages = paginate_list(cases, new_page)
 
-    # Save the new page in context
-    context.user_data["page"] = new_page
+        # Save the new page in context
+        context.user_data["page"] = new_page
 
-    # Create the inline keyboard with case buttons
-    keyboard = [
-        [
-            InlineKeyboardButton(
-                f"Case {case.case_no} - {case.person_name}",
-                callback_data=f"case_{str(case.id)}",
+        # Create the inline keyboard with case buttons
+        keyboard = []
+        for case in paginated_cases:
+            row = [
+                InlineKeyboardButton(
+                    f"Case {case.case_no} - {case.person_name}",
+                    callback_data=f"case_{str(case.id)}",
+                )
+            ]
+            # Add an "Edit" button if the user owns the case
+            user_id = update.effective_user.id
+            if case.user_id == user_id:
+                row.append(
+                    InlineKeyboardButton(
+                        "📝 Edit", callback_data=f"edit_{str(case.id)}"
+                    )
+                )
+            keyboard.append(row)
+
+        # Add navigation buttons
+        navigation_buttons = []
+        if new_page > 1:
+            navigation_buttons.append(
+                InlineKeyboardButton("⬅️ Previous", callback_data="page_previous")
             )
-        ]
-        for case in paginated_cases
-    ]
+        if new_page < total_pages:
+            navigation_buttons.append(
+                InlineKeyboardButton("➡️ Next", callback_data="page_next")
+            )
+        if navigation_buttons:
+            keyboard.append(navigation_buttons)
 
-    # Add navigation buttons
-    navigation_buttons = []
-    if new_page > 1:
-        navigation_buttons.append(
-            InlineKeyboardButton("⬅️ Previous", callback_data="page_previous")
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        # Edit the message with the updated case list
+        await query.message.edit_text(
+            "📋 **Select a Case to View Details:**",
+            reply_markup=reply_markup,
+            parse_mode="Markdown",
         )
-    if new_page < total_pages:
-        navigation_buttons.append(
-            InlineKeyboardButton("➡️ Next", callback_data="page_next")
+        return CASE_DETAILS
+    except Exception as e:
+        logger.error(
+            f"Error in pagination_callback: {str(e)}\n{traceback.format_exc()}"
         )
+        await query.message.edit_text("❌ An error occurred while paginating cases.")
+        return END
 
-    if navigation_buttons:
-        keyboard.append(navigation_buttons)
 
-    reply_markup = InlineKeyboardMarkup(keyboard)
+async def cancel_edit_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    """Handler for canceling the edit process."""
+    query = update.callback_query
+    await query.answer()
+    try:
+        # Clear any edit-related data from context
+        context.user_data.pop("edit_case_id", None)
+        context.user_data.pop("edit_field", None)
 
-    # Edit the message with updated case list
-    await query.message.edit_text(
-        "📋 **Select a Case to View Details:**",
-        reply_markup=reply_markup,
-        parse_mode="Markdown",
-    )
-    return CASE_DETAILS
+        # Return to the case listing
+        await query.message.edit_text("📋 Edit canceled. Returning to case listing.")
+        return END
+    except Exception as e:
+        logger.error(
+            f"Error in cancel_edit_callback: {str(e)}\n{traceback.format_exc()}"
+        )
+        await query.message.edit_text("❌ An error occurred while canceling the edit.")
+        return END

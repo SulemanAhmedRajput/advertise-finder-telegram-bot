@@ -6,9 +6,11 @@ from enum import Enum
 
 from models.wallet_model import Wallet
 
+
 class CaseStatus(Enum):
     DRAFT = "draft"
     ADVERTISE = "advertise"
+
 
 class Case(Document):
     user_id: int

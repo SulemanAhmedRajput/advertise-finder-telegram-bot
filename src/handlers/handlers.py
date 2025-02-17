@@ -1,4 +1,27 @@
-from handlers.case_handler import disclaimer_2_callback, handle_age, handle_distinctive_features, handle_eye_color, handle_hair_color, handle_height, handle_last_seen_location, handle_mobile, handle_name, handle_person_name, handle_photo, handle_private_key, handle_reason_for_finding, handle_relationship, handle_reward_amount, handle_reward_type, handle_sex, handle_tac, handle_transfer_confirmation, handle_weight
+from handlers.case_handler import (
+    disclaimer_2_callback,
+    handle_age,
+    handle_distinctive_features,
+    handle_eye_color,
+    handle_hair_color,
+    handle_height,
+    handle_last_seen_location,
+    handle_mobile,
+    handle_new_mobile,
+    handle_select_mobile,
+    handle_name,
+    handle_person_name,
+    handle_photo,
+    handle_private_key,
+    handle_reason_for_finding,
+    handle_relationship,
+    handle_reward_amount,
+    handle_reward_type,
+    handle_sex,
+    handle_tac,
+    handle_transfer_confirmation,
+    handle_weight,
+)
 from handlers.finder_handler import (
     show_advertisements,
     case_details,
@@ -11,7 +34,30 @@ from handlers.finder_handler import (
     handle_public_key,
     handle_transfer,
 )
-from handlers.wallet_handler import cancel_delete_wallet_handler, confirm_delete_wallet_handler, create_wallet_handler,  create_wallet_type_handler, delete_wallet_cancel_handler, delete_wallet_confirm_handler, delete_wallet_handler, refresh_wallets_handler, select_wallet_type_handler, show_address_handler, show_wallets_handler, view_transaction_history_handler, wallet_command
+from handlers.listing_handler import (
+    cancel_edit_callback,
+    case_details_callback,
+    edit_case_callback,
+    edit_name_callback,
+    edit_reward_callback,
+    listing_command,
+    pagination_callback,
+)
+from handlers.wallet_handler import (
+    cancel_delete_wallet_handler,
+    confirm_delete_wallet_handler,
+    create_wallet_handler,
+    create_wallet_type_handler,
+    delete_wallet_cancel_handler,
+    delete_wallet_confirm_handler,
+    delete_wallet_handler,
+    refresh_wallets_handler,
+    select_wallet_type_handler,
+    show_address_handler,
+    show_wallets_handler,
+    view_transaction_history_handler,
+    wallet_command,
+)
 from telegram.ext import (
     CommandHandler,
     CallbackQueryHandler,
@@ -73,7 +119,12 @@ from constants import (
     CONFIRM_TRANSFER,
     ENTER_PUBLIC_KEY,
 )
-from handlers.settings_handler import  handle_setting_mobile, handle_setting_tac, settings_command, settings_menu_callback
+from handlers.settings_handler import (
+    handle_setting_mobile,
+    handle_setting_tac,
+    settings_command,
+    settings_menu_callback,
+)
 from utils.wallet import load_user_wallet
 from handlers.start_handler import (
     action_callback,
@@ -95,43 +146,12 @@ from handlers.start_handler import (
     wallet_selection_callback,
     wallet_type_callback,
 )
-# from handlers.wallet_handler import wallet_command, wallet_menu_callback
-# from handlers.case_handler import (
-#     handle_age,
-#     handle_distinctive_features,
-#     handle_eye_color,
-#     handle_hair_color,
-#     handle_height,
-#     handle_last_seen_location,
-#     handle_name,
-#     handle_mobile,
-#     handle_person_name,
-#     handle_photo,
-#     handle_private_key,
-#     handle_reason_for_finding,
-#     handle_relationship,
-#     handle_reward_type,
-#     handle_sex,
-#     handle_tac,
-#     handle_transfer_confirmation,
-#     handle_weight,
-#     disclaimer_2_callback,
-#     handle_reward_amount,
-# )
-
-# from handlers.settings_handler import (
-#     settings_command,
-#     settings_menu_callback,
-#     mobile_number_handler,
-# )
-
 
 # Setup logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
-
 
 # Main conversation handler for the bot
 start_handler = ConversationHandler(
@@ -157,18 +177,22 @@ start_handler = ConversationHandler(
         CHOOSE_WALLET_TYPE: [
             CallbackQueryHandler(wallet_type_callback, pattern="^(SOL|USDT)$"),
             CallbackQueryHandler(wallet_selection_callback, pattern="^wallet_"),
-            CallbackQueryHandler(wallet_name_handler, pattern="^create_new_wallet$"),  # Handle create_new_wallet
+            CallbackQueryHandler(
+                wallet_name_handler, pattern="^create_new_wallet$"
+            ),  # Handle create_new_wallet
         ],
         NAME_WALLET: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, wallet_name_handler),
         ],
-        
-#         # Create Case Flow:
+        # Create Case Flow:
         CREATE_CASE_NAME: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_name)
         ],
         CREATE_CASE_MOBILE: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_mobile)
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_new_mobile)
+        ],
+        MOBILE_MANAGEMENT: [
+            CallbackQueryHandler(handle_select_mobile, pattern="^select_mobile_.*$"),
         ],
         CREATE_CASE_TAC: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_tac)],
         CREATE_CASE_DISCLAIMER: [
@@ -268,49 +292,82 @@ wallet_handler = ConversationHandler(
         WALLET_MENU: [
             CallbackQueryHandler(select_wallet_type_handler, pattern="^create_wallet$"),
             CallbackQueryHandler(refresh_wallets_handler, pattern="^refresh_wallets$"),
-            CallbackQueryHandler(lambda u, c: show_wallets_handler(u, c, "SOL"), pattern="^sol_wallets$"),
-            CallbackQueryHandler(lambda u, c: show_wallets_handler(u, c, "USDT"), pattern="^usdt_wallets$"),
+            CallbackQueryHandler(
+                lambda u, c: show_wallets_handler(u, c, "SOL"), pattern="^sol_wallets$"
+            ),
+            CallbackQueryHandler(
+                lambda u, c: show_wallets_handler(u, c, "USDT"),
+                pattern="^usdt_wallets$",
+            ),
             CallbackQueryHandler(show_address_handler, pattern="^show_address_.*$"),
             CallbackQueryHandler(delete_wallet_handler, pattern="^delete_wallet$"),
-            CallbackQueryHandler(confirm_delete_wallet_handler, pattern="^confirm_delete_.*$"),
-            CallbackQueryHandler(delete_wallet_confirm_handler, pattern="^delete_wallet_confirm$"),
-            CallbackQueryHandler(delete_wallet_cancel_handler, pattern="^delete_wallet_cancel$"),
+            CallbackQueryHandler(
+                confirm_delete_wallet_handler, pattern="^confirm_delete_.*$"
+            ),
+            CallbackQueryHandler(
+                delete_wallet_confirm_handler, pattern="^delete_wallet_confirm$"
+            ),
+            CallbackQueryHandler(
+                delete_wallet_cancel_handler, pattern="^delete_wallet_cancel$"
+            ),
             CallbackQueryHandler(wallet_command, pattern="^back_to_menu$"),
-            CallbackQueryHandler(view_transaction_history_handler, pattern="^view_history$"),
+            CallbackQueryHandler(
+                view_transaction_history_handler, pattern="^view_history$"
+            ),
         ],
         CREATE_WALLET: [
-            CallbackQueryHandler(create_wallet_type_handler, pattern="^sol_wallet_type$"),
-            CallbackQueryHandler(create_wallet_type_handler, pattern="^usdt_wallet_type$"),
+            CallbackQueryHandler(
+                create_wallet_type_handler, pattern="^sol_wallet_type$"
+            ),
+            CallbackQueryHandler(
+                create_wallet_type_handler, pattern="^usdt_wallet_type$"
+            ),
             MessageHandler(filters.TEXT & ~filters.COMMAND, create_wallet_handler),
         ],
         HISTORY_MENU: [
-            CallbackQueryHandler(view_transaction_history_handler, pattern="^history_.*$"),
+            CallbackQueryHandler(
+                view_transaction_history_handler, pattern="^history_.*$"
+            ),
             CallbackQueryHandler(wallet_command, pattern="^back_to_menu$"),
         ],
     },
-    fallbacks=[CommandHandler("cancel", lambda update, context: ConversationHandler.END)],
+    fallbacks=[
+        CommandHandler("cancel", lambda update, context: ConversationHandler.END)
+    ],
 )
 
 # # Define ConversationHandler
-# case_listing_handler = ConversationHandler(
-#     entry_points=[CommandHandler("listing", listing_command)],
-#     states={
-#         CASE_DETAILS: [
-#             CallbackQueryHandler(case_details_callback, pattern="^case_.*$"),
-#             CallbackQueryHandler(
-#                 pagination_callback, pattern="^(page_previous|page_next)$"
-#             ),
-#         ]
-#     },
-#     fallbacks=[CommandHandler("cancel", lambda update, context: END)],
-# )
+listing_handler = ConversationHandler(
+    entry_points=[CommandHandler("listing", listing_command)],
+    states={
+        CASE_DETAILS: [
+            # Handle case details when a case is selected
+            CallbackQueryHandler(case_details_callback, pattern="^case_.*$"),
+            # Handle pagination (previous/next buttons)
+            CallbackQueryHandler(
+                pagination_callback, pattern="^(page_previous|page_next)$"
+            ),
+            # Handle the "Edit" button for cases
+            CallbackQueryHandler(edit_case_callback, pattern="^edit_.*$"),
+            # Handle specific edit actions (e.g., editing name or reward)
+            CallbackQueryHandler(edit_name_callback, pattern="^edit_name_.*$"),
+            CallbackQueryHandler(edit_reward_callback, pattern="^edit_reward_.*$"),
+            # Handle cancel action for the edit menu
+            CallbackQueryHandler(cancel_edit_callback, pattern="^cancel_edit$"),
+        ]
+    },
+    fallbacks=[CommandHandler("cancel", lambda update, context: END)],
+)
 
 # Settings conversation handler  -- TODO: Completed
 settings_handler = ConversationHandler(
     entry_points=[CommandHandler("settings", settings_command)],
     states={
         SETTINGS_MENU: [
-            CallbackQueryHandler(settings_menu_callback, pattern="^(settings_language|settings_mobile|settings_close|setlang_)"),
+            CallbackQueryHandler(
+                settings_menu_callback,
+                pattern="^(settings_language|settings_mobile|settings_close|setlang_)",
+            ),
         ],
         WAITING_FOR_MOBILE: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_setting_mobile),
@@ -319,16 +376,17 @@ settings_handler = ConversationHandler(
             CallbackQueryHandler(settings_menu_callback, pattern="^(mobile_|remove_)"),
         ],
         MOBILE_VERIFICATION: [
-            CallbackQueryHandler(settings_menu_callback, pattern="^(remove_|settings_mobile)"),
+            CallbackQueryHandler(
+                settings_menu_callback, pattern="^(remove_|settings_mobile)"
+            ),
         ],
         CREATE_CASE_TAC: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_setting_tac),
         ],
-      
         END: [CommandHandler("settings", settings_command)],
     },
-    fallbacks=[CommandHandler("cancel", lambda update, context: ConversationHandler.END)],
+    fallbacks=[
+        CommandHandler("cancel", lambda update, context: ConversationHandler.END)
+    ],
 )
 # --- Application Setup ---
-
-

@@ -9,10 +9,10 @@ from telegram.ext import (
     ContextTypes,
 )
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from handlers.listing_handler import ITEMS_PER_PAGE, paginate_list
 from models.case_model import Case
 from handlers.listing_handler import logger
 from utils.cloudinary import upload_image
+from utils.helper import paginate_list
 import utils.wallet
 from constants import (
     CASE_DETAILS,
@@ -20,6 +20,7 @@ from constants import (
     CHOOSE_PROVINCE,
     END,
     ENTER_LOCATION,
+    ITEMS_PER_PAGE,
     UPLOAD_PROOF,
     get_text,
     CASE_LIST,

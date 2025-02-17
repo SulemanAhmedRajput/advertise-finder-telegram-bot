@@ -12,6 +12,7 @@ from constants import (
     CREATE_CASE_REWARD_TYPE,
     CREATE_CASE_SUBMIT,
     ENTER_PRIVATE_KEY,
+    MOBILE_MANAGEMENT,
     TRANSFER_CONFIRMATION,
     get_text,
     CREATE_CASE_MOBILE,
@@ -44,6 +45,7 @@ from solders.system_program import transfer, TransferParams
 from solders.transaction import Transaction
 from solders.message import Message
 from models.wallet_model import Wallet
+from services.user_service import get_user_mobiles, save_user_mobiles, validate_mobile
 
 
 client = Client("https://api.devnet.solana.com")
@@ -65,38 +67,100 @@ async def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     await update_or_create_case(user_id, name=name)
     context.user_data["case"] = {"name": name}
 
-    await update.message.reply_text(get_text(user_id, "enter_mobile"))
-    return CREATE_CASE_MOBILE
+    # Check if the user has existing mobile numbers
+    existing_mobiles = await get_user_mobiles(user_id)
+
+    if existing_mobiles:
+        # Show existing mobile numbers with an option to select one
+        kb = [
+            [InlineKeyboardButton(mobile, callback_data=f"select_mobile_{mobile}")]
+            for mobile in existing_mobiles
+        ]
+        await update.message.reply_text(
+            get_text(user_id, "choose_existing_mobile"),
+            reply_markup=InlineKeyboardMarkup(kb),
+        )
+        return MOBILE_MANAGEMENT
+    else:
+        # Ask for a new mobile number
+        await update.message.reply_text(get_text(user_id, "enter_mobile"))
+        return CREATE_CASE_MOBILE
 
 
 async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle the user's mobile number input."""
     user_id = update.effective_user.id
+    existing_mobiles = await get_user_mobiles(user_id)
+
+    if existing_mobiles:
+        # Show existing mobile numbers with an option to select one
+        kb = [
+            [InlineKeyboardButton(mobile, callback_data=f"select_mobile_{mobile}")]
+            for mobile in existing_mobiles
+        ]
+        kb.append([InlineKeyboardButton("➕ Add New", callback_data="mobile_add")])
+        await update.message.reply_text(
+            get_text(user_id, "choose_existing_mobile"),
+            reply_markup=InlineKeyboardMarkup(kb),
+        )
+        return MOBILE_MANAGEMENT
+    else:
+        # Ask for a new mobile number
+        await update.message.reply_text(get_text(user_id, "enter_mobile"))
+        return CREATE_CASE_MOBILE
+
+
+async def handle_new_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handle the input of a new mobile number and send OTP."""
+    user_id = update.effective_user.id
     mobile = update.message.text.strip()
 
-    # Generate and send TAC
+    if not validate_mobile(mobile):
+        await update.message.reply_text(get_text(user_id, "invalid_mobile_number"))
+        return CREATE_CASE_MOBILE
+
+    # Generate and send TAC (OTP)
     tac = generate_tac()  # Implement this function to generate a random TAC
     context.user_data["tac"] = tac
     context.user_data["mobile"] = mobile
-    user_data_store[user_id]["tac"] = tac
-    user_data_store[user_id]["mobile"] = mobile
 
-    # Send TAC via Twilio
+    # Send TAC via Twilio (uncomment the following lines if Twilio is configured)
     # message = send_sms(mobile, tac)
-
     # if not message:  # Check if SMS was sent successfully
     #     await update.message.reply_text(get_text(user_id, "enter_mobile"))
     #     return CREATE_CASE_MOBILE
 
-    # # Validate the mobile number (basic validation for example purposes)
-    # if not mobile.replace("+", "").isdigit() or len(mobile) < 10:
-    #     await update.message.reply_text(get_text(user_id, "invalid_mobile_number"))
-    #     return CREATE_CASE_MOBILE
-
-    print("Your TAC is " + tac)
+    print("Your TAC is " + tac)  # For debugging purposes
 
     await update.message.reply_text(get_text(user_id, "enter_tac"))
     return CREATE_CASE_TAC
+
+
+async def handle_select_mobile(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    """Handle the selection of an existing mobile number or adding a new one."""
+    query = update.callback_query
+    await query.answer()
+    user_id = query.from_user.id
+
+    if query.data == "mobile_add":
+        # Ask for a new mobile number
+        await query.edit_message_text(get_text(user_id, "enter_mobile"))
+        return CREATE_CASE_MOBILE
+    else:
+        selected_mobile = query.data.replace("select_mobile_", "")
+
+        tac = generate_tac()  # Implement this function to generate a random TAC
+        context.user_data["tac"] = tac
+        context.user_data["mobile"] = selected_mobile
+        await query.edit_message_text(
+            f"Selected mobile number: {selected_mobile} - A TAC IS SEND TO YOU ON THIS NUMBER"
+        )
+
+        # Proceed to the next step in the case creation flow
+        await query.message.reply_text(get_text(user_id, "enter_tac"))
+        return CREATE_CASE_TAC
 
 
 async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -108,7 +172,7 @@ async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     print(f"Getting the number which are: {context.user_data.get("mobile")}")
 
     if user_tac == stored_tac:
-    # if user_tac == "123456":
+        # if user_tac == "123456":
         await update.message.reply_text(get_text(user_id, "tac_verified"))
         await show_disclaimer_2(update, context)
         return CREATE_CASE_DISCLAIMER

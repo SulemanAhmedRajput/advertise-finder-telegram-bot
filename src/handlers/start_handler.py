@@ -35,15 +35,9 @@ from constants import (
     WALLETS_DIR,
     CHOOSE_PROVINCE,
 )
-from handlers.listing_handler import paginate_list
 from services.user_service import get_user_lang, save_user_lang
 from utils.wallet import create_sol_wallet
-from utils.helper import (
-    get_city_matches,
-    get_country_matches
-)
-
-
+from utils.helper import get_city_matches, get_country_matches, paginate_list
 
 
 # Handlers
@@ -78,8 +72,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return SELECT_LANG
 
 
-
-async def select_lang_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def select_lang_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
     """Handle language selection."""
     query = update.callback_query
     await query.answer()
@@ -96,6 +91,7 @@ async def select_lang_callback(update: Update, context: ContextTypes.DEFAULT_TYP
 
     await query.edit_message_text(get_text(user_id, "choose_country"))
     return CHOOSE_COUNTRY
+
 
 async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = update.effective_user.id
@@ -142,7 +138,7 @@ async def country_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     data = query.data
     user_id = query.from_user.id
     if data.startswith("country_select_"):
-    
+
         country = data.replace("country_select_", "")
         context.user_data["country"] = country
         await query.edit_message_text(
@@ -181,7 +177,7 @@ async def country_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             reply_markup=markup,
             parse_mode="HTML",
         )
-        
+
         context.user_data["country_page"] = page_num
         return CHOOSE_COUNTRY
     else:
@@ -331,7 +327,7 @@ async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         await query.edit_message_text(
             get_text(user_id, "city_multi").format(page=page_num, total=total),
             reply_markup=markup,
-            parse_mode="HTML"
+            parse_mode="HTML",
         )
         context.user_data["city_page"] = page_num
         return CHOOSE_CITY
@@ -403,6 +399,8 @@ async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
         return END
+
+
 async def wallet_type_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -417,12 +415,25 @@ async def wallet_type_callback(
             print(f"Existing wallets: {existing_wallets}")
             # Show existing wallets with an option to create a new one
             kb = [
-                [InlineKeyboardButton(wallet.name, callback_data=f"wallet_{wallet.name}")]
+                [
+                    InlineKeyboardButton(
+                        wallet.name, callback_data=f"wallet_{wallet.name}"
+                    )
+                ]
                 for wallet in existing_wallets
             ]
-            kb.append([InlineKeyboardButton(get_text(user_id, "create_new_wallet"), callback_data="create_new_wallet")])
+            kb.append(
+                [
+                    InlineKeyboardButton(
+                        get_text(user_id, "create_new_wallet"),
+                        callback_data="create_new_wallet",
+                    )
+                ]
+            )
             await query.edit_message_text(
-                get_text(user_id, "choose_existing_or_new_wallet"), reply_markup=InlineKeyboardMarkup(kb), parse_mode="HTML"
+                get_text(user_id, "choose_existing_or_new_wallet"),
+                reply_markup=InlineKeyboardMarkup(kb),
+                parse_mode="HTML",
             )
             return CHOOSE_WALLET_TYPE
         else:
@@ -440,7 +451,10 @@ async def wallet_type_callback(
         )
         return END
 
-async def wallet_selection_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+
+async def wallet_selection_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
     """Handle the selection of an existing wallet."""
     query = update.callback_query
     await query.answer()
@@ -522,6 +536,7 @@ async def wallet_name_handler(
         )
         return END
 
+
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = update.effective_user.id
     await update.message.reply_text(
@@ -539,5 +554,3 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
             await update.effective_message.reply_text(
                 get_text(user_id, "invalid_choice")
             )
-
-

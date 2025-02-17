@@ -11,27 +11,27 @@ CHOOSE_PROVINCE = 4  # New state for province selection
 CHOOSE_ACTION = 5
 CHOOSE_WALLET_TYPE = 6
 NAME_WALLET = 7
-CREATE_CASE_NAME = 8
-CREATE_CASE_MOBILE = 9
-CREATE_CASE_TAC = 10
-CREATE_CASE_DISCLAIMER = 11
-CREATE_CASE_REWARD_TYPE = 12
-CREATE_CASE_REWARD_AMOUNT = 13
-CREATE_CASE_PERSON_NAME = 14
-CREATE_CASE_RELATIONSHIP = 15
-CREATE_CASE_PHOTO = 16
-CREATE_CASE_LAST_SEEN_LOCATION = 17
-CREATE_CASE_SEX = 18
-CREATE_CASE_AGE = 19
-CREATE_CASE_HAIR_COLOR = 20
-CREATE_CASE_EYE_COLOR = 21
-CREATE_CASE_HEIGHT = 22
-CREATE_CASE_WEIGHT = 23
-CREATE_CASE_DISTINCTIVE_FEATURES = 24
-CREATE_CASE_SUBMIT = 25
-ENTER_PRIVATE_KEY = 26
-TRANSFER_CONFIRMATION = 27
-END = 28
+CREATE_CASE_NAME = "CREATE_CASE_NAME"
+CREATE_CASE_MOBILE = "CREATE_CASE_MOBILE"
+CREATE_CASE_TAC = "CREATE_CASE_TAC"
+CREATE_CASE_DISCLAIMER = "CREATE_CASE_DISCLAIMER"
+CREATE_CASE_REWARD_TYPE = "CREATE_CASE_REWARD_TYPE"
+CREATE_CASE_REWARD_AMOUNT = "CREATE_CASE_REWARD_AMOUNT"
+CREATE_CASE_PERSON_NAME = "CREATE_CASE_PERSON_NAME"
+CREATE_CASE_RELATIONSHIP = "CREATE_CASE_RELATIONSHIP"
+CREATE_CASE_PHOTO = "CREATE_CASE_PHOTO"
+CREATE_CASE_LAST_SEEN_LOCATION = "CREATE_CASE_LAST_SEEN_LOCATION"
+CREATE_CASE_SEX = "CREATE_CASE_SEX"
+CREATE_CASE_AGE = "CREATE_CASE_AGE"
+CREATE_CASE_HAIR_COLOR = "CREATE_CASE_HAIR_COLOR"
+CREATE_CASE_EYE_COLOR = "CREATE_CASE_EYE_COLOR"
+CREATE_CASE_HEIGHT = "CREATE_CASE_HEIGHT"
+CREATE_CASE_WEIGHT = "CREATE_CASE_WEIGHT"
+CREATE_CASE_DISTINCTIVE_FEATURES = "CREATE_CASE_DISTINCTIVE_FEATURES"
+CREATE_CASE_SUBMIT = "CREATE_CASE_SUBMIT"
+ENTER_PRIVATE_KEY = "ENTER_PRIVATE_KEY"
+TRANSFER_CONFIRMATION = "TRANSFER_CONFIRMATION"
+END = "END"
 # Additional states for Wallet and Settings flows
 WALLET_MENU = 80
 WAITING_FOR_MOBILE = 81
@@ -45,13 +45,15 @@ ADVERTISER_CONFIRMATION = 104  # New state for confirming the reward transfer
 ENTER_PUBLIC_KEY = 105  # New state for entering the public key of the finder
 CONFIRM_TRANSFER = 106  # New state for confirming the SOL transfer
 MOBILE_VERIFICATION = 107
-MOBILE_MANAGEMENT = 108
+MOBILE_MANAGEMENT = "MOBILE_MANAGEMENT"
 
-CREATE_WALLET=109
-HISTORY_MENU=110
+CREATE_WALLET = 109
+HISTORY_MENU = 110
 
 SELECT_WALLET = 111
 
+ENTER_NUMBER = "ENTER_NUMBER"
+VERIFY_OTP = "VERIFY_OTP"
 # ======================
 # Language Data & Constants
 # ======================
@@ -94,7 +96,7 @@ LANG_DATA = {
         "wallet_name_prompt": "You've chosen Solana wallet.\nPlease enter a name for your wallet:",
         "wallet_name_empty": "Wallet name cannot be empty. Please try again:",
         "wallet_create_ok": "✅ Wallet Created Successfully!\n\n",
-          "wallet_create_details": (
+        "wallet_create_details": (
             "Name: {name}\n"
             "Public Key: {public_key}\n"
             "Secret Key: {secret_key}\n"
@@ -202,6 +204,13 @@ LANG_DATA = {
         "no_case_found_in_province": "No cases found for {province}.",
         # Remaining messages
         "invalid_mobile_number": "❌ Invalid mobile number. Please enter a valid 10-digit number.",
+        "choose_number_or_add_new": "Choose a number or add a new one:",
+        "add_new_number": "Add New Number",
+        "enter_new_number": "Please enter a new number:",
+        "number_already_exists": "The number <b>{number}</b> already exists.",
+        "otp_sent": "An OTP has been sent to <b>{number}</b>. Please enter the OTP to verify.",
+        "number_added": "The number <b>{number}</b> has been added successfully.",
+        "invalid_otp": "Invalid OTP. Please try again.",
     },
     "zh": {
         "lang_choice": "中文",
@@ -240,7 +249,7 @@ LANG_DATA = {
         "wallet_name_prompt": "您选择了 Solana 钱包。\n请输入钱包名称：",
         "wallet_name_empty": "钱包名称不能为空，请重新输入：",
         "wallet_create_ok": "✅ 成功创建钱包！\n\n",
-          "wallet_create_details": (
+        "wallet_create_details": (
             "名称: {name}\n"
             "公钥: {public_key}\n"
             "私钥: {secret_key}\n"
@@ -345,6 +354,13 @@ LANG_DATA = {
         "case_not_found_in_province": "该省份未找到案件。",
         "select_province": "请先选择一个省份。",
         "no_case_found_in_province": "在 {province} 没有找到相关案件。",
+        "choose_number_or_add_new": "选择一个号码或添加新号码：",
+        "add_new_number": "添加新号码",
+        "enter_new_number": "请输入一个新号码：",
+        "number_already_exists": "号码 <b>{number}</b> 已存在。",
+        "otp_sent": "已向 <b>{number}</b> 发送验证码。请输入验证码以验证。",
+        "number_added": "号码 <b>{number}</b> 已成功添加。",
+        "invalid_otp": "无效的验证码。请重试。",
     },
 }
 

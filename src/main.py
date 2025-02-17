@@ -17,7 +17,8 @@ from handlers.handlers import (
     # case_listing_handler,
     start_handler,
     settings_handler,
-    wallet_handler
+    wallet_handler,
+    listing_handler,
     # settings_conv_handler,
     # wallet_conv_handler,
 )
@@ -34,10 +35,10 @@ async def main_setup():
     application = ApplicationBuilder().token(TOKEN).build()
 
     application.add_handler(start_handler)
-    
+
     application.add_handler(wallet_handler)
     application.add_handler(settings_handler)
-    # application.add_handler(case_listing_handler)
+    application.add_handler(listing_handler)
 
     application.add_error_handler(error_handler)
 
@@ -50,7 +51,9 @@ async def init_db():
     try:
         print(f"MONGODB_URI = {MONGODB_URI}")
         client = AsyncIOMotorClient(MONGODB_URI)
-        await init_beanie(database=client[MONGODB_NAME], document_models=[User, Case, Wallet])
+        await init_beanie(
+            database=client[MONGODB_NAME], document_models=[User, Case, Wallet]
+        )
         print("Database Connected Successfully 🚀.")
         await main_setup()
     except Exception as e:
