@@ -78,17 +78,18 @@ async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     user_data_store[user_id]["tac"] = tac
     user_data_store[user_id]["mobile"] = mobile
 
-    # Send TAC via Twilio
-    message = send_sms(mobile, tac)
+    print("TAC:", tac)
+    # # Send TAC via Twilio
+    # message = send_sms(mobile, tac)
 
-    if not message:  # Check if SMS was sent successfully
-        await update.message.reply_text(get_text(user_id, "enter_mobile"))
-        return CREATE_CASE_MOBILE
+    # if not message:  # Check if SMS was sent successfully
+    #     await update.message.reply_text(get_text(user_id, "enter_mobile"))
+    #     return CREATE_CASE_MOBILE
 
-    # Validate the mobile number (basic validation for example purposes)
-    if not mobile.replace("+", "").isdigit() or len(mobile) < 10:
-        await update.message.reply_text(get_text(user_id, "invalid_mobile_number"))
-        return CREATE_CASE_MOBILE
+    # # Validate the mobile number (basic validation for example purposes)
+    # if not mobile.replace("+", "").isdigit() or len(mobile) < 10:
+    #     await update.message.reply_text(get_text(user_id, "invalid_mobile_number"))
+    #     return CREATE_CASE_MOBILE
 
     await update.message.reply_text(get_text(user_id, "enter_tac"))
     return CREATE_CASE_TAC
