@@ -1,24 +1,22 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import ContextTypes, CallbackQueryHandler, MessageHandler, filters
+from telegram.ext import ContextTypes
 from constants import (
-    CREATE_CASE_TAC,
-    END,
-    MOBILE_MANAGEMENT,
-    MOBILE_VERIFICATION,
+    State,
     get_text,
     LANG_DATA,
-    SETTINGS_MENU,
     user_data_store,
-    WAITING_FOR_MOBILE,
 )
 from telegram.ext import (
-    ConversationHandler,
     ContextTypes,
 )
 
-from services.user_service import get_user_mobiles, save_user_lang, save_user_mobiles, validate_mobile
+from services.user_service import (
+    get_user_mobiles,
+    save_user_lang,
+    save_user_mobiles,
+    validate_mobile,
+)
 from utils.helper import generate_tac
-
 
 
 # Handlers
@@ -26,16 +24,29 @@ async def settings_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Entry point for /settings command - shows an inline menu."""
     user_id = update.effective_user.id
     kb = [
-        [InlineKeyboardButton(get_text(user_id, "btn_language"), callback_data="settings_language")],
-        [InlineKeyboardButton(get_text(user_id, "btn_mobile_number"), callback_data="settings_mobile")],
-        [InlineKeyboardButton(get_text(user_id, "btn_close_menu"), callback_data="settings_close")],
+        [
+            InlineKeyboardButton(
+                get_text(user_id, "btn_language"), callback_data="settings_language"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                get_text(user_id, "btn_mobile_number"), callback_data="settings_mobile"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                get_text(user_id, "btn_close_menu"), callback_data="settings_close"
+            )
+        ],
     ]
     await update.message.reply_text(
         get_text(user_id, "menu_settings_title"),
         reply_markup=InlineKeyboardMarkup(kb),
         parse_mode="HTML",
     )
-    return SETTINGS_MENU
+    return State.SETTINGS_MENU
+
 
 async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle the settings menu actions."""
@@ -47,15 +58,23 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
     if choice == "settings_language":
         # Language selection
         kb = [
-            [InlineKeyboardButton(LANG_DATA["en"]["lang_button"], callback_data="setlang_en")],
-            [InlineKeyboardButton(LANG_DATA["zh"]["lang_button"], callback_data="setlang_zh")],
+            [
+                InlineKeyboardButton(
+                    LANG_DATA["en"]["lang_button"], callback_data="setlang_en"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    LANG_DATA["zh"]["lang_button"], callback_data="setlang_zh"
+                )
+            ],
         ]
         await query.edit_message_text(
             text="Choose your preferred language:",
             reply_markup=InlineKeyboardMarkup(kb),
             parse_mode="HTML",
         )
-        return SETTINGS_MENU
+        return State.SETTINGS_MENU
 
     elif choice == "settings_mobile":
         # Mobile management
@@ -64,7 +83,7 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
             await query.edit_message_text(
                 get_text(user_id, "enter_mobile"), parse_mode="HTML"
             )
-            return WAITING_FOR_MOBILE
+            return State.WAITING_FOR_MOBILE
         else:
             # Show saved mobile numbers
             kb = [
@@ -77,14 +96,14 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
                 reply_markup=InlineKeyboardMarkup(kb),
                 parse_mode="HTML",
             )
-            return MOBILE_MANAGEMENT
+            return State.MOBILE_MANAGEMENT
 
     elif choice == "settings_close":
         # Close the menu
         await query.edit_message_text(
             get_text(user_id, "btn_close_menu"), parse_mode="HTML"
         )
-        return END
+        return State.END
 
     elif choice.startswith("setlang_"):
         new_lang = choice.replace("setlang_", "")
@@ -96,7 +115,7 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
         await query.edit_message_text(
             get_text(user_id, "lang_updated"), parse_mode="HTML"
         )
-        return END
+        return State.END
 
     elif choice.startswith("mobile_"):
         mobile = choice.replace("mobile_", "")
@@ -104,7 +123,7 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
             await query.edit_message_text(
                 get_text(user_id, "enter_mobile"), parse_mode="HTML"
             )
-            return WAITING_FOR_MOBILE
+            return State.WAITING_FOR_MOBILE
         else:
             # Options for selected mobile
             kb = [
@@ -116,7 +135,7 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
                 reply_markup=InlineKeyboardMarkup(kb),
                 parse_mode="HTML",
             )
-            return MOBILE_VERIFICATION
+            return State.MOBILE_VERIFICATION
 
     elif choice.startswith("remove_"):
         mobile = choice.replace("remove_", "")
@@ -131,13 +150,14 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
             await query.edit_message_text(
                 f"❌ Mobile number not found: {mobile}", parse_mode="HTML"
             )
-        return MOBILE_MANAGEMENT
+        return State.MOBILE_MANAGEMENT
 
     else:
         await query.edit_message_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
-        return END
+        return State.END
+
 
 async def handle_setting_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle the user's mobile number input."""
@@ -147,7 +167,7 @@ async def handle_setting_mobile(update: Update, context: ContextTypes.DEFAULT_TY
     # Validate mobile number
     if not validate_mobile(mobile):
         await update.message.reply_text(get_text(user_id, "invalid_mobile_number"))
-        return WAITING_FOR_MOBILE
+        return State.WAITING_FOR_MOBILE
 
     # Generate TAC
     tac = generate_tac()
@@ -165,9 +185,9 @@ async def handle_setting_mobile(update: Update, context: ContextTypes.DEFAULT_TY
 
     # Prompt user to enter TAC
     await update.message.reply_text(get_text(user_id, "enter_tac"))
-    return CREATE_CASE_TAC
+    return State.CREATE_CASE_TAC
 
-    
+
 async def handle_setting_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle TAC verification."""
     user_id = update.effective_user.id
@@ -197,8 +217,8 @@ async def handle_setting_tac(update: Update, context: ContextTypes.DEFAULT_TYPE)
             reply_markup=InlineKeyboardMarkup(kb),
             parse_mode="HTML",
         )
-        return MOBILE_MANAGEMENT
+        return State.MOBILE_MANAGEMENT
 
     else:
         await update.message.reply_text(get_text(user_id, "tac_invalid"))
-        return CREATE_CASE_TAC
+        return State.CREATE_CASE_TAC

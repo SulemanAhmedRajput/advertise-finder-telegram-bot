@@ -6,7 +6,6 @@ import geonamescache
 import pycountry
 
 from constants import ITEMS_PER_PAGE
-from models.user_model import User
 
 
 def generate_tac():
@@ -41,7 +40,6 @@ def get_city_matches(country_name, query):
     ]
 
 
-
 gc = geonamescache.GeonamesCache()
 
 
@@ -72,8 +70,6 @@ def get_cities_by_country(country_name):
     return [city["name"] for city in sorted_cities[:50]]
 
 
-
-
 # Setup logging
 def setup_logging():
     logging.basicConfig(
@@ -88,5 +84,11 @@ def setup_logging():
     logger.info("Logging setup complete.")
 
 
-
-
+def merge_lang_data(lang_data, *new_constants):
+    for new_data in new_constants:  # Loop through each constant
+        for lang, entries in new_data.items():
+            if lang in lang_data:
+                lang_data[lang].update(entries)  # Merge into existing language
+            else:
+                lang_data[lang] = entries  # Add new language section if missing
+    return lang_data

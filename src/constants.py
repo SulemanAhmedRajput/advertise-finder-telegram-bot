@@ -3,122 +3,77 @@
 # ======================
 # (Note: The original conversation states from your snippet have been extended
 # to separate the steps for creating a case. You may adjust the numbering as needed.)
-SELECT_LANG = 0
-SHOW_DISCLAIMER = 1
-CHOOSE_COUNTRY = 2
-CHOOSE_CITY = 3
-CHOOSE_PROVINCE = 4  # New state for province selection
-CHOOSE_ACTION = 5
-CHOOSE_WALLET_TYPE = 6
-NAME_WALLET = 7
-CREATE_CASE_NAME = "CREATE_CASE_NAME"
-CREATE_CASE_MOBILE = "CREATE_CASE_MOBILE"
-CREATE_CASE_TAC = "CREATE_CASE_TAC"
-CREATE_CASE_DISCLAIMER = "CREATE_CASE_DISCLAIMER"
-CREATE_CASE_REWARD_TYPE = "CREATE_CASE_REWARD_TYPE"
-CREATE_CASE_REWARD_AMOUNT = "CREATE_CASE_REWARD_AMOUNT"
-CREATE_CASE_PERSON_NAME = "CREATE_CASE_PERSON_NAME"
-CREATE_CASE_RELATIONSHIP = "CREATE_CASE_RELATIONSHIP"
-CREATE_CASE_PHOTO = "CREATE_CASE_PHOTO"
-CREATE_CASE_LAST_SEEN_LOCATION = "CREATE_CASE_LAST_SEEN_LOCATION"
-CREATE_CASE_SEX = "CREATE_CASE_SEX"
-CREATE_CASE_AGE = "CREATE_CASE_AGE"
-CREATE_CASE_HAIR_COLOR = "CREATE_CASE_HAIR_COLOR"
-CREATE_CASE_EYE_COLOR = "CREATE_CASE_EYE_COLOR"
-CREATE_CASE_HEIGHT = "CREATE_CASE_HEIGHT"
-CREATE_CASE_WEIGHT = "CREATE_CASE_WEIGHT"
-CREATE_CASE_DISTINCTIVE_FEATURES = "CREATE_CASE_DISTINCTIVE_FEATURES"
-CREATE_CASE_SUBMIT = "CREATE_CASE_SUBMIT"
-ENTER_PRIVATE_KEY = "ENTER_PRIVATE_KEY"
-TRANSFER_CONFIRMATION = "TRANSFER_CONFIRMATION"
-END = "END"
-# Additional states for Wallet and Settings flows
-WALLET_MENU = 80
-WAITING_FOR_MOBILE = 81
-SETTINGS_MENU = 92
-# Additional flow of the listing command
-CASE_LIST = 100
-CASE_DETAILS = 101
-UPLOAD_PROOF = 102  # New state for uploading proof
-ENTER_LOCATION = 103  # New state for entering the location where the person was found
-ADVERTISER_CONFIRMATION = 104  # New state for confirming the reward transfer
-ENTER_PUBLIC_KEY = 105  # New state for entering the public key of the finder
-CONFIRM_TRANSFER = 106  # New state for confirming the SOL transfer
-MOBILE_VERIFICATION = 107
-MOBILE_MANAGEMENT = "MOBILE_MANAGEMENT"
+from constant.start_constant import START_LANG_DATA
+from constant.wallet_constant import WALLET_LANG_DATA
 
-CREATE_WALLET = 109
-HISTORY_MENU = 110
+# from utils.helper import merge_lang_data
 
-SELECT_WALLET = 111
+from enum import Enum
 
-ENTER_NUMBER = "ENTER_NUMBER"
-VERIFY_OTP = "VERIFY_OTP"
+
+class State(Enum):
+    SELECT_LANG = "SELECT_LANG"
+    SHOW_DISCLAIMER = "SHOW_DISCLAIMER"
+    CHOOSE_COUNTRY = "CHOOSE_COUNTRY"
+    CHOOSE_PROVINCE = "CHOOSE_PROVINCE"
+    CHOOSE_CITY = "CHOOSE_CITY"
+    CHOOSE_ACTION = "CHOOSE_ACTION"
+    CHOOSE_WALLET_TYPE = "CHOOSE_WALLET_TYPE"
+    NAME_WALLET = "NAME_WALLET"
+
+    CREATE_CASE_NAME = "CREATE_CASE_NAME"
+    CREATE_CASE_MOBILE = "CREATE_CASE_MOBILE"
+    CREATE_CASE_TAC = "CREATE_CASE_TAC"
+    CREATE_CASE_DISCLAIMER = "CREATE_CASE_DISCLAIMER"
+    CREATE_CASE_REWARD_TYPE = "CREATE_CASE_REWARD_TYPE"
+    CREATE_CASE_REWARD_AMOUNT = "CREATE_CASE_REWARD_AMOUNT"
+    CREATE_CASE_PERSON_NAME = "CREATE_CASE_PERSON_NAME"
+    CREATE_CASE_RELATIONSHIP = "CREATE_CASE_RELATIONSHIP"
+    CREATE_CASE_PHOTO = "CREATE_CASE_PHOTO"
+    CREATE_CASE_LAST_SEEN_LOCATION = "CREATE_CASE_LAST_SEEN_LOCATION"
+    CREATE_CASE_SEX = "CREATE_CASE_SEX"
+    CREATE_CASE_AGE = "CREATE_CASE_AGE"
+    CREATE_CASE_HAIR_COLOR = "CREATE_CASE_HAIR_COLOR"
+    CREATE_CASE_EYE_COLOR = "CREATE_CASE_EYE_COLOR"
+    CREATE_CASE_HEIGHT = "CREATE_CASE_HEIGHT"
+    CREATE_CASE_WEIGHT = "CREATE_CASE_WEIGHT"
+    CREATE_CASE_DISTINCTIVE_FEATURES = "CREATE_CASE_DISTINCTIVE_FEATURES"
+    CREATE_CASE_SUBMIT = "CREATE_CASE_SUBMIT"
+
+    ENTER_PRIVATE_KEY = "ENTER_PRIVATE_KEY"
+    ENTER_PUBLIC_KEY = "ENTER_PUBLIC_KEY"
+    CONFIRM_TRANSFER = "CONFIRM_TRANSFER"
+    TRANSFER_CONFIRMATION = "TRANSFER_CONFIRMATION"
+
+    WALLET_MENU = "WALLET_MENU"
+    WAITING_FOR_MOBILE = "WAITING_FOR_MOBILE"
+    CREATE_WALLET = "CREATE_WALLET"
+    SELECT_WALLET = "SELECT_WALLET"
+
+    CASE_LIST = "CASE_LIST"
+    CASE_DETAILS = "CASE_DETAILS"
+    UPLOAD_PROOF = "UPLOAD_PROOF"
+    ENTER_LOCATION = "ENTER_LOCATION"
+    ADVERTISER_CONFIRMATION = "ADVERTISER_CONFIRMATION"
+    MOBILE_VERIFICATION = "MOBILE_VERIFICATION"
+
+    SETTINGS_MENU = "SETTINGS_MENU"
+    MOBILE_MANAGEMENT = "MOBILE_MANAGEMENT"
+    HISTORY_MENU = "HISTORY_MENU"
+
+    ENTER_NUMBER = "ENTER_NUMBER"
+    VERIFY_OTP = "VERIFY_OTP"
+    END = "END"
+
+
 # ======================
 # Language Data & Constants
 # ======================
-LANG_DATA = {
+
+
+DUMMY_DATA = {
     "en": {
-        "lang_choice": "English",
-        "lang_button": "English",
-        "start_msg": "Hello! Welcome to People Finder Bot.\nPlease select your language:",
-        "choose_country": "Please enter your country name (partial name allowed):",
-        "country_not_found": "No matching countries found. Please try again:",
-        "country_multi": "Multiple countries found (Page {page} of {total}):",
-        "country_selected": "You have selected",
-        "disclaimer_title": "Disclaimer\n\n",
-        "disclaimer_text": (
-            "1. All bounties are held in escrow.\n"
-            "2. AI-generated fake content is prohibited.\n"
-            "3. For lawful, ethical use only.\n"
-            "4. Report to authorities first when locating someone.\n"
-            "5. We are not liable for misuse.\n"
-            "6. Community-driven approach; verify carefully.\n"
-            "7. We do not handle reward disputes.\n\n"
-            "By using this bot, you agree to these terms."
-        ),
-        "agree_btn": "I Agree ✅",
-        "disagree_btn": "I Disagree ❌",
-        "disagree_end": "You did not agree. Conversation ended.",
-        "enter_city": "Please enter your city name (partial name allowed):",
-        "city_not_found": "No matching cities found. Please try again:",
-        "city_multi": "Multiple cities found (Page {page} of {total}):",
-        "city_selected": "City recorded:",
-        "choose_action": "Would you like to Advertise or Find People?",
-        "advertise_btn": "Advertise 📢",
-        "find_btn": "Find People 👥",
-        "find_dev": "Find People is under development.",
-        "choose_wallet": "Please choose the type of wallet:",
-        "sol_wallet": "Solana (SOL)",
-        "usdt_wallet": "USD Tether (USDT)",
-        "choose_existing_or_new_wallet": "Choose Existing Wallet or Create New One",
-        "btc_dev": "BTC wallet creation is under development.",
-        "wallet_name_prompt": "You've chosen Solana wallet.\nPlease enter a name for your wallet:",
-        "wallet_name_empty": "Wallet name cannot be empty. Please try again:",
-        "wallet_create_ok": "✅ Wallet Created Successfully!\n\n",
-        "wallet_create_details": (
-            "Name: {name}\n"
-            "Public Key: {public_key}\n"
-            "Secret Key: {secret_key}\n"
-            "Balance: {balance} {wallet_type}"
-        ),
-        "wallet_create_err": "❌ Error creating wallet.",
-        "cancel_msg": "Operation cancelled. Use /start to begin again.",
         "invalid_choice": "Invalid choice. Conversation ended.",
-        # Milestone 2 Additions
-        "account_wallet_type": "Account Wallet Type (SOL | BTC)",
-        "menu_wallet_title": "Wallet Menu",
-        "btn_refresh": "🔄 Refresh",
-        "btn_sol": "SOL",
-        "btn_usdt": "USDT",
-        "btn_show_address": "Show Address",
-        "btn_create_wallet": "Create Wallet",
-        "btn_delete_wallet": "Delete Wallet",
-        "wallet_no_exists": "No wallet found.",
-        "wallet_exists": "Existing wallet:\nName: {name}\nPublic Key: {pub}\nBalance: {bal} SOL",
-        "wallet_deleted": "✅ Wallet deleted successfully.",
-        "wallet_not_deleted": "No wallet to delete.",
-        "wallet_refreshed": "Balance updated:\nName: {name}\nPublic Key: {pub}\nBalance: {bal} SOL",
         "menu_settings_title": "Settings Menu",
         "btn_language": "Change Language",
         "create_new_wallet": "Create New Wallet",
@@ -213,65 +168,6 @@ LANG_DATA = {
         "invalid_otp": "Invalid OTP. Please try again.",
     },
     "zh": {
-        "lang_choice": "中文",
-        "lang_button": "中文",
-        "start_msg": "你好！欢迎使用 People Finder 机器人。\n请选择语言：",
-        "choose_country": "请输入您的国家名称（支持模糊搜索）：",
-        "country_not_found": "未找到匹配的国家。请重试：",
-        "country_multi": "找到多个国家 (第 {page} 页，共 {total} 页)：",
-        "country_selected": "您已选择",
-        "disclaimer_title": "免责声明\n\n",
-        "disclaimer_text": (
-            "1. 所有悬赏由平台托管。\n"
-            "2. 严禁使用 AI 虚假内容。\n"
-            "3. 仅限合法合规使用。\n"
-            "4. 寻人应先向当地警方或政府部门报备。\n"
-            "5. 平台对任何滥用不承担责任。\n"
-            "6. 社区互助，需自行核实。\n"
-            "7. 平台不介入赏金纠纷。\n\n"
-            "使用本机器人即表示您同意上述条款。"
-        ),
-        "agree_btn": "同意 ✅",
-        "disagree_btn": "不同意 ❌",
-        "disagree_end": "您不同意，结束对话。",
-        "enter_city": "请输入您的城市名称（支持模糊搜索）：",
-        "city_not_found": "未找到匹配的城市。请重试：",
-        "city_multi": "找到多个城市 (第 {page} 页，共 {total} 页)：",
-        "city_selected": "已记录城市：",
-        "choose_action": "请选择：发布悬赏或寻找信息？",
-        "advertise_btn": "发布悬赏 📢",
-        "find_btn": "寻找信息 👥",
-        "find_dev": "寻找信息功能正在开发中。",
-        "choose_wallet": "请选择要创建的钱包类型：",
-        "sol_wallet": "Solana (SOL)",
-        "btc_wallet": "比特币 (BTC)",
-        "btc_dev": "BTC 钱包功能正在开发中。",
-        "wallet_name_prompt": "您选择了 Solana 钱包。\n请输入钱包名称：",
-        "wallet_name_empty": "钱包名称不能为空，请重新输入：",
-        "wallet_create_ok": "✅ 成功创建钱包！\n\n",
-        "wallet_create_details": (
-            "名称: {name}\n"
-            "公钥: {public_key}\n"
-            "私钥: {secret_key}\n"
-            "余额: {balance} {wallet_type}"
-        ),
-        "wallet_create_err": "❌ 创建钱包时出错。",
-        "cancel_msg": "操作已取消。输入 /start 重新开始。",
-        "invalid_choice": "无效选择，结束对话。",
-        # Milestone 2 Additions
-        "account_wallet_type": "Account Wallet Type (SOL | BTC)",
-        "menu_wallet_title": "钱包菜单",
-        "btn_refresh": "🔄 刷新",
-        "btn_sol": "SOL",
-        "btn_btc": "BTC",
-        "btn_show_address": "显示地址",
-        "btn_create_wallet": "创建钱包",
-        "btn_delete_wallet": "删除钱包",
-        "wallet_no_exists": "当前没有可用钱包。",
-        "wallet_exists": "现有钱包:\n名称: {name}\n公钥: {pub}\n余额: {bal} SOL",
-        "wallet_deleted": "✅ 钱包已成功删除。",
-        "wallet_not_deleted": "没有钱包可删除。",
-        "wallet_refreshed": "余额已更新:\n名称: {name}\n公钥: {pub}\n余额: {bal} SOL",
         "menu_settings_title": "设置菜单",
         "btn_language": "更改语言",
         "btn_mobile_number": "手机号",
@@ -363,6 +259,9 @@ LANG_DATA = {
         "invalid_otp": "无效的验证码。请重试。",
     },
 }
+
+LANG_DATA = DUMMY_DATA
+
 
 ITEMS_PER_PAGE = 10  # Number of items per page for pagination
 WALLETS_DIR = "wallets"  # Directory to store user wallets

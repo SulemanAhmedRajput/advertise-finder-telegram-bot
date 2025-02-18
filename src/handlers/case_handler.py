@@ -8,29 +8,8 @@ import logging
 
 # Import your text-getting function and other constants
 from constants import (
-    CREATE_CASE_PHOTO,
-    CREATE_CASE_REWARD_TYPE,
-    CREATE_CASE_SUBMIT,
-    ENTER_PRIVATE_KEY,
-    MOBILE_MANAGEMENT,
-    TRANSFER_CONFIRMATION,
+    State,
     get_text,
-    CREATE_CASE_MOBILE,
-    CREATE_CASE_TAC,
-    CREATE_CASE_DISCLAIMER,
-    CREATE_CASE_REWARD_AMOUNT,
-    CREATE_CASE_PERSON_NAME,
-    CREATE_CASE_RELATIONSHIP,
-    # CREATE_CASE_PHOTO,
-    CREATE_CASE_LAST_SEEN_LOCATION,
-    CREATE_CASE_SEX,
-    CREATE_CASE_AGE,
-    CREATE_CASE_HAIR_COLOR,
-    CREATE_CASE_EYE_COLOR,
-    CREATE_CASE_HEIGHT,
-    CREATE_CASE_WEIGHT,
-    CREATE_CASE_DISTINCTIVE_FEATURES,
-    END,
     user_data_store,
 )
 from services.case_service import update_or_create_case
@@ -80,11 +59,11 @@ async def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
             get_text(user_id, "choose_existing_mobile"),
             reply_markup=InlineKeyboardMarkup(kb),
         )
-        return MOBILE_MANAGEMENT
+        return State.MOBILE_MANAGEMENT
     else:
         # Ask for a new mobile number
         await update.message.reply_text(get_text(user_id, "enter_mobile"))
-        return CREATE_CASE_MOBILE
+        return State.CREATE_CASE_MOBILE
 
 
 async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -103,11 +82,11 @@ async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
             get_text(user_id, "choose_existing_mobile"),
             reply_markup=InlineKeyboardMarkup(kb),
         )
-        return MOBILE_MANAGEMENT
+        return State.MOBILE_MANAGEMENT
     else:
         # Ask for a new mobile number
         await update.message.reply_text(get_text(user_id, "enter_mobile"))
-        return CREATE_CASE_MOBILE
+        return State.CREATE_CASE_MOBILE
 
 
 async def handle_new_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -117,7 +96,7 @@ async def handle_new_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     if not validate_mobile(mobile):
         await update.message.reply_text(get_text(user_id, "invalid_mobile_number"))
-        return CREATE_CASE_MOBILE
+        return State.CREATE_CASE_MOBILE
 
     # Generate and send TAC (OTP)
     tac = generate_tac()  # Implement this function to generate a random TAC
@@ -133,7 +112,7 @@ async def handle_new_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     print("Your TAC is " + tac)  # For debugging purposes
 
     await update.message.reply_text(get_text(user_id, "enter_tac"))
-    return CREATE_CASE_TAC
+    return State.CREATE_CASE_TAC
 
 
 async def handle_select_mobile(
@@ -147,7 +126,7 @@ async def handle_select_mobile(
     if query.data == "mobile_add":
         # Ask for a new mobile number
         await query.edit_message_text(get_text(user_id, "enter_mobile"))
-        return CREATE_CASE_MOBILE
+        return State.CREATE_CASE_MOBILE
     else:
         selected_mobile = query.data.replace("select_mobile_", "")
 
@@ -160,7 +139,7 @@ async def handle_select_mobile(
 
         # Proceed to the next step in the case creation flow
         await query.message.reply_text(get_text(user_id, "enter_tac"))
-        return CREATE_CASE_TAC
+        return State.CREATE_CASE_TAC
 
 
 async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -175,10 +154,10 @@ async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         # if user_tac == "123456":
         await update.message.reply_text(get_text(user_id, "tac_verified"))
         await show_disclaimer_2(update, context)
-        return CREATE_CASE_DISCLAIMER
+        return State.CREATE_CASE_DISCLAIMER
     else:
         await update.message.reply_text(get_text(user_id, "tac_invalid"))
-        return CREATE_CASE_TAC
+        return State.CREATE_CASE_TAC
 
 
 async def show_disclaimer_2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -199,7 +178,7 @@ async def show_disclaimer_2(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         ]
     )
     await update.message.reply_text(get_text(user_id, "disclaimer_2"), reply_markup=kb)
-    return CREATE_CASE_DISCLAIMER
+    return State.CREATE_CASE_DISCLAIMER
 
 
 async def disclaimer_2_callback(
@@ -226,10 +205,10 @@ async def disclaimer_2_callback(
         await query.edit_message_text(
             get_text(user_id, "account_wallet_type"), reply_markup=kb
         )
-        return CREATE_CASE_REWARD_TYPE
+        return State.CREATE_CASE_REWARD_TYPE
     else:
         await query.edit_message_text(get_text(user_id, "disagree_end"))
-        return END
+        return State.END
 
 
 # First handler to ask for the type (Solana or BTC)
@@ -243,15 +222,15 @@ async def handle_reward_type(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await query.edit_message_text(
             get_text(user_id, "enter_reward_amount"), parse_mode="HTML"
         )
-        return CREATE_CASE_REWARD_AMOUNT
+        return State.CREATE_CASE_REWARD_AMOUNT
     elif query.data == "USDT":
         await query.edit_message_text(get_text(user_id, "btc_dev"), parse_mode="HTML")
-        return END
+        return State.END
     else:
         await query.edit_message_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
-        return END
+        return State.END
 
 
 # Handler for reward amount
@@ -263,13 +242,13 @@ async def handle_reward_amount(
         reward = float(update.message.text.strip())
     except ValueError:
         await update.message.reply_text("Invalid amount, please enter a valid number.")
-        return CREATE_CASE_REWARD_AMOUNT
+        return State.CREATE_CASE_REWARD_AMOUNT
 
     await update_or_create_case(user_id, reward=reward)
     context.user_data["case"]["reward"] = reward
 
     await update.message.reply_text("Please enter the person's name.")
-    return CREATE_CASE_PERSON_NAME
+    return State.CREATE_CASE_PERSON_NAME
 
 
 async def handle_person_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -280,7 +259,7 @@ async def handle_person_name(update: Update, context: ContextTypes.DEFAULT_TYPE)
     context.user_data["case"]["person_name"] = person_name
     logger.info(f"User {user_id} entered person name: {person_name}")
     await update.message.reply_text(get_text(user_id, "relationship"))
-    return CREATE_CASE_RELATIONSHIP
+    return State.CREATE_CASE_RELATIONSHIP
 
 
 async def handle_relationship(
@@ -295,7 +274,7 @@ async def handle_relationship(
     # await update.message.reply_text(get_text(user_id, "send_photo"))
 
     await update.message.reply_text(get_text(user_id, "upload_photo"))
-    return CREATE_CASE_PHOTO
+    return State.CREATE_CASE_PHOTO
     # return CREATE_CASE_LAST_SEEN_LOCATION
 
 
@@ -306,7 +285,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     # Check if the user sent a photo
     if not update.message.photo:
         await update.message.reply_text(get_text(user_id, "no_photo_found"))
-        return CREATE_CASE_PHOTO
+        return State.CREATE_CASE_PHOTO
 
     # Get the highest quality photo from the list (the last element)
     photo_file = await update.message.photo[-1].get_file()
@@ -338,7 +317,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
     # Move to the next step (e.g., last seen location)
     await update.message.reply_text(get_text(user_id, "last_seen_location"))
-    return CREATE_CASE_LAST_SEEN_LOCATION
+    return State.CREATE_CASE_LAST_SEEN_LOCATION
 
 
 async def handle_last_seen_location(
@@ -364,7 +343,7 @@ async def handle_last_seen_location(
         ]
     )
     await update.message.reply_text(get_text(user_id, "sex"), reply_markup=kb)
-    return CREATE_CASE_SEX
+    return State.CREATE_CASE_SEX
 
 
 async def handle_sex(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -377,7 +356,7 @@ async def handle_sex(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data["case"]["sex"] = sex
     logger.info(f"User {user_id} selected sex: {sex}")
     await query.edit_message_text(get_text(user_id, "age"))
-    return CREATE_CASE_AGE
+    return State.CREATE_CASE_AGE
 
 
 async def handle_age(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -387,13 +366,13 @@ async def handle_age(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     if not age.isdigit():
         await update.message.reply_text("Please enter a valid number for age.")
-        return CREATE_CASE_AGE
+        return State.CREATE_CASE_AGE
 
     await update_or_create_case(user_id, age=age)
     context.user_data["case"]["age"] = age
     logger.info(f"User {user_id} entered age: {age}")
     await update.message.reply_text(get_text(user_id, "hair_color"))
-    return CREATE_CASE_HAIR_COLOR
+    return State.CREATE_CASE_HAIR_COLOR
 
 
 async def handle_hair_color(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -404,7 +383,7 @@ async def handle_hair_color(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     context.user_data["case"]["hair_color"] = hair_color
     logger.info(f"User {user_id} entered hair color: {hair_color}")
     await update.message.reply_text(get_text(user_id, "eye_color"))
-    return CREATE_CASE_EYE_COLOR
+    return State.CREATE_CASE_EYE_COLOR
 
 
 async def handle_eye_color(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -415,7 +394,7 @@ async def handle_eye_color(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     context.user_data["case"]["eye_color"] = eye_color
     logger.info(f"User {user_id} entered eye color: {eye_color}")
     await update.message.reply_text(get_text(user_id, "height"))
-    return CREATE_CASE_HEIGHT
+    return State.CREATE_CASE_HEIGHT
 
 
 async def handle_height(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -425,13 +404,13 @@ async def handle_height(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 
     if not height.isdigit():
         await update.message.reply_text("Please enter a valid number for height.")
-        return CREATE_CASE_HEIGHT
+        return State.CREATE_CASE_HEIGHT
 
     await update_or_create_case(user_id, height=height)
     context.user_data["case"]["height"] = height
     logger.info(f"User {user_id} entered height: {height}")
     await update.message.reply_text(get_text(user_id, "weight"))
-    return CREATE_CASE_WEIGHT
+    return State.CREATE_CASE_WEIGHT
 
 
 async def handle_weight(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -441,13 +420,13 @@ async def handle_weight(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 
     if not weight.isdigit():
         await update.message.reply_text("Please enter a valid number for weight.")
-        return CREATE_CASE_WEIGHT
+        return State.CREATE_CASE_WEIGHT
 
     await update_or_create_case(user_id, weight=weight)
     context.user_data["case"]["weight"] = weight
     logger.info(f"User {user_id} entered weight: {weight}")
     await update.message.reply_text(get_text(user_id, "distinctive_features"))
-    return CREATE_CASE_DISTINCTIVE_FEATURES
+    return State.CREATE_CASE_DISTINCTIVE_FEATURES
 
 
 async def handle_distinctive_features(
@@ -461,7 +440,7 @@ async def handle_distinctive_features(
     context.user_data["case"]["distinctive_features"] = features
     logger.info(f"User {user_id} entered distinctive features: {features}")
     await update.message.reply_text(get_text(user_id, "reason_for_finding"))
-    return CREATE_CASE_SUBMIT  # Transition to the next state
+    return State.CREATE_CASE_SUBMIT  # Transition to the next state
 
 
 async def handle_reason_for_finding(
@@ -491,7 +470,7 @@ async def transfer_sol(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         "To complete the transfer, please provide your Solana private key."
     )
     # Change the state to enter the private key
-    return ENTER_PRIVATE_KEY
+    return State.ENTER_PRIVATE_KEY
 
 
 async def handle_private_key(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -523,7 +502,9 @@ async def handle_private_key(update: Update, context: ContextTypes.DEFAULT_TYPE)
             await update.message.reply_text(
                 f"❌ Insufficient funds. You have {sender_balance:.5f} SOL, but need {total_sol:.5f} SOL."
             )
-            return ENTER_PRIVATE_KEY  # Ask user to re-enter key or handle accordingly
+            return (
+                State.ENTER_PRIVATE_KEY
+            )  # Ask user to re-enter key or handle accordingly
 
         # Fetch the latest blockhash
         blockhash_response = client.get_latest_blockhash()
@@ -569,14 +550,14 @@ async def handle_private_key(update: Update, context: ContextTypes.DEFAULT_TYPE)
             reply_markup=reply_markup,
         )
 
-        return TRANSFER_CONFIRMATION
+        return State.TRANSFER_CONFIRMATION
 
     except Exception as e:
         logger.error(f"Error during transaction preparation: {str(e)}")
         await update.message.reply_text(
             f"❌ Error: {str(e)}. Please check your private key and try again."
         )
-        return ENTER_PRIVATE_KEY
+        return State.ENTER_PRIVATE_KEY
 
 
 async def handle_transfer_confirmation(
@@ -592,7 +573,7 @@ async def handle_transfer_confirmation(
             transaction_data = context.user_data.get("transaction")
             if not transaction_data:
                 await query.message.reply_text("❌ Error: No transaction found.")
-                return END
+                return State.END
 
             private_key = transaction_data["private_key"]
             transaction = transaction_data["transaction"]
@@ -660,4 +641,4 @@ async def handle_transfer_confirmation(
         # If canceled, notify the user
         await query.message.reply_text("❌ Transaction has been canceled.")
 
-    return END
+    return State.END

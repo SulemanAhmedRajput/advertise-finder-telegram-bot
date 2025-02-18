@@ -1,3 +1,4 @@
+from constants import State
 from models.case_model import Case, CaseStatus
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
@@ -12,7 +13,6 @@ import logging
 from bson import ObjectId  # Ensure ObjectId is imported
 import traceback
 import math
-from constants import CASE_DETAILS, END
 from utils.helper import paginate_list
 
 
@@ -31,7 +31,7 @@ async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         logger.info(f"Fetched {len(all_cases)} ADVERTISE cases from the database")
         if not all_cases:
             await update.message.reply_text("No ADVERTISE cases found.")
-            return END
+            return State.END
 
         # Save the current page for pagination
         context.user_data["page"] = 1
@@ -80,11 +80,11 @@ async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             reply_markup=reply_markup,
             parse_mode="Markdown",
         )
-        return CASE_DETAILS
+        return State.CASE_DETAILS
     except Exception as e:
         logger.error(f"Error in listing_command: {str(e)}\n{traceback.format_exc()}")
         await update.message.reply_text("An error occurred while fetching cases.")
-        return END
+        return State.END
 
 
 async def case_details_callback(
@@ -99,7 +99,7 @@ async def case_details_callback(
         case = await Case.find_one({"_id": ObjectId(case_id)})
         if not case:
             await query.message.edit_text("❌ Case not found.")
-            return END
+            return State.END
 
         # Format the case details
         case_message = (
@@ -126,7 +126,7 @@ async def case_details_callback(
             reply_markup=reply_markup,
             parse_mode="Markdown",
         )
-        return END
+        return State.END
     except Exception as e:
         logger.error(
             f"Error in case_details_callback: {str(e)}\n{traceback.format_exc()}"
@@ -134,7 +134,7 @@ async def case_details_callback(
         await query.message.edit_text(
             "❌ An error occurred while fetching case details."
         )
-        return END
+        return State.END
 
 
 async def edit_case_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -147,7 +147,7 @@ async def edit_case_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
         case = await Case.find_one({"_id": ObjectId(case_id)})
         if not case:
             await query.message.edit_text("❌ Case not found.")
-            return END
+            return State.END
 
         # Check if the user owns the case
         user_id = update.effective_user.id
@@ -155,7 +155,7 @@ async def edit_case_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
             await query.message.edit_text(
                 "❌ You are not authorized to edit this case."
             )
-            return END
+            return State.END
 
         # Provide options to edit the case (e.g., name, reward, etc.)
         keyboard = [
@@ -174,11 +174,11 @@ async def edit_case_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
             reply_markup=reply_markup,
             parse_mode="Markdown",
         )
-        return CASE_DETAILS
+        return State.CASE_DETAILS
     except Exception as e:
         logger.error(f"Error in edit_case_callback: {str(e)}\n{traceback.format_exc()}")
         await query.message.edit_text("❌ An error occurred while editing the case.")
-        return END
+        return State.END
 
 
 async def edit_name_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -190,7 +190,7 @@ async def edit_name_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
         case = await Case.find_one({"_id": ObjectId(case_id)})
         if not case:
             await query.message.edit_text("❌ Case not found.")
-            return END
+            return State.END
 
         # Check if the user owns the case
         user_id = update.effective_user.id
@@ -198,17 +198,17 @@ async def edit_name_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
             await query.message.edit_text(
                 "❌ You are not authorized to edit this case."
             )
-            return END
+            return State.END
 
         # Prompt the user to enter a new name
         await query.message.edit_text("📝 Please enter the new name for the case:")
         context.user_data["edit_case_id"] = case_id
         context.user_data["edit_field"] = "name"
-        return CASE_DETAILS
+        return State.CASE_DETAILS
     except Exception as e:
         logger.error(f"Error in edit_name_callback: {str(e)}\n{traceback.format_exc()}")
         await query.message.edit_text("❌ An error occurred while editing the case.")
-        return END
+        return State.END
 
 
 async def edit_reward_callback(
@@ -222,7 +222,7 @@ async def edit_reward_callback(
         case = await Case.find_one({"_id": ObjectId(case_id)})
         if not case:
             await query.message.edit_text("❌ Case not found.")
-            return END
+            return State.END
 
         # Check if the user owns the case
         user_id = update.effective_user.id
@@ -230,7 +230,7 @@ async def edit_reward_callback(
             await query.message.edit_text(
                 "❌ You are not authorized to edit this case."
             )
-            return END
+            return State.END
 
         # Prompt the user to enter a new reward
         await query.message.edit_text(
@@ -238,13 +238,13 @@ async def edit_reward_callback(
         )
         context.user_data["edit_case_id"] = case_id
         context.user_data["edit_field"] = "reward"
-        return CASE_DETAILS
+        return State.CASE_DETAILS
     except Exception as e:
         logger.error(
             f"Error in edit_reward_callback: {str(e)}\n{traceback.format_exc()}"
         )
         await query.message.edit_text("❌ An error occurred while editing the case.")
-        return END
+        return State.END
 
 
 async def edit_reward_callback(
@@ -258,7 +258,7 @@ async def edit_reward_callback(
         case = await Case.find_one({"_id": ObjectId(case_id)})
         if not case:
             await query.message.edit_text("❌ Case not found.")
-            return END
+            return State.END
 
         # Check if the user owns the case
         user_id = update.effective_user.id
@@ -266,7 +266,7 @@ async def edit_reward_callback(
             await query.message.edit_text(
                 "❌ You are not authorized to edit this case."
             )
-            return END
+            return State.END
 
         # Prompt the user to enter a new reward
         await query.message.edit_text(
@@ -274,13 +274,13 @@ async def edit_reward_callback(
         )
         context.user_data["edit_case_id"] = case_id
         context.user_data["edit_field"] = "reward"
-        return CASE_DETAILS
+        return State.CASE_DETAILS
     except Exception as e:
         logger.error(
             f"Error in edit_reward_callback: {str(e)}\n{traceback.format_exc()}"
         )
         await query.message.edit_text("❌ An error occurred while editing the case.")
-        return END
+        return State.END
 
 
 async def pagination_callback(
@@ -349,13 +349,13 @@ async def pagination_callback(
             reply_markup=reply_markup,
             parse_mode="Markdown",
         )
-        return CASE_DETAILS
+        return State.CASE_DETAILS
     except Exception as e:
         logger.error(
             f"Error in pagination_callback: {str(e)}\n{traceback.format_exc()}"
         )
         await query.message.edit_text("❌ An error occurred while paginating cases.")
-        return END
+        return State.END
 
 
 async def cancel_edit_callback(
@@ -371,10 +371,10 @@ async def cancel_edit_callback(
 
         # Return to the case listing
         await query.message.edit_text("📋 Edit canceled. Returning to case listing.")
-        return END
+        return State.END
     except Exception as e:
         logger.error(
             f"Error in cancel_edit_callback: {str(e)}\n{traceback.format_exc()}"
         )
         await query.message.edit_text("❌ An error occurred while canceling the edit.")
-        return END
+        return State.END

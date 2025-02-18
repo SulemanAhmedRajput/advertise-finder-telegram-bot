@@ -2,33 +2,19 @@ from bson import ObjectId
 import datetime
 import os
 import requests
-import constants
 import telegram
 
 from telegram.ext import (
     ContextTypes,
 )
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from constants import ITEMS_PER_PAGE
 from models.case_model import Case
 from handlers.listing_handler import logger
 from utils.cloudinary import upload_image
 from utils.helper import paginate_list
-import utils.wallet
-from constants import (
-    CASE_DETAILS,
-    CHOOSE_COUNTRY,
-    CHOOSE_PROVINCE,
-    END,
-    ENTER_LOCATION,
-    ITEMS_PER_PAGE,
-    UPLOAD_PROOF,
-    get_text,
-    CASE_LIST,
-    user_data_store,
-    ADVERTISER_CONFIRMATION,
-    ENTER_PUBLIC_KEY,
-    CONFIRM_TRANSFER,
-)
+from utils.wallet import load_user_wallet
+from constants import get_text, State, user_data_store
 
 
 def get_provinces_for_country(country):
@@ -91,7 +77,7 @@ async def choose_province(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await update.message.reply_text(
             get_text(user_id, "country_not_found"), parse_mode="HTML"
         )
-        return CHOOSE_COUNTRY
+        return State.CHOOSE_COUNTRY
 
     # Get matching provinces
     matches = get_province_matches(txt, country)
@@ -112,7 +98,7 @@ async def choose_province(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 ),
                 parse_mode="Markdown",
             )
-            return CHOOSE_PROVINCE
+            return State.CHOOSE_PROVINCE
 
         # Save case list in context for pagination
         context.user_data["cases"] = cases
@@ -151,7 +137,7 @@ async def choose_province(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             reply_markup=reply_markup,
             parse_mode="Markdown",
         )
-        return CASE_DETAILS  # Transition to case details handling
+        return State.CASE_DETAILS  # Transition to case details handling
 
     else:
         # If multiple matches, show province selection UI
@@ -176,7 +162,7 @@ async def choose_province(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             reply_markup=markup,
             parse_mode="HTML",
         )
-        return CHOOSE_PROVINCE
+        return State.CHOOSE_PROVINCE
 
 
 # Function to handle the province selection callback
@@ -232,13 +218,16 @@ async def province_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         )
 
         user_data_store[user_id]["province_page"] = page_num
-        return CHOOSE_PROVINCE
+        return State.CHOOSE_PROVINCE
 
     else:
         await query.edit_message_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
-        return END
+        return State.END
+
+
+# TODO: Why it has the seperate pagination function - Need to be fixe.
 
 
 async def show_advertisements(
@@ -254,7 +243,7 @@ async def show_advertisements(
     province = context.user_data.get("province")
     if not province:
         await update.effective_message.reply_text(get_text(user_id, "select_province"))
-        return CHOOSE_PROVINCE
+        return State.CHOOSE_PROVINCE
 
     try:
         # Get current page and calculate offset
@@ -269,7 +258,7 @@ async def show_advertisements(
             await update.effective_message.reply_text(
                 get_text(user_id, "case_not_found_in_province")
             )
-            return END
+            return State.END
 
         # Pagination calculations
         total_pages = (total_cases + items_per_page - 1) // items_per_page
@@ -307,7 +296,7 @@ async def show_advertisements(
         else:
             await update.effective_message.reply_text(text, reply_markup=reply_markup)
 
-        return CASE_DETAILS
+        return State.CASE_DETAILS
 
     except Exception as e:
         logger.error(f"Error showing advertisements: {e}")
@@ -332,7 +321,7 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
         if not case:
             await query.edit_message_text(get_text(user_id, "case_not_found"))
-            return END
+            return State.END
 
         details = (
             f"🔍 Case #{case.case_no}\n\n"
@@ -365,12 +354,12 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         await query.edit_message_text(
             details, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown"
         )
-        return CASE_DETAILS
+        return State.CASE_DETAILS
 
     except Exception as e:
         logger.error(f"Error showing case details: {e}")
         await query.edit_message_text(get_text(user_id, "error_loading_case"))
-        return END
+        return State.END
 
 
 async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -382,7 +371,7 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
         if not case_no:
             await update.message.reply_text(get_text(user_id, "no_case_selected"))
-            return END
+            return State.END
 
         # Ensure 'proofs' directory exists
         os.makedirs("proofs", exist_ok=True)
@@ -398,7 +387,7 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             file_extension = "mp4"
         else:
             await update.message.reply_text(get_text(user_id, "error_upload_proof"))
-            return UPLOAD_PROOF
+            return State.UPLOAD_PROOF
 
         # Generate unique filename
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
@@ -420,12 +409,12 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         context.user_data["proof_path"] = file_path
 
         await update.message.reply_text(get_text(user_id, "proof_received"))
-        return ENTER_LOCATION
+        return State.ENTER_LOCATION
 
     except Exception as e:
         print(f"Error handling proof: {e}")
         await update.message.reply_text(get_text(user_id, "error_processing_proof"))
-        return UPLOAD_PROOF
+        return State.LOAD_PROOF
 
 
 # TODO: Add a check to see if the user has already been notified
@@ -439,13 +428,13 @@ async def notify_advertiser(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
         if not all([case_no, location, proof_path]):
             await update.message.reply_text(get_text(user_id, "missing_information"))
-            return END
+            return State.END
 
         # Fetch case details
         case = await fetch_case_by_number(case_no)
         if not case:
             await update.message.reply_text(get_text(user_id, "case_not_found"))
-            return END
+            return State.END
 
         # Store necessary information in context
         context.user_data["case_no"] = case_no
@@ -479,12 +468,12 @@ async def notify_advertiser(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         # Confirm to finder
         await update.message.reply_text(get_text(user_id, "reply_to_advertiser"))
 
-        return ADVERTISER_CONFIRMATION
+        return State.ADVERTISER_CONFIRMATION
 
     except Exception as e:
         logger.error(f"Error notifying advertiser: {e}")
         await update.message.reply_text(get_text(user_id, "error_sending_notification"))
-        return END
+        return State.END
 
 
 async def handle_advertiser_confirmation(
@@ -504,7 +493,7 @@ async def handle_advertiser_confirmation(
             text="✅ The advertiser has **approved** the reward! 🎉\n\n"
             "🔑 Please enter your **Solana public key** to receive the reward.",
         )
-        return ENTER_PUBLIC_KEY  # Next step: Finder enters public key
+        return State.ENTER_PUBLIC_KEY  # Next step: Finder enters public key
 
     elif query.data == "reject_reward":
         await context.bot.send_message(
@@ -512,7 +501,7 @@ async def handle_advertiser_confirmation(
             text="❌ The advertiser **rejected** the reward transfer. No SOL will be sent.",
         )
         await query.message.reply_text("You have declined the reward transfer.")
-        return END
+        return State.END
 
 
 async def handle_public_key(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -539,13 +528,13 @@ async def handle_public_key(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             reply_markup=reply_markup,
         )
 
-        return CONFIRM_TRANSFER
+        return State.CONFIRM_TRANSFER
 
     except Exception:
         await update.message.reply_text(
             "❌ Invalid public key. Please enter a valid Solana address."
         )
-        return ENTER_PUBLIC_KEY
+        return State.ENTER_PUBLIC_KEY
 
 
 async def handle_transfer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -574,7 +563,7 @@ async def handle_transfer(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 await query.message.reply_text(
                     "❌ Not enough SOL to complete this transaction."
                 )
-                return END
+                return State.END
 
             # Create transfer transaction
             instruction = transfer(
@@ -593,15 +582,15 @@ async def handle_transfer(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 f"✅ Transfer successful! Transaction ID: {send_response}"
             )
 
-            return END
+            return State.END
 
         except Exception as e:
             await query.message.reply_text(f"❌ Transaction failed: {str(e)}")
-            return END
+            return State.END
 
     else:
         await query.message.reply_text("❌ Transaction has been canceled.")
-        return END
+        return State.END
 
 
 async def handle_found_case(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -618,9 +607,9 @@ async def handle_found_case(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
         # Ask for proof upload
         await query.edit_message_text(get_text(user_id, "proof_upload"))
-        return UPLOAD_PROOF
+        return State.UPLOAD_PROOF
 
     except Exception as e:
         logger.error(f"Error handling found case: {e}")
         await query.edit_message_text(get_text(user_id, "error_processing_proof"))
-        return END
+        return State.END

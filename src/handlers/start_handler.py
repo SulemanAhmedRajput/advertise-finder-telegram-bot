@@ -1,8 +1,4 @@
 import logging
-import math
-import pycountry
-import geonamescache
-from services.case_service import update_or_create_case
 from services.wallet_service import WalletService
 from telegram import (
     Update,
@@ -14,26 +10,11 @@ from telegram.ext import (
     ConversationHandler,
     ContextTypes,
 )
-from handlers.finder_handler import choose_province
 from constants import (
-    CHOOSE_ACTION,
-    CHOOSE_CITY,
-    CHOOSE_COUNTRY,
-    CHOOSE_PROVINCE,
-    CHOOSE_WALLET_TYPE,
-    CREATE_CASE_NAME,
-    CREATE_CASE_SUBMIT,
-    END,
-    ENTER_PRIVATE_KEY,
+    State,
     get_text,
-    ITEMS_PER_PAGE,
     LANG_DATA,
-    NAME_WALLET,
-    SELECT_LANG,
-    SHOW_DISCLAIMER,
     user_data_store,
-    WALLETS_DIR,
-    CHOOSE_PROVINCE,
 )
 from services.user_service import get_user_lang, save_user_lang
 from utils.wallet import create_sol_wallet
@@ -52,7 +33,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         user_data_store[user_id] = {"lang": user_lang}
         context.user_data["lang"] = user_lang
         await update.message.reply_text(get_text(user_id, "choose_country"))
-        return CHOOSE_COUNTRY
+        return State.CHOOSE_COUNTRY
 
     # Show language selection buttons
     btns = [
@@ -69,7 +50,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         f"{LANG_DATA['en']['start_msg']}\n\n{LANG_DATA['zh']['start_msg']}",
         reply_markup=InlineKeyboardMarkup(btns),
     )
-    return SELECT_LANG
+    return State.SELECT_LANG
 
 
 async def select_lang_callback(
@@ -90,7 +71,7 @@ async def select_lang_callback(
     context.user_data["lang"] = lang
 
     await query.edit_message_text(get_text(user_id, "choose_country"))
-    return CHOOSE_COUNTRY
+    return State.CHOOSE_COUNTRY
 
 
 async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -101,11 +82,11 @@ async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await update.message.reply_text(
             get_text(user_id, "country_not_found"), parse_mode="HTML"
         )
-        return CHOOSE_COUNTRY
+        return State.CHOOSE_COUNTRY
     if len(matches) == 1:
         context.user_data["country"] = matches[0]
         await show_disclaimer(update, context)
-        return SHOW_DISCLAIMER
+        return State.SHOW_DISCLAIMER
     else:
 
         context.user_data["country_matches"] = matches
@@ -129,7 +110,7 @@ async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             reply_markup=markup,
             parse_mode="HTML",
         )
-        return CHOOSE_COUNTRY
+        return State.CHOOSE_COUNTRY
 
 
 async def country_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -146,7 +127,7 @@ async def country_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             parse_mode="HTML",
         )
         await show_disclaimer(update, context)
-        return SHOW_DISCLAIMER
+        return State.SHOW_DISCLAIMER
     elif data.startswith("country_page_"):
         page_str = data.replace("country_page_", "")
         try:
@@ -179,12 +160,12 @@ async def country_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         )
 
         context.user_data["country_page"] = page_num
-        return CHOOSE_COUNTRY
+        return State.CHOOSE_COUNTRY
     else:
         await query.edit_message_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
-        return ConversationHandler.END
+        return State.END
 
 
 async def show_disclaimer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -216,7 +197,7 @@ async def show_disclaimer(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         )
     else:
         await update.message.reply_text(text, parse_mode="HTML", reply_markup=kb)
-    return SHOW_DISCLAIMER
+    return State.SHOW_DISCLAIMER
 
 
 async def disclaimer_callback(
@@ -229,12 +210,12 @@ async def disclaimer_callback(
         await query.edit_message_text(
             get_text(user_id, "enter_city"), parse_mode="HTML"
         )
-        return CHOOSE_CITY
+        return State.CHOOSE_CITY
     else:
         await query.edit_message_text(
             get_text(user_id, "disagree_end"), parse_mode="HTML"
         )
-        return END
+        return State.END
 
 
 async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -245,13 +226,13 @@ async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         await update.message.reply_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
-        return ConversationHandler.END
+        return State.END
     matches = get_city_matches(country, city_input)
     if not matches:
         await update.message.reply_text(
             get_text(user_id, "city_not_found"), parse_mode="HTML"
         )
-        return CHOOSE_CITY
+        return State.CHOOSE_CITY
     if len(matches) == 1:
         context.user_data["city"] = matches[0]
 
@@ -260,7 +241,7 @@ async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
             parse_mode="HTML",
         )
         await choose_action(update, context)
-        return CHOOSE_ACTION
+        return State.CHOOSE_ACTION
     else:
         context.user_data["city_matches"] = matches
         context.user_data["city_page"] = 1
@@ -282,7 +263,7 @@ async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
             reply_markup=markup,
             parse_mode="HTML",
         )
-        return CHOOSE_CITY
+        return State.CHOOSE_CITY
 
 
 async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -298,7 +279,7 @@ async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
             f"{get_text(user_id, 'city_selected')} {city}", parse_mode="HTML"
         )
         await choose_action(update, context)
-        return CHOOSE_ACTION
+        return State.CHOOSE_ACTION
     elif data.startswith("city_page_"):
         page_str = data.replace("city_page_", "")
         try:
@@ -330,12 +311,12 @@ async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
             parse_mode="HTML",
         )
         context.user_data["city_page"] = page_num
-        return CHOOSE_CITY
+        return State.CHOOSE_CITY
     else:
         await query.edit_message_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
-        return ConversationHandler.END
+        return State.END
 
 
 async def choose_action(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -364,7 +345,7 @@ async def choose_action(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         await update.message.reply_text(
             get_text(user_id, "choose_action"), reply_markup=kb
         )
-    return CHOOSE_ACTION
+    return State.CHOOSE_ACTION
 
 
 async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -389,16 +370,16 @@ async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await query.edit_message_text(
             get_text(user_id, "choose_wallet"), reply_markup=kb
         )
-        return CHOOSE_WALLET_TYPE
+        return State.CHOOSE_WALLET_TYPE
     elif choice == "find_people":
         # Clearing the province
         await query.edit_message_text("Choose Province")
-        return CHOOSE_PROVINCE
+        return State.CHOOSE_PROVINCE
     else:
         await query.edit_message_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
-        return END
+        return State.END
 
 
 async def wallet_type_callback(
@@ -435,21 +416,21 @@ async def wallet_type_callback(
                 reply_markup=InlineKeyboardMarkup(kb),
                 parse_mode="HTML",
             )
-            return CHOOSE_WALLET_TYPE
+            return State.CHOOSE_WALLET_TYPE
         else:
             # Ask for the name of the wallet
             await query.edit_message_text(
                 get_text(user_id, "wallet_name_prompt"), parse_mode="HTML"
             )
-            return NAME_WALLET
+            return State.NAME_WALLET
     elif query.data == "USDT":
         await query.edit_message_text(get_text(user_id, "btc_dev"), parse_mode="HTML")
-        return END
+        return State.END
     else:
         await query.edit_message_text(
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
-        return END
+        return State.END
 
 
 async def wallet_selection_callback(
@@ -481,12 +462,12 @@ async def wallet_selection_callback(
         # Transition to the Create Case flow
         await query.message.reply_text(get_text(user_id, "create_case_title"))
         await query.message.reply_text(get_text(user_id, "enter_name"))
-        return CREATE_CASE_NAME
+        return State.CREATE_CASE_NAME
     else:
         await query.edit_message_text(
             get_text(user_id, "wallet_not_found"), parse_mode="HTML"
         )
-        return END
+        return State.END
 
 
 async def wallet_name_handler(
@@ -502,7 +483,7 @@ async def wallet_name_handler(
         await update.callback_query.edit_message_text(
             get_text(user_id, "wallet_name_prompt"), parse_mode="HTML"
         )
-        return NAME_WALLET
+        return State.NAME_WALLET
 
     # If it's a text message, process the wallet name
     wallet_name = update.message.text.strip()
@@ -511,7 +492,7 @@ async def wallet_name_handler(
         await update.message.reply_text(
             get_text(user_id, "wallet_name_empty"), parse_mode="HTML"
         )
-        return NAME_WALLET
+        return State.NAME_WALLET
 
     wallet_details = create_sol_wallet(wallet_name)
     if wallet_details:
@@ -529,12 +510,12 @@ async def wallet_name_handler(
         # Transition to the Create Case flow
         await update.message.reply_text(get_text(user_id, "create_case_title"))
         await update.message.reply_text(get_text(user_id, "enter_name"))
-        return CREATE_CASE_NAME
+        return State.CREATE_CASE_NAME
     else:
         await update.message.reply_text(
             get_text(user_id, "wallet_create_err"), parse_mode="HTML"
         )
-        return END
+        return State.END
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -542,7 +523,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
         get_text(user_id, "cancel_msg"), reply_markup=ReplyKeyboardRemove()
     )
-    return ConversationHandler.END
+    return State.END
 
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
