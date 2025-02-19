@@ -8,13 +8,14 @@ from telegram.ext import (
     ContextTypes,
 )
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from constants import ITEMS_PER_PAGE
+from constant.language_constant import ITEMS_PER_PAGE
 from models.case_model import Case
 from handlers.listing_handler import logger
 from utils.cloudinary import upload_image
 from utils.helper import paginate_list
 from utils.wallet import load_user_wallet
-from constants import get_text, State, user_data_store
+from constants import State
+from constant.language_constant import get_text, user_data_store
 
 
 def get_provinces_for_country(country):

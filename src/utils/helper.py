@@ -5,7 +5,7 @@ import random
 import geonamescache
 import pycountry
 
-from constants import ITEMS_PER_PAGE
+from constant.language_constant import ITEMS_PER_PAGE
 
 
 def generate_tac():
@@ -82,13 +82,3 @@ def setup_logging():
     )
     logger = logging.getLogger(__name__)
     logger.info("Logging setup complete.")
-
-
-def merge_lang_data(lang_data, *new_constants):
-    for new_data in new_constants:  # Loop through each constant
-        for lang, entries in new_data.items():
-            if lang in lang_data:
-                lang_data[lang].update(entries)  # Merge into existing language
-            else:
-                lang_data[lang] = entries  # Add new language section if missing
-    return lang_data

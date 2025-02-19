@@ -12,13 +12,11 @@ from telegram.ext import (
 )
 from constants import (
     State,
-    get_text,
-    LANG_DATA,
-    user_data_store,
 )
 from services.user_service import get_user_lang, save_user_lang
 from utils.wallet import create_sol_wallet
 from utils.helper import get_city_matches, get_country_matches, paginate_list
+from constant.language_constant import LANG_DATA, get_text, user_data_store
 
 
 # Handlers

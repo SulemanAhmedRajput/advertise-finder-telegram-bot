@@ -73,23 +73,11 @@ class State(Enum):
 
 DUMMY_DATA = {
     "en": {
-        "invalid_choice": "Invalid choice. Conversation ended.",
-        "menu_settings_title": "Settings Menu",
-        "btn_language": "Change Language",
-        "create_new_wallet": "Create New Wallet",
-        "btn_mobile_number": "Mobile Number",
-        "btn_close_menu": "Close Menu",
         "enter_mobile": "Please type your mobile number:",
         "mobile_saved": "✅ Mobile number saved: {number}",
-        "lang_updated": "Language has been updated.",
         # Case Functionality
         "create_case_title": "Create New Case",
         "enter_name": "Enter your name:",
-        "enter_mobile": "Enter your mobile number (TAC will be sent here):",
-        "enter_tac": "Enter the TAC sent to your mobile:",
-        "verify_tac": "Verifying TAC...",
-        "tac_verified": "✅ TAC verified successfully.",
-        "tac_invalid": "❌ Invalid TAC. Please try again.",
         "disclaimer_2": (
             "Disclaimer 2:\n\n"
             "1. The reward amount will be held in escrow until the case is resolved.\n"
@@ -158,7 +146,6 @@ DUMMY_DATA = {
         "select_province": "Please select a province first.",
         "no_case_found_in_province": "No cases found for {province}.",
         # Remaining messages
-        "invalid_mobile_number": "❌ Invalid mobile number. Please enter a valid 10-digit number.",
         "choose_number_or_add_new": "Choose a number or add a new one:",
         "add_new_number": "Add New Number",
         "enter_new_number": "Please enter a new number:",
@@ -260,19 +247,9 @@ DUMMY_DATA = {
     },
 }
 
-LANG_DATA = DUMMY_DATA
 
-
-ITEMS_PER_PAGE = 10  # Number of items per page for pagination
 WALLETS_DIR = "wallets"  # Directory to store user wallets
 PHOTOS_DIR = "photos"  # Directory to store uploaded photos
 PROOFS_DIR = "proofs"  # Directory to store proof uploads
 
 # A simple in-memory data store for user preferences (language, etc.)
-user_data_store = {}
-
-
-def get_text(user_id, key):
-    """Get the localized text for a given key based on user language."""
-    lang = user_data_store.get(user_id, {}).get("lang", "en")
-    return LANG_DATA.get(lang, LANG_DATA["en"]).get(key, f"Undefined text for {key}")

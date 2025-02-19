@@ -68,7 +68,8 @@ from telegram.ext import (
 import logging
 
 # Import your text-getting function and other constants
-from constants import get_text, State
+from constants import State
+from constant.language_constant import get_text
 from handlers.settings_handler import (
     handle_setting_mobile,
     handle_setting_tac,

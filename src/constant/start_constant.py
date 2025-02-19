@@ -29,6 +29,22 @@ START_LANG_DATA = {
         "advertise_btn": "Advertise 📢",
         "find_btn": "Find People 👥",
         "find_dev": "Find People is under development.",
+        # buttons
+        "btn_language": "Change Language",
+        "create_new_wallet": "Create New Wallet",
+        "btn_mobile_number": "Mobile Number",
+        "btn_close_menu": "Close Menu",
+        "enter_mobile": "Enter your mobile number (TAC will be sent here):",
+        "lang_updated": "Language has been updated.",
+        "invalid_choice": "Invalid choice. Conversation ended.",
+        "invalid_mobile_number": "❌ Invalid mobile number. Please enter a valid 10-digit number.",
+        # settings
+        "menu_settings_title": "Settings Menu",
+        # tac
+        "enter_tac": "Enter the TAC sent to your mobile:",
+        "verify_tac": "Verifying TAC...",
+        "tac_verified": "✅ TAC verified successfully.",
+        "tac_invalid": "❌ Invalid TAC. Please try again.",
     },
     "zh": {
         "lang_choice": "中文",
@@ -60,5 +76,21 @@ START_LANG_DATA = {
         "advertise_btn": "发布悬赏 📢",
         "find_btn": "寻找信息 👥",
         "find_dev": "寻找信息功能正在开发中。",
+        # buttons
+        "btn_language": "更改语言",
+        "create_new_wallet": "创建新钱包",
+        "btn_mobile_number": "手机号",
+        "btn_close_menu": "关闭菜单",
+        "enter_mobile": "请输入您的手机号（将发送验证码至此号码）：",
+        "lang_updated": "语言已更新。",
+        "invalid_choice": "无效选择。对话结束。",
+        "invalid_mobile_number": "❌ 无效的手机号。请输入有效的10位数字。",
+        # settings
+        "menu_settings_title": "设置菜单",
+        # tac
+        "enter_tac": "请输入发送到您手机的验证码：",
+        "verify_tac": "正在验证验证码...",
+        "tac_verified": "✅ 验证码验证成功。",
+        "tac_invalid": "❌ 验证码无效，请重试。",
     },
 }

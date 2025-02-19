@@ -2,15 +2,14 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 from constants import (
     State,
-    get_text,
-    LANG_DATA,
-    user_data_store,
 )
+from constant.language_constant import get_text, user_data_store, LANG_DATA
 from telegram.ext import (
     ContextTypes,
 )
 
 from services.user_service import (
+    get_user_lang,
     get_user_mobiles,
     save_user_lang,
     save_user_mobiles,
@@ -23,6 +22,12 @@ from utils.helper import generate_tac
 async def settings_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Entry point for /settings command - shows an inline menu."""
     user_id = update.effective_user.id
+
+    user_lang = await get_user_lang(user_id)
+    if user_lang:
+        user_data_store[user_id] = {"lang": user_lang}
+        context.user_data["lang"] = user_lang
+
     kb = [
         [
             InlineKeyboardButton(
