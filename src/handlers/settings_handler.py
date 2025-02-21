@@ -9,6 +9,7 @@ from telegram.ext import (
 )
 
 from services.user_service import (
+    delete_user_mobile,
     get_user_lang,
     get_user_mobiles,
     save_user_lang,
@@ -154,18 +155,12 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
 
     elif choice.startswith("remove_"):
         mobile = choice.replace("remove_", "")
-        mobiles = await get_user_mobiles(user_id)
-        if mobile in mobiles:
-            mobiles.remove(mobile)
-            await save_user_mobiles(user_id, mobiles)
-            await query.edit_message_text(
+        await delete_user_mobile(user_id, mobile)
+        await query.edit_message_text(
                 f"✅ Removed mobile: {mobile}",
                 parse_mode="HTML",  # TODO: lang not applied
             )
-        else:
-            await query.edit_message_text(
-                f"❌ Mobile number not found: {mobile}", parse_mode="HTML"
-            )
+       
         return State.MOBILE_MANAGEMENT
 
     else:

@@ -53,6 +53,24 @@ async def get_user_mobiles(user_id: PydanticObjectId):
     return [mobile.number for mobile in mobile_numbers]  # Extract numbers
 
 
+async def delete_user_mobile(user_id: int, mobile_number: str):
+    """
+    Delete a mobile number linked to a user.
+    """
+    # Get the user
+    user = await User.find_one({"tl_id": user_id})
+    if not user:
+        raise ValueError("User not found.")
+
+    # Get the mobile number
+    mobile = await MobileNumber.find_one({"number": mobile_number})
+    if not mobile:
+        raise ValueError("Mobile number not found.")
+
+    # Delete the mobile number
+    await mobile.delete()
+
+
 def validate_mobile(mobile: str) -> bool:
     # Add your validation logic here. For example, checking format or length.
     # Simple validation example for mobile number format.

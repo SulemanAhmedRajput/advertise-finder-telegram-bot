@@ -196,7 +196,7 @@ async def disclaimer_2_callback(
         await update.message.reply_text("Please enter the person's name.")
         return State.CREATE_CASE_PERSON_NAME
     else:
-        await query.edit_message_text(get_text(user_id, "disagree_end"))
+        await update.edit_message_text(get_text(user_id, "disagree_end"))
         return State.END
 
 
