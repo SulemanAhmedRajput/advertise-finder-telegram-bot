@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from models.mobile_number_model import MobileNumber
 from models.user_model import User
 import os
 import sys
@@ -13,10 +14,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from telegram.ext import ApplicationBuilder
 
 from config.config_manager import MONGODB_NAME, MONGODB_URI
-from handlers.handlers import (
-    start_handler,
-    settings_handler,
-)
+from handlers.handlers import start_handler, settings_handler, wallet_handler
 from handlers.start_handler import error_handler
 from models.case_model import Case
 from config.config_manager import TOKEN
@@ -31,7 +29,7 @@ async def main_setup():
 
     application.add_handler(start_handler)
 
-    # application.add_handler(wallet_handler)
+    application.add_handler(wallet_handler)
     application.add_handler(settings_handler)
     # application.add_handler(listing_handler)
 
@@ -47,7 +45,8 @@ async def init_db():
         print(f"MONGODB_URI = {MONGODB_URI}")
         client = AsyncIOMotorClient(MONGODB_URI)
         await init_beanie(
-            database=client[MONGODB_NAME], document_models=[User, Case, Wallet]
+            database=client[MONGODB_NAME],
+            document_models=[User, Case, Wallet, MobileNumber],
         )
         print("Database Connected Successfully 🚀.")
         await main_setup()
@@ -69,9 +68,3 @@ if __name__ == "__main__":
         loop.run_until_complete(main())
     except RuntimeError:
         asyncio.run(main())
-
-
-# TODO: Add a check to see if the user has already been notified
-# TODO: Check the twilio account
-# TODO: Finder Functionality
-# TODO: Functionality that the user are not able to do the finder functionality again and again

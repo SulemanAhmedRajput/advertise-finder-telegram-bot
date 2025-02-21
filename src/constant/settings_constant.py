@@ -1,0 +1,28 @@
+SETTINGS_CONSTANT = {
+    "en": {
+        "btn_language": "🌍 Change Language",
+        "btn_mobile_number": "📱 Manage Mobile Numbers",
+        "btn_close_menu": "❌ Close Menu",
+        "menu_settings_title": "⚙️ Settings Menu",
+        "enter_mobile": "📞 Please enter your mobile number:",
+        "invalid_mobile_number": "❌ Invalid mobile number. Please try again.",
+        "enter_tac": "🔢 Enter the TAC (verification code) sent to your mobile:",
+        "tac_invalid": "❌ Invalid TAC. Please try again.",
+        "lang_updated": "✅ Language updated successfully!",
+        "invalid_choice": "❌ Invalid choice. Please try again.",
+        "btn_add_new": "➕ Add New",
+    },
+    "zh": {
+        "btn_language": "🌍 更改语言",
+        "btn_mobile_number": "📱 管理手机号码",
+        "btn_close_menu": "❌ 关闭菜单",
+        "menu_settings_title": "⚙️ 设置菜单",
+        "enter_mobile": "📞 请输入您的手机号码：",
+        "invalid_mobile_number": "❌ 无效的手机号码，请重试。",
+        "enter_tac": "🔢 请输入发送到您手机的验证码：",
+        "tac_invalid": "❌ 无效的验证码，请重试。",
+        "lang_updated": "✅ 语言更新成功！",
+        "invalid_choice": "❌ 无效的选择，请重试。",
+        "btn_add_new": "➕ 添加新的",
+    },
+}

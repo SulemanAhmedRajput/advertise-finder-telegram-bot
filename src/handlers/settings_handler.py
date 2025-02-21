@@ -66,16 +66,14 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
             [
                 InlineKeyboardButton(
                     LANG_DATA["en"]["lang_button"], callback_data="setlang_en"
-                )
-            ],
-            [
+                ),
                 InlineKeyboardButton(
                     LANG_DATA["zh"]["lang_button"], callback_data="setlang_zh"
-                )
+                ),
             ],
         ]
         await query.edit_message_text(
-            text="Choose your preferred language:",
+            text="Choose your preferred language:",  # TODO: lang not applied
             reply_markup=InlineKeyboardMarkup(kb),
             parse_mode="HTML",
         )
@@ -84,6 +82,7 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
     elif choice == "settings_mobile":
         # Mobile management
         mobiles = await get_user_mobiles(user_id)
+        print(f"Getting the mobile numbers : {mobiles}")
         if not mobiles:
             await query.edit_message_text(
                 get_text(user_id, "enter_mobile"), parse_mode="HTML"
@@ -95,9 +94,15 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
                 [InlineKeyboardButton(f"📱 {mobile}", callback_data=f"mobile_{mobile}")]
                 for mobile in mobiles
             ]
-            kb.append([InlineKeyboardButton("➕ Add New", callback_data="mobile_add")])
+            kb.append(
+                [
+                    InlineKeyboardButton(
+                        get_text(user_id, "btn_add_new"), callback_data="mobile_add"
+                    )
+                ]
+            )
             await query.edit_message_text(
-                "Your saved mobile numbers:",
+                "Your saved mobile numbers:",  # TODO: lang not applied
                 reply_markup=InlineKeyboardMarkup(kb),
                 parse_mode="HTML",
             )
@@ -124,6 +129,7 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
 
     elif choice.startswith("mobile_"):
         mobile = choice.replace("mobile_", "")
+
         if mobile == "add":
             await query.edit_message_text(
                 get_text(user_id, "enter_mobile"), parse_mode="HTML"
@@ -132,11 +138,15 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
         else:
             # Options for selected mobile
             kb = [
-                [InlineKeyboardButton("❌ Remove", callback_data=f"remove_{mobile}")],
-                [InlineKeyboardButton("🔙 Back", callback_data="settings_mobile")],
+                [
+                    InlineKeyboardButton("❌ Remove", callback_data=f"remove_{mobile}")
+                ],  # TODO: lang not applied
+                [
+                    InlineKeyboardButton("🔙 Back", callback_data="settings_mobile")
+                ],  # TODO: lang not applied
             ]
             await query.edit_message_text(
-                f"Selected mobile: {mobile}\nWhat would you like to do?",
+                f"Selected mobile: {mobile}\nWhat would you like to do?",  # TODO: lang not applied
                 reply_markup=InlineKeyboardMarkup(kb),
                 parse_mode="HTML",
             )
@@ -149,7 +159,8 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
             mobiles.remove(mobile)
             await save_user_mobiles(user_id, mobiles)
             await query.edit_message_text(
-                f"✅ Removed mobile: {mobile}", parse_mode="HTML"
+                f"✅ Removed mobile: {mobile}",
+                parse_mode="HTML",  # TODO: lang not applied
             )
         else:
             await query.edit_message_text(
@@ -208,7 +219,7 @@ async def handle_setting_tac(update: Update, context: ContextTypes.DEFAULT_TYPE)
         mobiles = await get_user_mobiles(user_id)
         if mobile not in mobiles:
             mobiles.append(mobile)
-            await save_user_mobiles(user_id, mobiles)
+            await save_user_mobiles(user_id, mobile)
 
         # Show the list of saved mobile numbers
         kb = [

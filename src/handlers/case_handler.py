@@ -131,6 +131,10 @@ async def handle_select_mobile(
 
         tac = generate_tac()  # Implement this function to generate a random TAC
         context.user_data["tac"] = tac
+        print(
+            f"The selected mobile number is: {selected_mobile}"
+        )  # TODO: Remove this line later
+        print(f"TAC is: {tac}")  # TODO: Remove this line later
         context.user_data["mobile"] = selected_mobile
         await query.edit_message_text(
             f"Selected mobile number: {selected_mobile} - A TAC IS SEND TO YOU ON THIS NUMBER"
@@ -189,65 +193,11 @@ async def disclaimer_2_callback(
     user_id = query.from_user.id
 
     if query.data == "agree":
-        kb = InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton(
-                        get_text(user_id, "sol_wallet"), callback_data="SOL"
-                    ),
-                    InlineKeyboardButton(
-                        get_text(user_id, "btc_wallet"), callback_data="BTC"
-                    ),
-                ]
-            ]
-        )
-        await query.edit_message_text(
-            get_text(user_id, "account_wallet_type"), reply_markup=kb
-        )
-        return State.CREATE_CASE_REWARD_TYPE
+        await update.message.reply_text("Please enter the person's name.")
+        return State.CREATE_CASE_PERSON_NAME
     else:
         await query.edit_message_text(get_text(user_id, "disagree_end"))
         return State.END
-
-
-# First handler to ask for the type (Solana or BTC)
-async def handle_reward_type(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    query = update.callback_query
-    await query.answer()
-    user_id = query.from_user.id
-    logger.info(f"Reward type selected: {query.data}")  # Debugging line
-    if query.data == "SOL":
-        await update_or_create_case(user_id, reward_type=query.data)
-        await query.edit_message_text(
-            get_text(user_id, "enter_reward_amount"), parse_mode="HTML"
-        )
-        return State.CREATE_CASE_REWARD_AMOUNT
-    elif query.data == "USDT":
-        await query.edit_message_text(get_text(user_id, "btc_dev"), parse_mode="HTML")
-        return State.END
-    else:
-        await query.edit_message_text(
-            get_text(user_id, "invalid_choice"), parse_mode="HTML"
-        )
-        return State.END
-
-
-# Handler for reward amount
-async def handle_reward_amount(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
-    user_id = update.effective_user.id
-    try:
-        reward = float(update.message.text.strip())
-    except ValueError:
-        await update.message.reply_text("Invalid amount, please enter a valid number.")
-        return State.CREATE_CASE_REWARD_AMOUNT
-
-    await update_or_create_case(user_id, reward=reward)
-    context.user_data["case"]["reward"] = reward
-
-    await update.message.reply_text("Please enter the person's name.")
-    return State.CREATE_CASE_PERSON_NAME
 
 
 async def handle_person_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -270,11 +220,9 @@ async def handle_relationship(
     await update_or_create_case(user_id, relationship=relationship)
     context.user_data["case"]["relationship"] = relationship
     logger.info(f"User {user_id} entered relationship: {relationship}")
-    # await update.message.reply_text(get_text(user_id, "send_photo"))
 
     await update.message.reply_text(get_text(user_id, "upload_photo"))
     return State.CREATE_CASE_PHOTO
-    # return CREATE_CASE_LAST_SEEN_LOCATION
 
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -458,6 +406,9 @@ async def handle_reason_for_finding(
     )
 
     return await transfer_sol(update, context)
+
+
+# TODO: Remove this function & add the logic to the check the wallet balance function
 
 
 async def transfer_sol(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:

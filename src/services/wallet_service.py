@@ -6,12 +6,15 @@ from solana.rpc.api import Client
 from spl.token.client import Token
 from spl.token.constants import TOKEN_PROGRAM_ID
 
+from utils.wallet import create_sol_wallet
+
 # Initialize Solana client
 SOLANA_NETWORK = "https://api.devnet.solana.com"
 solana_client = Client(SOLANA_NETWORK)
 
 # USDT Mint Address on Solana
 USDT_MINT_ADDRESS = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
+
 
 class WalletService:
     @staticmethod
@@ -22,20 +25,19 @@ class WalletService:
         :param wallet_type: The type of wallet (e.g., "SOL" or "USDT").
         :return: The created Wallet object.
         """
-        from solders.keypair import Keypair
-        keypair = Keypair()
-        public_key = str(keypair.pubkey())
-        private_key = keypair.secret().hex()  # Store the private key securely
+        if wallet_type == "SOL":
+            sol_wallet = create_sol_wallet(wallet_name)
 
-        wallet = Wallet(
-            public_key=public_key,
-            private_key=private_key,
-            user_id=user_id,
-            name= wallet_name,
-            wallet_type=wallet_type,
-            deleted=False,
-        )
-        await wallet.insert()
+            wallet = Wallet(
+                public_key=sol_wallet["public_key"],
+                private_key=sol_wallet["secret_key"],
+                user_id=user_id,
+                name=sol_wallet["name"],
+                wallet_type="SOL",
+                deleted=False,
+            )
+            await wallet.insert()
+
         return wallet
 
     @staticmethod
@@ -53,7 +55,9 @@ class WalletService:
         return True
 
     @staticmethod
-    async def get_wallet_by_user(user_id: int, include_deleted: bool = False) -> List[Wallet]:
+    async def get_wallet_by_user(
+        user_id: int, include_deleted: bool = False
+    ) -> List[Wallet]:
         """
         Retrieve all wallets associated with a user.
         :param user_id: The Telegram user ID.
@@ -112,11 +116,13 @@ class WalletService:
                 tx_response = solana_client.get_transaction(signature)
                 if tx_response.value:
                     tx = tx_response.value
-                    transactions.append({
-                        "signature": str(tx.transaction.signatures[0]),
-                        "block_time": tx.block_time,
-                        "meta": tx.meta,
-                    })
+                    transactions.append(
+                        {
+                            "signature": str(tx.transaction.signatures[0]),
+                            "block_time": tx.block_time,
+                            "meta": tx.meta,
+                        }
+                    )
             return transactions
         except Exception as e:
             print(f"Error fetching USDT history: {e}")
@@ -137,36 +143,45 @@ class WalletService:
         """
         try:
             from solders.keypair import Keypair
+
             sender_keypair = Keypair.from_secret_key(bytes.fromhex(sender_private_key))
             sender_pubkey = sender_keypair.pubkey()
 
             # Initialize the USDT token client
             usdt_mint = Pubkey.from_string(USDT_MINT_ADDRESS)
-            token_client = Token(solana_client, usdt_mint, TOKEN_PROGRAM_ID, sender_keypair)
+            token_client = Token(
+                solana_client, usdt_mint, TOKEN_PROGRAM_ID, sender_keypair
+            )
 
             # Get the sender's associated token account
             sender_token_account = token_client.get_accounts(sender_pubkey)[0].address
 
             # Get or create the recipient's associated token account
             recipient_pubkey = Pubkey.from_string(recipient_public_key)
-            recipient_token_account = token_client.create_associated_token_account(recipient_pubkey)
+            recipient_token_account = token_client.create_associated_token_account(
+                recipient_pubkey
+            )
 
             # Transfer USDT
             tx_sig = token_client.transfer(
                 source=sender_token_account,
                 dest=recipient_token_account,
                 owner=sender_pubkey,
-                amount=int(amount * 1_000_000),  # Convert to lamports (USDT has 6 decimals)
+                amount=int(
+                    amount * 1_000_000
+                ),  # Convert to lamports (USDT has 6 decimals)
             )
             return str(tx_sig)
         except Exception as e:
             print(f"Error transferring USDT: {e}")
             return f"❌ Error: {str(e)}"
-        
+
     @staticmethod
     async def check_wallet_name_used(user_id: int, wallet_name: str) -> bool:
         # Query the database to check if there's a wallet with the same user_id and name
-        wallet = await Wallet.find_one(Wallet.user_id == user_id, Wallet.name == wallet_name)
+        wallet = await Wallet.find_one(
+            Wallet.user_id == user_id, Wallet.name == wallet_name
+        )
         return wallet is not None
 
     @staticmethod
@@ -177,7 +192,9 @@ class WalletService:
         :param wallet_name: The name of the wallet.
         :return: The wallet details as a dictionary.
         """
-        wallet = await Wallet.find_one(Wallet.user_id == user_id, Wallet.name == wallet_name)
+        wallet = await Wallet.find_one(
+            Wallet.user_id == user_id, Wallet.name == wallet_name
+        )
         if wallet:
             return wallet.model_dump()
         else:

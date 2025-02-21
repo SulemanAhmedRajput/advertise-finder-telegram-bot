@@ -1,4 +1,5 @@
 import logging
+from services.case_service import update_or_create_case
 from services.wallet_service import WalletService
 from telegram import (
     Update,
@@ -6,6 +7,8 @@ from telegram import (
     InlineKeyboardButton,
     ReplyKeyboardRemove,
 )
+from solders.pubkey import Pubkey
+from services.wallet_service import solana_client
 from telegram.ext import (
     ConversationHandler,
     ContextTypes,
@@ -83,6 +86,7 @@ async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return State.CHOOSE_COUNTRY
     if len(matches) == 1:
         context.user_data["country"] = matches[0]
+        await update_or_create_case(user_id, country=matches[0])
         await show_disclaimer(update, context)
         return State.SHOW_DISCLAIMER
     else:
@@ -120,6 +124,8 @@ async def country_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
         country = data.replace("country_select_", "")
         context.user_data["country"] = country
+        await update_or_create_case(user_id, country=country)
+
         await query.edit_message_text(
             f"{get_text(user_id, 'country_selected')} {country}.",
             parse_mode="HTML",
@@ -233,6 +239,7 @@ async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         return State.CHOOSE_CITY
     if len(matches) == 1:
         context.user_data["city"] = matches[0]
+        await update_or_create_case(user_id, city=matches[0])
 
         await update.message.reply_text(
             f"{get_text(user_id, 'city_selected')} {matches[0]}",
@@ -272,6 +279,7 @@ async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     if data.startswith("city_select_"):
         city = data.replace("city_select_", "")
         context.user_data["city"] = city
+        await update_or_create_case(user_id, city=city)
 
         await query.edit_message_text(
             f"{get_text(user_id, 'city_selected')} {city}", parse_mode="HTML"
@@ -446,13 +454,19 @@ async def wallet_selection_callback(
     wallet_details = await WalletService.get_wallet_by_name(user_id, wallet_name)
 
     if wallet_details:
-        context.user_data["wallet"] = wallet_details  # Store wallet in memory
-        msg = (
-            f"{get_text(user_id, 'wallet_selected')}\n"
-            f"{get_text(user_id, 'wallet_name')}: {wallet_details['name']}\n"
-            f"{get_text(user_id, 'wallet_public_key')}: {wallet_details['public_key']}\n"
-            f"{get_text(user_id, 'wallet_secret_key')}: {wallet_details['private_key']}\n"
-            # f"{get_text(user_id, 'wallet_balance')}: {wallet_details['balance_sol']} SOL"
+        total_sol = solana_client.get_balance(
+            Pubkey.from_string(wallet_details["public_key"])
+        )
+        context.user_data["wallet"] = wallet_details  # Store in memory
+        print(wallet_details["id"])
+        await update_or_create_case(user_id, wallet=str(wallet_details["id"]))
+
+        msg = get_text(user_id, "wallet_create_details").format(
+            name=wallet_details["name"],
+            public_key=wallet_details["public_key"],
+            secret_key=wallet_details["private_key"],
+            balance=total_sol,  # TODO: its must provide the proper balance
+            wallet_type=wallet_details["wallet_type"],
         )
 
         await query.edit_message_text(msg, parse_mode="HTML")
@@ -493,14 +507,17 @@ async def wallet_name_handler(
         return State.NAME_WALLET
 
     wallet_details = create_sol_wallet(wallet_name)
-    if wallet_details:
-        context.user_data["wallet"] = wallet_details  # Store in memory
-        msg = (
-            f"{get_text(user_id, 'wallet_create_ok')}\n"
-            f"{get_text(user_id, 'wallet_name')}: {wallet_details['name']}\n"
-            f"{get_text(user_id, 'wallet_public_key')}: {wallet_details['public_key']}\n"
-            f"{get_text(user_id, 'wallet_secret_key')}: {wallet_details['secret_key']}\n"
-            # f"{get_text(user_id, 'wallet_balance')}: {wallet_details['balance_sol']} SOL"
+    wallet = await WalletService.create_wallet(user_id, "SOL", wallet_name)
+    if wallet:
+        # Get the total sol
+        total_sol = solana_client.get_balance(Pubkey.from_string(wallet.public_key))
+        context.user_data["wallet"] = wallet  # Store in memory
+        msg = get_text(user_id, "wallet_create_details").format(
+            name=wallet.name,
+            public_key=wallet.public_key,
+            secret_key=wallet.private_key,
+            balance=total_sol.value,  # TODO: its must provide the proper balance
+            wallet_type="SOL",
         )
 
         await update.message.reply_text(msg, parse_mode="HTML")

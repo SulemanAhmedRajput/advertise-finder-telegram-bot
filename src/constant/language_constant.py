@@ -1,3 +1,5 @@
+from constant.case_constant import CASE_CONSTANT
+from constant.settings_constant import SETTINGS_CONSTANT
 from constant.start_constant import START_LANG_DATA
 from constant.wallet_constant import WALLET_LANG_DATA
 
@@ -12,7 +14,9 @@ def merge_lang_data(lang_data, *new_constants):
     return lang_data
 
 
-LANG_DATA = merge_lang_data(START_LANG_DATA, WALLET_LANG_DATA)
+LANG_DATA = merge_lang_data(
+    START_LANG_DATA, WALLET_LANG_DATA, SETTINGS_CONSTANT, CASE_CONSTANT
+)
 
 
 user_data_store = {}
