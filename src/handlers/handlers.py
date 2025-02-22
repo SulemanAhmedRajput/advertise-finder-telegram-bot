@@ -6,7 +6,6 @@ from handlers.case_handler import (
     handle_hair_color,
     handle_height,
     handle_last_seen_location,
-    handle_mobile,
     handle_new_mobile,
     handle_select_mobile,
     handle_name,
@@ -142,7 +141,9 @@ start_handler = ConversationHandler(
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_new_mobile)
         ],
         State.MOBILE_MANAGEMENT: [
-            CallbackQueryHandler(handle_select_mobile, pattern="^select_mobile_.*$"),
+            CallbackQueryHandler(
+                handle_select_mobile, pattern="^(select_mobile_.*|mobile_add)$"
+            ),
         ],
         State.CREATE_CASE_TAC: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_tac)
@@ -150,12 +151,6 @@ start_handler = ConversationHandler(
         State.CREATE_CASE_DISCLAIMER: [
             CallbackQueryHandler(disclaimer_2_callback, pattern="^(agree|disagree)$")
         ],
-        # State.CREATE_CASE_REWARD_TYPE: [
-        #     CallbackQueryHandler(handle_reward_type, pattern="^(SOL|USDT)$"),
-        # ],
-        # State.CREATE_CASE_REWARD_AMOUNT: [
-        #     MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reward_amount),
-        # ],
         State.CREATE_CASE_PERSON_NAME: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_person_name)
         ],
@@ -187,6 +182,12 @@ start_handler = ConversationHandler(
         ],
         State.CREATE_CASE_SUBMIT: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reason_for_finding)
+        ],
+        State.CREATE_CASE_REWARD_TYPE: [
+            CallbackQueryHandler(handle_reward_type, pattern="^(SOL|USDT)$"),
+        ],
+        State.CREATE_CASE_REWARD_AMOUNT: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reward_amount),
         ],
         State.ENTER_PRIVATE_KEY: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_private_key),
@@ -268,6 +269,7 @@ wallet_handler = ConversationHandler(
         ],
     },
     fallbacks=[CommandHandler("cancel", cancel)],
+    allow_reentry=True,
 )
 
 # # # Define ConversationHandler
@@ -320,5 +322,6 @@ settings_handler = ConversationHandler(
         State.END: [CommandHandler("settings", settings_command)],
     },
     fallbacks=[CommandHandler("cancel", lambda update, context: State.END)],
+    allow_reentry=True,
 )
 # --- Application Setup ---

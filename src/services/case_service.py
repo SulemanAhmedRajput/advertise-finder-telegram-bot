@@ -1,6 +1,8 @@
 from typing import Optional
 from beanie import Link, PydanticObjectId
 from models.case_model import Case, CaseStatus
+from models.mobile_number_model import MobileNumber
+from models.user_model import User
 from models.wallet_model import Wallet
 
 
@@ -75,6 +77,27 @@ async def update_or_create_case(user_id: int, **kwargs) -> Case:
             if key == "wallet" and isinstance(value, str):
                 wallet = await Wallet.get(PydanticObjectId(value))
                 value = wallet  # Directly link the Wallet instance
+
+            # Ensure the mobile field is assigned properly
+            elif key == "mobile" and isinstance(value, str):
+                # Fetch the MobileNumber reference using the mobile number
+                mobile_number = await MobileNumber.find_one({"number": value})
+                print("Mobile Number", mobile_number)
+
+                if not mobile_number:
+                    # If mobile number doesn't exist, create it
+                    user = await User.find_one(
+                        {"tl_id": user_id}
+                    )  # Fetch the User document
+                    if not user:
+                        raise ValueError("User not found")
+
+                    mobile_number = MobileNumber(
+                        number=value, user=user
+                    )  # Link to the actual User document
+                    await mobile_number.insert()
+
+                value = mobile_number  # Directly link the MobileNumber instance
 
             setattr(case, key, value)
 

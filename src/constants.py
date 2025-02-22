@@ -1,12 +1,6 @@
-# ======================
-# Conversation States
-# ======================
-# (Note: The original conversation states from your snippet have been extended
-# to separate the steps for creating a case. You may adjust the numbering as needed.)
-from constant.start_constant import START_LANG_DATA
-from constant.wallet_constant import WALLET_LANG_DATA
-
-# from utils.helper import merge_lang_data
+from telegram.ext import (
+    ConversationHandler,
+)
 
 from enum import Enum
 
@@ -67,6 +61,7 @@ class State(Enum):
     VIEW_HISTORY = "VIEW_HISTORY"
     DELETE_WALLET = "DELETE_WALLET"
     SHOW_ADDRESS = "SHOW_ADDRESS"
+    HANDLER_END = ConversationHandler.END
     END = "END"
 
 

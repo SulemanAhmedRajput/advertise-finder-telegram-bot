@@ -1,3 +1,4 @@
+import re
 from constant.language_constant import get_text, user_data_store
 from models.case_model import Case
 import os
@@ -7,10 +8,10 @@ from telegram.ext import (
 )
 import logging
 
-# Import your text-getting function and other constants
 from constants import (
     State,
 )
+from models.mobile_number_model import MobileNumber
 from services.case_service import update_or_create_case
 import utils.cloudinary
 from utils.twilio import generate_tac
@@ -54,28 +55,6 @@ async def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
             [InlineKeyboardButton(mobile, callback_data=f"select_mobile_{mobile}")]
             for mobile in existing_mobiles
         ]
-        await update.message.reply_text(
-            get_text(user_id, "choose_existing_mobile"),
-            reply_markup=InlineKeyboardMarkup(kb),
-        )
-        return State.MOBILE_MANAGEMENT
-    else:
-        # Ask for a new mobile number
-        await update.message.reply_text(get_text(user_id, "enter_mobile"))
-        return State.CREATE_CASE_MOBILE
-
-
-async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle the user's mobile number input."""
-    user_id = update.effective_user.id
-    existing_mobiles = await get_user_mobiles(user_id)
-
-    if existing_mobiles:
-        # Show existing mobile numbers with an option to select one
-        kb = [
-            [InlineKeyboardButton(mobile, callback_data=f"select_mobile_{mobile}")]
-            for mobile in existing_mobiles
-        ]
         kb.append([InlineKeyboardButton("➕ Add New", callback_data="mobile_add")])
         await update.message.reply_text(
             get_text(user_id, "choose_existing_mobile"),
@@ -83,35 +62,9 @@ async def handle_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         )
         return State.MOBILE_MANAGEMENT
     else:
-        # Ask for a new mobile number
+        # Ask for a new mobile number if none exists
         await update.message.reply_text(get_text(user_id, "enter_mobile"))
         return State.CREATE_CASE_MOBILE
-
-
-async def handle_new_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle the input of a new mobile number and send OTP."""
-    user_id = update.effective_user.id
-    mobile = update.message.text.strip()
-
-    if not validate_mobile(mobile):
-        await update.message.reply_text(get_text(user_id, "invalid_mobile_number"))
-        return State.CREATE_CASE_MOBILE
-
-    # Generate and send TAC (OTP)
-    tac = generate_tac()  # Implement this function to generate a random TAC
-    context.user_data["tac"] = tac
-    context.user_data["mobile"] = mobile
-
-    # Send TAC via Twilio (uncomment the following lines if Twilio is configured)
-    # message = send_sms(mobile, tac)
-    # if not message:  # Check if SMS was sent successfully
-    #     await update.message.reply_text(get_text(user_id, "enter_mobile"))
-    #     return CREATE_CASE_MOBILE
-
-    print("Your TAC is " + tac)  # For debugging purposes
-
-    await update.message.reply_text(get_text(user_id, "enter_tac"))
-    return State.CREATE_CASE_TAC
 
 
 async def handle_select_mobile(
@@ -123,26 +76,69 @@ async def handle_select_mobile(
     user_id = query.from_user.id
 
     if query.data == "mobile_add":
-        # Ask for a new mobile number
+        # Handle 'Add New' click: Ask the user to input a new mobile number
         await query.edit_message_text(get_text(user_id, "enter_mobile"))
-        return State.CREATE_CASE_MOBILE
+        return State.CREATE_CASE_MOBILE  # Transition to state for mobile number input
     else:
         selected_mobile = query.data.replace("select_mobile_", "")
 
-        tac = generate_tac()  # Implement this function to generate a random TAC
-        context.user_data["tac"] = tac
-        print(
-            f"The selected mobile number is: {selected_mobile}"
-        )  # TODO: Remove this line later
-        print(f"TAC is: {tac}")  # TODO: Remove this line later
+        # Fetch the MobileNumber reference from the database
+        mobile_number = await MobileNumber.find_one({"number": selected_mobile})
+
+        if not mobile_number:
+            await query.edit_message_text(
+                "The selected mobile number does not exist in the database. Please try again."
+            )
+            return State.CREATE_CASE_MOBILE
+
+        # Store the mobile number reference in user_data for further use
         context.user_data["mobile"] = selected_mobile
-        await query.edit_message_text(
-            f"Selected mobile number: {selected_mobile} - A TAC IS SEND TO YOU ON THIS NUMBER"
+        context.user_data["selected_number"] = (
+            selected_mobile  # Save the MobileNumber reference
         )
 
-        # Proceed to the next step in the case creation flow
+        tac = generate_tac()  # Generate TAC for the selected mobile number
+        context.user_data["tac"] = tac
+
+        print("TAC:", tac)
+
+        # Notify the user that the mobile number was selected
+        await query.edit_message_text(
+            f"Selected mobile number: {selected_mobile} - A TAC is sent to you on this number"
+        )
+
+        # Proceed to the next step
         await query.message.reply_text(get_text(user_id, "enter_tac"))
         return State.CREATE_CASE_TAC
+
+
+async def handle_new_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handle the input of a new mobile number."""
+    user_id = update.effective_user.id
+    mobile_number = update.message.text.strip()
+
+    if re.match(r"^\+?\d{10,15}$", mobile_number):  # Basic validation for mobile number
+        context.user_data["mobile"] = mobile_number
+
+        context.user_data["selected_number"] = mobile_number
+        # Update or create the case with the new mobile number
+        print(f"Mobile number: {mobile_number}")
+
+        tac = generate_tac()  # Generate TAC for the new mobile number
+        context.user_data["tac"] = tac
+        print(f"Tac are: {tac}")
+
+        await update.message.reply_text(
+            f"Mobile number {mobile_number} added. A TAC has been sent to your number."
+        )
+
+        # Proceed to the next step: Enter the TAC
+        await update.message.reply_text(get_text(user_id, "enter_tac"))
+        return State.CREATE_CASE_TAC
+    else:
+        # If invalid, prompt the user to enter a valid mobile number format
+        await update.message.reply_text(get_text(user_id, "enter_valid_mobile"))
+        return State.CREATE_CASE_MOBILE
 
 
 async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -150,12 +146,17 @@ async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = update.effective_user.id
     user_tac = update.message.text.strip()
     stored_tac = context.user_data.get("tac")
-
-    print(f"Getting the number which are: {context.user_data.get("mobile")}")
+    selected_number = context.user_data.get(
+        "selected_number"
+    )  # Get the mobile number reference
 
     if user_tac == stored_tac:
-        # if user_tac == "123456":
         await update.message.reply_text(get_text(user_id, "tac_verified"))
+
+        # After TAC verification, update the case with the mobile reference
+        await update_or_create_case(user_id, mobile=selected_number)
+
+        # Proceed to the next step
         await show_disclaimer_2(update, context)
         return State.CREATE_CASE_DISCLAIMER
     else:
@@ -193,10 +194,11 @@ async def disclaimer_2_callback(
     user_id = query.from_user.id
 
     if query.data == "agree":
-        await update.message.reply_text("Please enter the person's name.")
+
+        await query.edit_message_text("Please enter the person's name.")
         return State.CREATE_CASE_PERSON_NAME
     else:
-        await update.edit_message_text(get_text(user_id, "disagree_end"))
+        await query.edit_message_text(get_text(user_id, "disagree_end"))
         return State.END
 
 
@@ -396,8 +398,6 @@ async def handle_reason_for_finding(
     """Handle input for reason for finding."""
     user_id = update.effective_user.id
     reason = update.message.text.strip()
-    # context.user_data["case"]["reason_for_finding"] = reason
-    # logger.info(f"User {user_id} entered reason for finding: {reason}")
 
     # Submit the case and notify the user
     case_no = "CASE123456"  # Replace with actual case submission logic
@@ -406,9 +406,6 @@ async def handle_reason_for_finding(
     )
 
     return await transfer_sol(update, context)
-
-
-# TODO: Remove this function & add the logic to the check the wallet balance function
 
 
 async def transfer_sol(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:

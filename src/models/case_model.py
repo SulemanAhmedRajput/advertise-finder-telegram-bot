@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field, validator
 from beanie import Document, Link
 from enum import Enum
 
+from models.mobile_number_model import MobileNumber
 from models.wallet_model import Wallet
 
 
@@ -20,7 +21,7 @@ class Case(Document):
     status: CaseStatus = Field(default=CaseStatus.DRAFT)
     case_no: Optional[str] = None
     name: Optional[str] = None
-    mobile: Optional[str] = None
+    mobile: Link[MobileNumber] = None
     person_name: Optional[str] = None
     relationship: Optional[str] = None
     case_photo: Optional[str] = None

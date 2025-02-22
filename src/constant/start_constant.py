@@ -31,7 +31,7 @@ START_LANG_DATA = {
         "find_dev": "Find People is under development.",
         # buttons
         "btn_language": "Change Language",
-        "create_new_wallet": "Create New Wallet",
+        "create_new_wallet": "➕ Create New Wallet",
         "btn_mobile_number": "Mobile Number",
         "btn_close_menu": "Close Menu",
         "enter_mobile": "Enter your mobile number (TAC will be sent here):",
@@ -45,6 +45,7 @@ START_LANG_DATA = {
         "verify_tac": "Verifying TAC...",
         "tac_verified": "✅ TAC verified successfully.",
         "tac_invalid": "❌ Invalid TAC. Please try again.",
+        "choose_existing_mobile": "Please select an existing number or add a new one."
     },
     "zh": {
         "lang_choice": "中文",
@@ -78,7 +79,7 @@ START_LANG_DATA = {
         "find_dev": "寻找信息功能正在开发中。",
         # buttons
         "btn_language": "更改语言",
-        "create_new_wallet": "创建新钱包",
+        "create_new_wallet": "➕ 创建新钱包",
         "btn_mobile_number": "手机号",
         "btn_close_menu": "关闭菜单",
         "enter_mobile": "请输入您的手机号（将发送验证码至此号码）：",
@@ -92,5 +93,6 @@ START_LANG_DATA = {
         "verify_tac": "正在验证验证码...",
         "tac_verified": "✅ 验证码验证成功。",
         "tac_invalid": "❌ 验证码无效，请重试。",
+        "choose_existing_mobile": "请选择一个已有的手机号或添加一个新的手机号。"
     },
 }

@@ -27,28 +27,46 @@ async def wallet_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         wallets = []
 
     kb = [
-        [InlineKeyboardButton("🔄 Refresh", callback_data="refresh_wallets")],
         [
-            InlineKeyboardButton("🪙 SOL", callback_data="sol_wallets"),
-            InlineKeyboardButton("💵 USDT", callback_data="usdt_wallets"),
+            InlineKeyboardButton(
+                get_text("refresh_btn"), callback_data="refresh_wallets"
+            )
         ],
-        [InlineKeyboardButton("💼 Show Address", callback_data="show_address")],
         [
-            InlineKeyboardButton("📜 History", callback_data="view_history")
-        ],  # Button for transaction history
+            InlineKeyboardButton(
+                get_text(user_id, "sol_btn"), callback_data="sol_wallets"
+            ),
+            InlineKeyboardButton(
+                get_text(user_id, "usdt_btn"), callback_data="usdt_wallets"
+            ),
+        ],
         [
-            InlineKeyboardButton("➕ Create Wallet", callback_data="create_wallet"),
-            InlineKeyboardButton("❌ Delete Wallet", callback_data="delete_wallet"),
-        ],  # This button triggers the creation
+            InlineKeyboardButton(
+                get_text(user_id, "address_btn"), callback_data="show_address"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                get_text(user_id, "history_btn"), callback_data="view_history"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                get_text(user_id, "create_wallet_btn"), callback_data="create_wallet"
+            ),
+            InlineKeyboardButton(
+                get_text(user_id, "delete_wallet_btn"), callback_data="delete_wallet"
+            ),
+        ],
     ]
 
-    message = "Welcome to the Wallet Menu!"
-
     if update.message:
-        await update.message.reply_text(message, reply_markup=InlineKeyboardMarkup(kb))
+        await update.message.reply_text(
+            get_text(user_id, "welcome_text"), reply_markup=InlineKeyboardMarkup(kb)
+        )
     elif update.callback_query:
         await update.callback_query.message.reply_text(
-            message, reply_markup=InlineKeyboardMarkup(kb)
+            get_text(user_id, "welcome_text"), reply_markup=InlineKeyboardMarkup(kb)
         )
 
     return State.WALLET_MENU
@@ -64,22 +82,41 @@ async def refresh_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Rebuild the keyboard with updated wallet information
     kb = [
-        [InlineKeyboardButton("🔄 Refresh", callback_data="refresh_wallets")],
         [
-            InlineKeyboardButton("🪙 SOL", callback_data="sol_wallets"),
-            InlineKeyboardButton("💵 USDT", callback_data="usdt_wallets"),
+            InlineKeyboardButton(
+                get_text("refresh_btn"), callback_data="refresh_wallets"
+            )
         ],
-        [InlineKeyboardButton("💼 Show Address", callback_data="show_address")],
-        [InlineKeyboardButton("📜 History", callback_data="view_history")],
         [
-            InlineKeyboardButton("➕ Create Wallet", callback_data="create_wallet"),
-            InlineKeyboardButton("❌ Delete Wallet", callback_data="delete_wallet"),
+            InlineKeyboardButton(
+                get_text(user_id, "sol_btn"), callback_data="sol_wallets"
+            ),
+            InlineKeyboardButton(
+                get_text(user_id, "usdt_btn"), callback_data="usdt_wallets"
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                get_text(user_id, "address_btn"), callback_data="show_address"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                get_text(user_id, "history_btn"), callback_data="view_history"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                get_text(user_id, "create_wallet_btn"), callback_data="create_wallet"
+            ),
+            InlineKeyboardButton(
+                get_text(user_id, "delete_wallet_btn"), callback_data="delete_wallet"
+            ),
         ],
     ]
 
-    message = "Wallets refreshed!"
     await update.callback_query.message.edit_text(
-        message, reply_markup=InlineKeyboardMarkup(kb)
+        get_text(user_id, "refresh_wallet_text"), reply_markup=InlineKeyboardMarkup(kb)
     )
     return State.WALLET_MENU
 
@@ -91,8 +128,11 @@ async def sol_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
     wallets = await WalletService.get_wallet_by_user(user_id)
 
     if not wallets:
-        message = "You don't have any SOL wallets yet."
+        message = get_text(user_id, "no_wallet").format(
+            {"wallet_name": "SOL"}
+        )  # TODO: Must be check the condition
     else:
+        # TODO: From there must be done when light has arrive
         message = "Your SOL Wallets:\n"
         for wallet in wallets:
             if wallet.wallet_type == "SOL":

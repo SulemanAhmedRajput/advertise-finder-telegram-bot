@@ -365,10 +365,10 @@ async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             [
                 [
                     InlineKeyboardButton(
-                        get_text(user_id, "sol_wallet"), callback_data="SOL"
+                        get_text(user_id, "usdt_wallet"), callback_data="USDT"
                     ),
                     InlineKeyboardButton(
-                        get_text(user_id, "usdt_wallet"), callback_data="USDT"
+                        get_text(user_id, "sol_wallet"), callback_data="SOL"
                     ),
                 ]
             ]
@@ -465,9 +465,23 @@ async def wallet_selection_callback(
             name=wallet_details["name"],
             public_key=wallet_details["public_key"],
             secret_key=wallet_details["private_key"],
-            balance=total_sol,  # TODO: its must provide the proper balance
+            balance=total_sol.value,  # TODO: its must provide the proper balance
             wallet_type=wallet_details["wallet_type"],
         )
+
+        transfer_instructions = (
+            f"\n\n<b>How to Transfer SOL to Your Wallet:</b>\n\n"
+            f"1️⃣ Open your Solana wallet app or any Solana-compatible wallet.\n"
+            f"2️⃣ Go to the <b>Send</b> or <b>Transfer</b> section of the wallet.\n"
+            f"3️⃣ Paste your <b>Public Key</b> into the recipient address field. Your public key is:\n"
+            f"<code>{wallet_details['public_key']}</code>\n\n"
+            f"4️⃣ Enter the amount of SOL you want to transfer to your wallet.\n"
+            f"5️⃣ Review the transaction details and confirm the transfer.\n\n"
+            f"Once the transfer is successful, the SOL will appear in your wallet balance."
+        )
+
+        # Combine the wallet details and transfer instructions
+        msg += transfer_instructions
 
         await query.edit_message_text(msg, parse_mode="HTML")
 
@@ -520,9 +534,22 @@ async def wallet_name_handler(
             wallet_type="SOL",
         )
 
+        transfer_instructions = (
+            f"\n\n<b>How to Transfer SOL to Your Wallet:</b>\n\n"
+            f"1️⃣ Open your Solana wallet app or any Solana-compatible wallet.\n"
+            f"2️⃣ Go to the <b>Send</b> or <b>Transfer</b> section of the wallet.\n"
+            f"3️⃣ Paste your <b>Public Key</b> into the recipient address field. Your public key is:\n"
+            f"<code>{wallet_details['public_key']}</code>\n\n"
+            f"4️⃣ Enter the amount of SOL you want to transfer to your wallet.\n"
+            f"5️⃣ Review the transaction details and confirm the transfer.\n\n"
+            f"Once the transfer is successful, the SOL will appear in your wallet balance."
+        )
+
+        # Combine the wallet details and transfer instructions
+        msg += transfer_instructions
+
         await update.message.reply_text(msg, parse_mode="HTML")
 
-        # Transition to the Create Case flow
         await update.message.reply_text(get_text(user_id, "create_case_title"))
         await update.message.reply_text(get_text(user_id, "enter_name"))
         return State.CREATE_CASE_NAME
