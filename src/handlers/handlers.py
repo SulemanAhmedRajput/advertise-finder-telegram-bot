@@ -1,7 +1,8 @@
 from handlers.case_handler import (
     disclaimer_2_callback,
     handle_age,
-    handle_ask_reward,
+    handle_ask_reward_amount,
+    handle_case_finished,
     handle_distinctive_features,
     handle_eye_color,
     handle_hair_color,
@@ -73,7 +74,6 @@ from handlers.settings_handler import (
     settings_command,
     settings_menu_callback,
 )
-from utils.wallet import load_user_wallet
 from handlers.start_handler import (
     action_callback,
     choose_city,
@@ -83,13 +83,7 @@ from handlers.start_handler import (
     choose_country,
     country_callback,
     disclaimer_callback,
-    # choose_city,
-    # city_callback,
-    # action_callback,
-    # wallet_type_callback,
-    # wallet_name_handler,
     cancel,
-    error_handler,
     wallet_name_handler,
     wallet_selection_callback,
     wallet_type_callback,
@@ -181,18 +175,21 @@ start_handler = ConversationHandler(
         State.CREATE_CASE_DISTINCTIVE_FEATURES: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_distinctive_features)
         ],
-        State.CREATE_CASE_SUBMIT: [
+        State.CREATE_CASE_ASK_REASON: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reason_for_finding)
         ],
         State.CREATE_CASE_ASK_REWARD: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_ask_reward)
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_ask_reward_amount)
         ],
         State.CREATE_CASE_CONFIRM_TRANSFER: [
-            CallbackQueryHandler(handle_transfer_confirmation)
+            CallbackQueryHandler(
+                handle_transfer_confirmation,
+                pattern="^(confirm_transfer|cancel_transfer)$",
+            )
         ],
-        # State.CREATE_CASE_WALLET_TRANSFER: [
-        #     MessageHandler(filters.TEXT & ~filters.COMMAND, handle_wallet_and_transfer)
-        # ],
+        State.CREATE_CASE_FINISHED: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_case_finished)
+        ],
         # From here the finder is the one who is going to find the person
         State.CHOOSE_PROVINCE: [
             CallbackQueryHandler(

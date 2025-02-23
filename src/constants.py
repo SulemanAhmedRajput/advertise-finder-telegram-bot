@@ -68,6 +68,9 @@ class State(Enum):
     END = "END"
 
     EDIT_FIELD = "EDIT_FIELD"
+    CREATE_CASE_FINISHED = "CREATE_CASE_FINISHED"
+    CREATE_CASE_ASK_REASON = "CREATE_CASE_ASK_REASON"
+    FINISHED = "FINISHED"
 
 
 # ======================

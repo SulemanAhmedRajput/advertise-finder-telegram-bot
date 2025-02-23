@@ -1,5 +1,8 @@
 from typing import Optional
-from beanie import Document, Indexed
+from beanie import Document
+from solana.rpc.api import Client
+from solders.pubkey import Pubkey
+from solana.rpc.types import TokenAccountOpts
 
 
 class Wallet(Document):

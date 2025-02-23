@@ -1,11 +1,12 @@
 from typing import List, Optional
 from beanie import PydanticObjectId
-from models.wallet_model import Wallet  # Import your Wallet model
 from solders.pubkey import Pubkey
 from solana.rpc.api import Client
 from spl.token.client import Token
 from spl.token.constants import TOKEN_PROGRAM_ID
 
+from config.config_manager import STAKE_WALLET_PRIVATE_KEY, STAKE_WALLET_PUBLIC_KEY
+from models.wallet_model import Wallet
 from utils.wallet import create_sol_wallet
 
 # Initialize Solana client
@@ -94,6 +95,21 @@ class WalletService:
             return float(balance)
         except Exception as e:
             print(f"Error fetching USDT balance: {e}")
+            return 0.0
+
+    @staticmethod
+    async def get_sol_balance(public_key: str) -> float:
+        """
+        Retrieve the SOL balance for a wallet.
+        :param public_key: The public key of the wallet.
+        :return: The SOL balance as a float.
+        """
+        try:
+            pubkey = Pubkey.from_string(public_key)
+            balance = solana_client.get_balance(pubkey).value
+            return balance / 1e9  # Convert lamports to SOL
+        except Exception as e:
+            print(f"Error fetching SOL balance: {e}")
             return 0.0
 
     @staticmethod
@@ -211,3 +227,172 @@ class WalletService:
             return wallet.model_dump()
         else:
             return None
+
+
+async def get_wallet_balance(wallet_id: PydanticObjectId) -> float:
+    """
+    Retrieve the balance of a wallet.
+    :param wallet_id: The ID of the wallet.
+    :return: The balance as a float.
+    """
+    wallet = await Wallet.get(wallet_id)
+    if wallet.wallet_type == "SOL":
+        balance = await WalletService.get_sol_balance(wallet.public_key)
+    elif wallet.wallet_type == "USDT":
+        balance = await WalletService.get_usdt_balance(wallet.public_key)
+    else:
+        balance = 0
+    return balance
+
+
+async def transfer_to_owner(
+    wallet_type: str, wallet_id: PydanticObjectId, amount: float
+) -> str:
+    """
+    Transfer funds to the owner of the wallet.
+    :param wallet_type: The type of wallet (e.g., "SOL" or "USDT").
+    :param wallet_id: The ID of the wallet.
+    :param amount: The amount to transfer.
+    :return: The transaction signature if successful, or an error message.
+    """
+    try:
+        if wallet_type == "SOL":
+            from solders.keypair import Keypair
+            from solders.pubkey import Pubkey
+            from solana.rpc.api import Client
+            from spl.token.client import Token
+            from spl.token.constants import TOKEN_PROGRAM_ID
+
+            # Initialize Solana client
+            SOLANA_NETWORK = "https://api.devnet.solana.com"
+            solana_client = Client(SOLANA_NETWORK)
+
+            # Get the wallet details
+            wallet = await Wallet.get(wallet_id)
+            if not wallet:
+                return "Wallet not found."
+
+            # Get the owner's public key
+            owner_pubkey = Pubkey.from_string(wallet.owner)
+
+            # Get the wallet's private key
+            private_key = wallet.private_key
+
+            # Initialize the wallet client
+            wallet_client = Wallet(solana_client, owner_pubkey, private_key)
+
+            # Transfer funds to the owner
+            tx_sig = wallet_client.transfer_sol(amount)
+            return str(tx_sig)
+
+        elif wallet_type == "USDT":
+            from solders.keypair import Keypair
+            from solders.pubkey import Pubkey
+            from solana.rpc.api import Client
+            from spl.token.client import Token
+            from spl.token.constants import TOKEN_PROGRAM_ID
+
+            # Initialize Solana client
+            SOLANA_NETWORK = "https://api.devnet.solana.com"
+            solana_client = Client(SOLANA_NETWORK)
+
+            # Get the wallet details
+            wallet = await Wallet.get(wallet_id)
+            if not wallet:
+                return "Wallet not found."
+
+            # Get the owner's public key
+            owner_pubkey = Pubkey.from_string(STAKE_WALLET_PUBLIC_KEY)
+
+            # Get the wallet's private key
+            private_key = STAKE_WALLET_PRIVATE_KEY
+
+            # Initialize the wallet client
+            wallet_client = Wallet(solana_client, owner_pubkey, private_key)
+
+            # Transfer funds to the owner
+            tx_sig = wallet_client.transfer_usdt(amount)
+            return str(tx_sig)
+
+        else:
+            return "Invalid wallet type."
+    except Exception as e:
+        print(f"Error transferring funds to owner: {e}")
+        return False
+
+
+async def transfer_to_address(
+    wallet_type: str, wallet_id: PydanticObjectId, amount: float, recipient_address: str
+) -> str:
+    """
+    Transfer funds to a recipient address.
+    :param wallet_type: The type of wallet (e.g., "SOL" or "USDT").
+    :param wallet_id: The ID of the wallet.
+    :param amount: The amount to transfer.
+    :param recipient_address: The recipient's address.
+    :return: The transaction signature if successful, or an error message.
+    """
+    try:
+        if wallet_type == "SOL":
+            from solders.keypair import Keypair
+            from solders.pubkey import Pubkey
+            from solana.rpc.api import Client
+            from spl.token.client import Token
+            from spl.token.constants import TOKEN_PROGRAM_ID
+
+            # Initialize Solana client
+            SOLANA_NETWORK = "https://api.devnet.solana.com"
+            solana_client = Client(SOLANA_NETWORK)
+
+            # Get the wallet details
+            wallet = await Wallet.get(wallet_id)
+            if not wallet:
+                return "Wallet not found."
+
+            # Get the recipient's public key
+            recipient_pubkey = Pubkey.from_string(recipient_address)
+
+            # Get the wallet's private key
+            private_key = wallet.private_key
+
+            # Initialize the wallet client
+            wallet_client = Wallet(solana_client, wallet.public_key, private_key)
+
+            # Transfer funds to the recipient
+            tx_sig = wallet_client.transfer_sol(amount, recipient_pubkey)
+            return str(tx_sig)
+
+        elif wallet_type == "USDT":
+            from solders.keypair import Keypair
+            from solders.pubkey import Pubkey
+            from solana.rpc.api import Client
+            from spl.token.client import Token
+            from spl.token.constants import TOKEN_PROGRAM_ID
+
+            # Initialize Solana client
+            SOLANA_NETWORK = "https://api.devnet.solana.com"
+            solana_client = Client(SOLANA_NETWORK)
+
+            # Get the wallet details
+            wallet = await Wallet.get(wallet_id)
+            if not wallet:
+                return "Wallet not found."
+
+            # Get the recipient's public key
+            recipient_pubkey = Pubkey.from_string(recipient_address)
+
+            # Get the wallet's private key
+            private_key = wallet.private_key
+
+            # Initialize the wallet client
+            wallet_client = Wallet(solana_client, wallet.public_key, private_key)
+
+            # Transfer funds to the recipient
+            tx_sig = wallet_client.transfer_usdt(amount, recipient_pubkey)
+            return str(tx_sig)
+
+        else:
+            return "Invalid wallet type."
+    except Exception as e:
+        print(f"Error transferring funds to recipient: {e}")
+        return f"❌ Error: {str(e)}"

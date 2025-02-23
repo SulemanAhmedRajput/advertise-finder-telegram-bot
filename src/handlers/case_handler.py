@@ -1,7 +1,8 @@
 import re
+import traceback
 from config.config_manager import STAKE_WALLET_PUBLIC_KEY
 from constant.language_constant import get_text, user_data_store
-from models.case_model import Case
+from models.case_model import Case, CaseStatus
 import os
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
@@ -14,7 +15,7 @@ from constants import (
 )
 from models.mobile_number_model import MobileNumber
 from services.case_service import get_drafted_case_wallet, update_or_create_case
-from services.wallet_service import WalletService
+from services.wallet_service import WalletService, get_wallet_balance, transfer_to_owner
 import utils.cloudinary
 from utils.twilio import generate_tac
 from utils.wallet import load_user_wallet
@@ -394,98 +395,147 @@ async def handle_distinctive_features(
     return State.CREATE_CASE_SUBMIT  # Transition to the next state
 
 
+# Handlers for each state
 async def handle_reason_for_finding(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
-    """Handle input for reason for finding."""
+    """Handle input for reason for finding and ask for reward amount."""
     user_id = update.effective_user.id
     reason = update.message.text.strip()
 
-    await update.message.reply_text("Case Submitted")
-    await update.message.reply_text(get_text(user_id, "enter_reward_amount"))
+    # Fetch the case for the user
+    case = await Case.find_one({"user_id": user_id, "status": CaseStatus.DRAFT})
+
+    if not case:
+        await update.message.reply_text(get_text(user_id, "case_not_found"))
+        return State.CREATE_CASE_ASK_REASON
+
+    # Store reason in case and ask for reward amount
+    case.reason = reason
+    await case.save()
+
+    # Ask for reward amount based on the wallet type (SOL or USDT)
+    wallet = await case.wallet.fetch()
+    if wallet.wallet_type == "SOL":
+        await update.message.reply_text(get_text(user_id, "enter_reward_amount_sol"))
+    elif wallet.wallet_type == "USDT":
+        await update.message.reply_text(get_text(user_id, "enter_reward_amount_usdt"))
+    else:
+        await update.message.reply_text(
+            get_text(user_id, "enter_reward_amount_unknown")
+        )
+
     return State.CREATE_CASE_ASK_REWARD
 
 
-async def handle_ask_reward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Ask the user for the reward amount depending on the wallet type."""
+# Handlers for each state
+
+
+async def handle_ask_reward_amount(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    """Handle asking for reward amount and check wallet balance."""
     user_id = update.effective_user.id
-    try:
-        reward_amount = float(update.message.text.strip())
-    except ValueError:
-        await update.message.reply_text("Please enter a valid amount for the reward.")
+    reward_amount = float(update.message.text.strip())  # User's input as float
+
+    # Fetch the case and wallet info
+    case = await Case.find_one({"user_id": user_id, "status": CaseStatus.DRAFT})
+    wallet = await case.wallet.fetch()
+
+    # Get wallet balance (assuming you have a method to fetch balance)
+    wallet_balance = await get_wallet_balance(wallet.id)
+    print(f"Wallet balance: {wallet_balance}")
+
+    # Check if the reward amount is greater than available balance
+    if wallet_balance < reward_amount:
+        await update.message.reply_text(
+            get_text(user_id, "insufficient_balance").format(wallet_balance)
+        )
+        await update.message.reply_text(get_text(user_id, "refresh_wallet_balance"))
         return State.CREATE_CASE_ASK_REWARD
 
-    user_wallet = await get_drafted_case_wallet(
-        user_id
-    ) or await WalletService.create_wallet(
-        user_id, wallet_type="SOL", wallet_name="Default Wallet"
-    )
+    # If balance is sufficient, save the reward amount in the case
+    case.reward = reward_amount
+    await case.save()
 
-    if user_wallet and reward_amount >= 1:
-        context.user_data["reward_amount"] = reward_amount
-        await update.message.reply_text(
-            f"Your reward of {reward_amount} SOL is valid. Proceeding to confirm the transfer."
-        )
-        return await handle_transfer_confirmation(update, context)
-
+    # Confirm the reward amount and proceed with a button
     await update.message.reply_text(
-        "Minimum reward amount is 1 SOL. Please enter a higher amount."
+        get_text(user_id, "reward_amount_confirmed").format(reward_amount),
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("Confirm", callback_data="confirm_transfer"),
+                    InlineKeyboardButton("Cancel", callback_data="cancel_transfer"),
+                ]
+            ]
+        ),
     )
-    return State.CREATE_CASE_ASK_REWARD
+
+    return State.CREATE_CASE_CONFIRM_TRANSFER
 
 
 async def handle_transfer_confirmation(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
-    """Handle the user's transfer confirmation."""
+    """Handle confirmation of the reward transfer."""
+    user_id = update.effective_user.id
     query = update.callback_query
-    await query.answer()
-    user_id = query.from_user.id
-    reward_amount = context.user_data.get("reward_amount")
+    user_input = query.data.strip().lower()
 
-    if not reward_amount:
-        await query.edit_message_text(
-            "Reward amount not found. Please restart the process."
-        )
+    # Fetch the case to retrieve reward amount and wallet info
+    case = await Case.find_one({"user_id": user_id, "status": CaseStatus.DRAFT})
+    wallet = await case.wallet.fetch()
+    reward_amount = case.reward
+    wallet_type = wallet.wallet_type
+
+    if user_input == "confirm_transfer":
+        # Proceed with the transfer
+        try:
+            # Check if wallet has sufficient balance
+            wallet_balance = await get_wallet_balance(wallet.id)
+            if wallet_balance < reward_amount:
+                await query.answer()
+                await query.edit_message_text(
+                    get_text(user_id, "insufficient_balance_for_transfer").format(
+                        wallet_balance
+                    )
+                )
+                return State.CREATE_CASE_CONFIRM_TRANSFER
+
+            # Transfer the reward (this is just a placeholder, you need to implement transfer logic)
+            transfer_success = False
+            transfer_success = transfer_to_owner(wallet_type, wallet.id, reward_amount)
+
+            if transfer_success:
+                await query.answer()
+                await query.edit_message_text(get_text(user_id, "transfer_successful"))
+                case.status = CaseStatus.ADVERTISE
+                await case.save()
+
+                return State.CREATE_CASE_FINISHED
+            else:
+                await query.answer()
+                await query.edit_message_text(get_text(user_id, "transfer_failed"))
+        except Exception as e:
+            print(f"Transfer failed: {e}")
+            await query.answer()
+            await query.edit_message_text(get_text(user_id, "transfer_error"))
+
+    elif user_input == "cancel_transfer":
+        await query.answer()
+        await query.edit_message_text(get_text(user_id, "transfer_canceled"))
         return State.CREATE_CASE_ASK_REWARD
 
-    confirm_kb = InlineKeyboardMarkup(
-        [
-            [
-                InlineKeyboardButton(
-                    "✔️ Confirm Transfer", callback_data="confirm_transfer"
-                ),
-                InlineKeyboardButton("❌ Cancel", callback_data="cancel_transfer"),
-            ]
-        ]
-    )
-
-    await query.edit_message_text(
-        f"Do you want to transfer {reward_amount} SOL to the owner's account?",
-        reply_markup=confirm_kb,
-    )
-    return State.CREATE_CASE_CONFIRM_TRANSFER
+    else:
+        await query.answer()
+        await query.edit_message_text(get_text(user_id, "invalid_confirmation"))
+        return State.CREATE_CASE_CONFIRM_TRANSFER
 
 
-async def transfer_to_owner(user_id: int, reward_amount: float) -> bool:
-    """Transfer SOL to the owner's account."""
-    user_wallet = await Wallet.find_one({"user_id": user_id})
-    if not user_wallet:
-        return False
-
-    owner_public_key = Pubkey.from_string(STAKE_WALLET_PUBLIC_KEY)
-    transfer_params = TransferParams(
-        from_pubkey=Pubkey.from_string(user_wallet["public_key"]),
-        to_pubkey=owner_public_key,
-        lamports=int(reward_amount * 1e9),
-    )
-    transaction = Transaction().add(transfer(transfer_params))
-
-    try:
-        result = await client.send_transaction(
-            transaction, Keypair.from_secret_key(bytes(user_wallet["private_key"]))
-        )
-        return result.get("result", False)
-    except Exception as e:
-        logger.error(f"SOL Transfer failed: {e}")
-        return False
+async def handle_case_finished(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    """Handle the case completion state."""
+    user_id = update.effective_user.id
+    await update.message.reply_text(get_text(user_id, "case_completed"))
+    return State.CREATE_CASE_FINISHED
