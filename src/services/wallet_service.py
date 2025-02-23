@@ -199,3 +199,15 @@ class WalletService:
             return wallet.model_dump()
         else:
             return None
+
+    async def get_wallet_by_id(id: PydanticObjectId) -> dict:
+        """
+        Retrieve a wallet by ID.
+        :param id: The ID of the wallet.
+        :return: The wallet details as a dictionary.
+        """
+        wallet = await Wallet.get(id)
+        if wallet:
+            return wallet.model_dump()
+        else:
+            return None

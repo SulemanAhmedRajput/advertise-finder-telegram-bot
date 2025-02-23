@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from beanie import PydanticObjectId
 from constants import State
 from models.case_model import Case, CaseStatus
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
@@ -25,22 +28,16 @@ async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     user_id = update.effective_user.id
     logger.info(f"User {user_id} issued /listing command")
     try:
-        # Fetch all ADVERTISE cases from the database
         all_cases = await Case.find({"status": CaseStatus.ADVERTISE}).to_list()
-
         logger.info(f"Fetched {len(all_cases)} ADVERTISE cases from the database")
         if not all_cases:
             await update.message.reply_text("No ADVERTISE cases found.")
             return State.END
 
-        # Save the current page for pagination
         context.user_data["page"] = 1
         context.user_data["cases"] = all_cases
-
-        # Paginate the case list
         paginated_cases, total_pages = paginate_list(all_cases, 1)
 
-        # Create the inline keyboard
         keyboard = []
         for case in paginated_cases:
             row = [
@@ -49,16 +46,19 @@ async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                     callback_data=f"case_{str(case.id)}",
                 )
             ]
-            # Add an "Edit" button if the user owns the case
             if case.user_id == user_id:
                 row.append(
                     InlineKeyboardButton(
                         "📝 Edit", callback_data=f"edit_{str(case.id)}"
                     )
                 )
+                row.append(
+                    InlineKeyboardButton(
+                        "🗑 Delete", callback_data=f"delete_{str(case.id)}"
+                    )
+                )
             keyboard.append(row)
 
-        # Add pagination buttons (previous/next)
         navigation_buttons = []
         current_page = context.user_data["page"]
         if current_page > 1:
@@ -74,7 +74,6 @@ async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        # Send the message with the case list
         await update.message.reply_text(
             "📋 **Select a Case to View Details:**",
             reply_markup=reply_markup,
@@ -91,38 +90,71 @@ async def case_details_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
     """Handler for displaying case details when a button is clicked."""
+    user_id = update.effective_user.id
     query = update.callback_query
     await query.answer()
     try:
         case_id = query.data.removeprefix("case_")  # Extract case ID
+
         # Convert case_id to ObjectId before querying
         case = await Case.find_one({"_id": ObjectId(case_id)})
         if not case:
             await query.message.edit_text("❌ Case not found.")
             return State.END
 
+        # Fetch wallet and mobile number details
+        wallet = await case.wallet.fetch() if case.wallet else None
+        mobile_number = await case.mobile.fetch() if case.mobile else None
+
         # Format the case details
         case_message = (
             f"📌 **Case Details**\n"
-            f"🔹 **Case No:** {case.case_no}\n"
+            f"🔹 **Case No:** {case.case_no or 'None'}\n"
             f"👤 **Person Name:** {case.person_name}\n"
             f"📍 **Last Seen Location:** {case.last_seen_location}\n"
-            f"💰 **Reward:** {case.reward} {case.reward_type}\n"
-            f"📞 **Contact Info:** {case.mobile}\n"
-        )
-
-        # Add an "Edit" button if the user owns the case
-        user_id = update.effective_user.id
-        keyboard = []
-        if case.user_id == user_id:
-            keyboard.append(
-                [InlineKeyboardButton("📝 Edit", callback_data=f"edit_{str(case.id)}")]
+            f"💰 **Reward:** {case.reward or 'None'} {case.reward_type or 'None'}\n"
+            f"📞 **Contact Info:** {mobile_number.number if mobile_number else 'Not provided'}\n"
+            f"💼 **Wallet:** {wallet.public_key if wallet else 'Not provided'}\n"  # Adjust based on your wallet model
+            f"👤 **Gender:** {case.gender}\n"
+            f"🧒 **Age:** {case.age}\n"
+            f"📏 **Height:** {case.height} cm\n"
+            if case.height
+            else (
+                "" f"⚖️ **Weight:** {case.weight} kg\n"
+                if case.weight
+                else (
+                    "" f"🎨 **Hair Color:** {case.hair_color}\n"
+                    if case.hair_color
+                    else (
+                        "" f"👁️ **Eye Color:** {case.eye_color}\n"
+                        if case.eye_color
+                        else (
+                            ""
+                            f"✨ **Distinctive Features:** {case.distinctive_features}\n"
+                            if case.distinctive_features
+                            else ""
+                        )
+                    )
+                )
             )
-        reply_markup = InlineKeyboardMarkup(keyboard) if keyboard else None
+        )
+        keyboard = []
+
+        row = []
+        if case.user_id == user_id:
+            row.append(
+                InlineKeyboardButton("📝 Edit", callback_data=f"edit_{str(case.id)}")
+            )
+            row.append(
+                InlineKeyboardButton("🗑 Delete", callback_data=f"delete_{str(case.id)}")
+            )
+            keyboard.append(row)
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
         # Edit the message to show case details
         await query.message.edit_text(
-            case_message,
+            case_message.strip(),
             reply_markup=reply_markup,
             parse_mode="Markdown",
         )
@@ -134,152 +166,6 @@ async def case_details_callback(
         await query.message.edit_text(
             "❌ An error occurred while fetching case details."
         )
-        return State.END
-
-
-async def edit_case_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handler for editing a case."""
-    query = update.callback_query
-    await query.answer()
-    try:
-        case_id = query.data.removeprefix("edit_")  # Extract case ID
-        # Convert case_id to ObjectId before querying
-        case = await Case.find_one({"_id": ObjectId(case_id)})
-        if not case:
-            await query.message.edit_text("❌ Case not found.")
-            return State.END
-
-        # Check if the user owns the case
-        user_id = update.effective_user.id
-        if case.user_id != user_id:
-            await query.message.edit_text(
-                "❌ You are not authorized to edit this case."
-            )
-            return State.END
-
-        # Provide options to edit the case (e.g., name, reward, etc.)
-        keyboard = [
-            [InlineKeyboardButton("Edit Name", callback_data=f"edit_name_{case_id}")],
-            [
-                InlineKeyboardButton(
-                    "Edit Reward", callback_data=f"edit_reward_{case_id}"
-                )
-            ],
-            [InlineKeyboardButton("Cancel", callback_data="cancel_edit")],
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-
-        await query.message.edit_text(
-            "📝 **What would you like to edit?**",
-            reply_markup=reply_markup,
-            parse_mode="Markdown",
-        )
-        return State.CASE_DETAILS
-    except Exception as e:
-        logger.error(f"Error in edit_case_callback: {str(e)}\n{traceback.format_exc()}")
-        await query.message.edit_text("❌ An error occurred while editing the case.")
-        return State.END
-
-
-async def edit_name_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handler for editing the name of a case."""
-    query = update.callback_query
-    await query.answer()
-    try:
-        case_id = query.data.removeprefix("edit_name_")  # Extract case ID
-        case = await Case.find_one({"_id": ObjectId(case_id)})
-        if not case:
-            await query.message.edit_text("❌ Case not found.")
-            return State.END
-
-        # Check if the user owns the case
-        user_id = update.effective_user.id
-        if case.user_id != user_id:
-            await query.message.edit_text(
-                "❌ You are not authorized to edit this case."
-            )
-            return State.END
-
-        # Prompt the user to enter a new name
-        await query.message.edit_text("📝 Please enter the new name for the case:")
-        context.user_data["edit_case_id"] = case_id
-        context.user_data["edit_field"] = "name"
-        return State.CASE_DETAILS
-    except Exception as e:
-        logger.error(f"Error in edit_name_callback: {str(e)}\n{traceback.format_exc()}")
-        await query.message.edit_text("❌ An error occurred while editing the case.")
-        return State.END
-
-
-async def edit_reward_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
-    """Handler for editing the reward of a case."""
-    query = update.callback_query
-    await query.answer()
-    try:
-        case_id = query.data.removeprefix("edit_reward_")  # Extract case ID
-        case = await Case.find_one({"_id": ObjectId(case_id)})
-        if not case:
-            await query.message.edit_text("❌ Case not found.")
-            return State.END
-
-        # Check if the user owns the case
-        user_id = update.effective_user.id
-        if case.user_id != user_id:
-            await query.message.edit_text(
-                "❌ You are not authorized to edit this case."
-            )
-            return State.END
-
-        # Prompt the user to enter a new reward
-        await query.message.edit_text(
-            "📝 Please enter the new reward amount for the case:"
-        )
-        context.user_data["edit_case_id"] = case_id
-        context.user_data["edit_field"] = "reward"
-        return State.CASE_DETAILS
-    except Exception as e:
-        logger.error(
-            f"Error in edit_reward_callback: {str(e)}\n{traceback.format_exc()}"
-        )
-        await query.message.edit_text("❌ An error occurred while editing the case.")
-        return State.END
-
-
-async def edit_reward_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
-    """Handler for editing the reward of a case."""
-    query = update.callback_query
-    await query.answer()
-    try:
-        case_id = query.data.removeprefix("edit_reward_")  # Extract case ID
-        case = await Case.find_one({"_id": ObjectId(case_id)})
-        if not case:
-            await query.message.edit_text("❌ Case not found.")
-            return State.END
-
-        # Check if the user owns the case
-        user_id = update.effective_user.id
-        if case.user_id != user_id:
-            await query.message.edit_text(
-                "❌ You are not authorized to edit this case."
-            )
-            return State.END
-
-        # Prompt the user to enter a new reward
-        await query.message.edit_text(
-            "📝 Please enter the new reward amount for the case:"
-        )
-        context.user_data["edit_case_id"] = case_id
-        context.user_data["edit_field"] = "reward"
-        return State.CASE_DETAILS
-    except Exception as e:
-        logger.error(
-            f"Error in edit_reward_callback: {str(e)}\n{traceback.format_exc()}"
-        )
-        await query.message.edit_text("❌ An error occurred while editing the case.")
         return State.END
 
 
@@ -318,14 +204,20 @@ async def pagination_callback(
                     callback_data=f"case_{str(case.id)}",
                 )
             ]
-            # Add an "Edit" button if the user owns the case
-            user_id = update.effective_user.id
-            if case.user_id == user_id:
+
+            # 🛑 Only show "Edit" and "Delete" buttons if the case belongs to the user
+            if case.user_id == update.effective_user.id:
                 row.append(
                     InlineKeyboardButton(
                         "📝 Edit", callback_data=f"edit_{str(case.id)}"
                     )
                 )
+                row.append(
+                    InlineKeyboardButton(
+                        "🗑 Delete", callback_data=f"delete_{str(case.id)}"
+                    )
+                )
+
             keyboard.append(row)
 
         # Add navigation buttons
@@ -355,6 +247,188 @@ async def pagination_callback(
             f"Error in pagination_callback: {str(e)}\n{traceback.format_exc()}"
         )
         await query.message.edit_text("❌ An error occurred while paginating cases.")
+        return State.END
+
+
+async def edit_case_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handler for editing a case."""
+    query = update.callback_query
+    await query.answer()
+
+    case_id = query.data.removeprefix("edit_")
+
+    print(case_id)
+
+    case = await Case.find_one({"_id": PydanticObjectId(case_id)})
+
+    if not case:
+        await query.message.edit_text("❌ Case not found.")
+        return State.END
+
+    user_id = update.effective_user.id
+    if case.user_id != user_id:
+        await query.message.edit_text("❌ You are not authorized to edit this case.")
+        return State.END
+
+    # Create a dynamic keyboard for all editable fields
+    editable_fields = {
+        "Name": "name",
+        "Person Name": "person_name",
+        "Relationship": "relationship",
+        "Last Seen Location": "last_seen_location",
+        "Gender": "gender",
+        "Age": "age",
+        "Hair Color": "hair_color",
+        "Eye Color": "eye_color",
+        "Height": "height",
+        "Weight": "weight",
+        "Distinctive Features": "distinctive_features",
+        "Status": "status",
+        "Country": "country",
+        "City": "city",
+    }
+
+    # Group buttons in rows of 2
+    keyboard = [
+        [
+            InlineKeyboardButton(f"{k1}", callback_data=f"edit_field_{v1}_{case_id}"),
+            InlineKeyboardButton(f"{k2}", callback_data=f"edit_field_{v2}_{case_id}"),
+        ]
+        for (k1, v1), (k2, v2) in zip(
+            list(editable_fields.items())[::2], list(editable_fields.items())[1::2]
+        )
+    ]
+
+    # If there's an odd number of fields, add the last button separately
+    if len(editable_fields) % 2 != 0:
+        last_key, last_value = list(editable_fields.items())[-1]
+        keyboard.append(
+            [
+                InlineKeyboardButton(
+                    f"{last_key}", callback_data=f"edit_field_{last_value}_{case_id}"
+                )
+            ]
+        )
+
+    # Add cancel button
+    keyboard.append([InlineKeyboardButton("Cancel", callback_data="cancel_edit")])
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await query.message.edit_text(
+        "📝 **Which field would you like to edit?**",
+        reply_markup=reply_markup,
+        parse_mode="Markdown",
+    )
+    return State.CASE_DETAILS
+
+
+async def edit_field_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    """Ask the user to enter a new value for the selected field."""
+    query = update.callback_query
+    await query.answer()
+
+    print(f"Query Data: {query.data.split("edit_field_")[0].split("_")}")
+
+    _, field_name, case_id = query.data.split(
+        "_", maxsplit=2
+    )  # Extract field and case ID
+    context.user_data["editing_case_id"] = case_id
+    context.user_data["editing_field"] = field_name
+
+    await query.message.edit_text(
+        f"✏️ Please enter the new value for **{field_name.replace('_', ' ').title()}**:"
+    )
+    return State.EDIT_FIELD
+
+
+async def update_case_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Update the specified field in the case document."""
+    print("I'm Calling :smile")
+    case_id = context.user_data.get("editing_case_id")
+    field_name = context.user_data.get("editing_field")
+    new_value = update.message.text.strip()
+
+    if not case_id or not field_name:
+        await update.message.reply_text("❌ Invalid request. Please try again.")
+        return State.END
+
+    print(f"Case ID: {case_id}")
+    # Fetch the case
+    case = await Case.find_one({"_id": ObjectId(case_id)})
+    if not case:
+        await update.message.reply_text("❌ Case not found.")
+        return State.END
+
+    # Handle different types of fields
+    try:
+        if field_name in ["age", "height", "weight", "reward"]:
+            new_value = float(new_value)
+            if new_value < 0:
+                raise ValueError("Value cannot be negative.")
+        elif field_name == "status" and new_value.lower() not in ["draft", "advertise"]:
+            raise ValueError("Status must be either 'draft' or 'advertise'.")
+        elif field_name == "gender" and new_value.lower() not in [
+            "male",
+            "female",
+            "other",
+        ]:
+            raise ValueError(
+                "Invalid gender. Choose from 'male', 'female', or 'other'."
+            )
+
+        # Update the case document
+        setattr(case, field_name, new_value)
+        case.updated_at = datetime.utcnow()
+        await case.save()
+
+        await update.message.reply_text(
+            f"✅ **{field_name.replace('_', ' ').title()}** updated to: **{new_value}**",
+            parse_mode="Markdown",
+        )
+    except ValueError as e:
+        await update.message.reply_text(f"❌ {str(e)} Please enter a valid value.")
+        return State.EDIT_FIELD
+
+    return State.END
+
+
+async def delete_case_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    """Handler for deleting a case."""
+    query = update.callback_query
+    await query.answer()
+    try:
+        case_id = query.data.removeprefix("delete_")  # Extract case ID
+        case = await Case.find_one({"_id": ObjectId(case_id)})
+        if not case:
+            await query.message.edit_text("❌ Case not found.")
+            return State.END
+
+        # Check if the user owns the case
+        user_id = update.effective_user.id
+        if case.user_id != user_id:
+            await query.message.edit_text(
+                "❌ You are not authorized to delete this case."
+            )
+            return State.END
+
+        # Delete the case from the database
+        await Case.delete_one({"_id": ObjectId(case_id)})
+
+        await query.message.edit_text("✅ Case has been successfully deleted.")
+
+        # Refresh listing after deletion
+        return await listing_command(update, context)
+
+    except Exception as e:
+        logger.error(
+            f"Error in delete_case_callback: {str(e)}\n{traceback.format_exc()}"
+        )
+        await query.message.edit_text("❌ An error occurred while deleting the case.")
         return State.END
 
 

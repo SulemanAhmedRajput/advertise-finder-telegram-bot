@@ -4,6 +4,7 @@ from models.case_model import Case, CaseStatus
 from models.mobile_number_model import MobileNumber
 from models.user_model import User
 from models.wallet_model import Wallet
+from services.wallet_service import WalletService
 
 
 async def find_case_by_user_id(user_id: int) -> Optional[Case]:
@@ -39,7 +40,7 @@ async def add_or_update_case(case_data: dict) -> Case:
         return new_case
 
 
-async def get_case_by_user(user_id: int) -> Optional[Case]:
+async def get_drafted_case_by_user(user_id: int) -> Optional[Case]:
     """
     Retrieve a case by user_id. If not found, return None.
 
@@ -49,7 +50,8 @@ async def get_case_by_user(user_id: int) -> Optional[Case]:
     Returns:
     - case (Optional[Case]): The found case or None if not found.
     """
-    return await Case.find_one({"user_id": user_id})
+
+    return await Case.find_one({"user_id": user_id, "status": CaseStatus.DRAFT})
 
 
 async def update_or_create_case(user_id: int, **kwargs) -> Case:
@@ -64,7 +66,7 @@ async def update_or_create_case(user_id: int, **kwargs) -> Case:
     - case (Case): The updated or newly created case.
     """
     # Try to find an existing case
-    case = await get_case_by_user(user_id)
+    case = await get_drafted_case_by_user(user_id)
 
     if not case:
         # If no case exists, create a new one
@@ -104,3 +106,21 @@ async def update_or_create_case(user_id: int, **kwargs) -> Case:
     # Save the case (update or create)
     await case.save()
     return case
+
+
+async def get_drafted_case_wallet(user_id: int) -> dict:
+    try:
+        case = await get_drafted_case_by_user(user_id)
+        if not case:
+            return None
+
+        await case.fetch_all_links()
+
+        if not hasattr(case, "wallet") or case.wallet is None:
+            return None
+
+        return case.wallet.model_dump()
+    except Exception as e:
+        # Log the error or handle it as needed
+        print(f"Error: {str(e)}")
+        return None

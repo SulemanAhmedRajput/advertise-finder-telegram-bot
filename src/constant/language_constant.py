@@ -2,6 +2,7 @@ from constant.case_constant import CASE_CONSTANT
 from constant.settings_constant import SETTINGS_CONSTANT
 from constant.start_constant import START_LANG_DATA
 from constant.wallet_constant import WALLET_LANG_DATA
+from constant.wallet_menu_constant import WALLET_MENU_CONSTANT
 
 
 def merge_lang_data(lang_data, *new_constants):
@@ -15,7 +16,11 @@ def merge_lang_data(lang_data, *new_constants):
 
 
 LANG_DATA = merge_lang_data(
-    START_LANG_DATA, WALLET_LANG_DATA, SETTINGS_CONSTANT, CASE_CONSTANT
+    START_LANG_DATA,
+    WALLET_LANG_DATA,
+    SETTINGS_CONSTANT,
+    CASE_CONSTANT,
+    WALLET_MENU_CONSTANT,
 )
 
 

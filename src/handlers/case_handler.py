@@ -1,4 +1,5 @@
 import re
+from config.config_manager import STAKE_WALLET_PUBLIC_KEY
 from constant.language_constant import get_text, user_data_store
 from models.case_model import Case
 import os
@@ -12,7 +13,8 @@ from constants import (
     State,
 )
 from models.mobile_number_model import MobileNumber
-from services.case_service import update_or_create_case
+from services.case_service import get_drafted_case_wallet, update_or_create_case
+from services.wallet_service import WalletService
 import utils.cloudinary
 from utils.twilio import generate_tac
 from utils.wallet import load_user_wallet
@@ -399,193 +401,91 @@ async def handle_reason_for_finding(
     user_id = update.effective_user.id
     reason = update.message.text.strip()
 
-    # Submit the case and notify the user
-    case_no = "CASE123456"  # Replace with actual case submission logic
-    await update.message.reply_text(
-        get_text(user_id, "case_submitted").format(case_no=case_no)
-    )
-
-    return await transfer_sol(update, context)
+    await update.message.reply_text("Case Submitted")
+    await update.message.reply_text(get_text(user_id, "enter_reward_amount"))
+    return State.CREATE_CASE_ASK_REWARD
 
 
-async def transfer_sol(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def handle_ask_reward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Ask the user for the reward amount depending on the wallet type."""
     user_id = update.effective_user.id
-    # Ask the user for their private key to initiate the transaction
-    await update.message.reply_text(
-        "⚠️ Warning: Entering your private key here is insecure. "
-        "Please ensure you trust this service before proceeding.\n\n"
-        "To complete the transfer, please provide your Solana private key."
-    )
-    # Change the state to enter the private key
-    return State.ENTER_PRIVATE_KEY
-
-
-async def handle_private_key(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Check sender's balance, store transaction details, and ask for confirmation."""
-    user_id = update.effective_user.id
-    private_key = update.message.text.strip()
-
     try:
-        print("Getting the private key", private_key)
-        # Validate the private key
-        sender = Keypair.from_base58_string(private_key)
+        reward_amount = float(update.message.text.strip())
+    except ValueError:
+        await update.message.reply_text("Please enter a valid amount for the reward.")
+        return State.CREATE_CASE_ASK_REWARD
 
-        # Fetch sender's balance
-        sender_balance_response = client.get_balance(sender.pubkey())
-        sender_balance = (
-            sender_balance_response.value / 1e9
-        )  # Convert from lamports to SOL
-        logger.info(f"Sender balance: {sender_balance} SOL")
+    user_wallet = await get_drafted_case_wallet(
+        user_id
+    ) or await WalletService.create_wallet(
+        user_id, wallet_type="SOL", wallet_name="Default Wallet"
+    )
 
-        # Load the recipient's public key
-        wallet = load_user_wallet(user_id)
-        print("wallet are ", wallet)
-
-        to_pubkey = Pubkey.from_string(wallet["public_key"])
-        total_sol = context.user_data["case"]["reward"]
-
-        # Check if sender has enough balance
-        if sender_balance < total_sol:
-            await update.message.reply_text(
-                f"❌ Insufficient funds. You have {sender_balance:.5f} SOL, but need {total_sol:.5f} SOL."
-            )
-            return (
-                State.ENTER_PRIVATE_KEY
-            )  # Ask user to re-enter key or handle accordingly
-
-        # Fetch the latest blockhash
-        blockhash_response = client.get_latest_blockhash()
-        recent_blockhash = blockhash_response.value.blockhash
-        logger.info(f"Latest blockhash fetched: {recent_blockhash}")
-
-        print(f"Transaction Lamport: {int(total_sol * 1e9)}")
-
-        # Create a transfer instruction
-        instruction = transfer(
-            TransferParams(
-                from_pubkey=sender.pubkey(),
-                to_pubkey=to_pubkey,
-                lamports=int(total_sol * 1e9),  # Convert SOL to lamports
-            )
-        )
-
-        # Create a message and transaction
-        message = Message(instructions=[instruction], payer=sender.pubkey())
-        transaction = Transaction(
-            from_keypairs=[sender], message=message, recent_blockhash=recent_blockhash
-        )
-
-        # Store transaction details temporarily in context (DO NOT execute yet)
-        context.user_data["transaction"] = {
-            "private_key": private_key,  # Keep private key for signing later
-            "transaction": transaction,  # Store transaction object
-            "recent_blockhash": recent_blockhash,
-        }
-
-        # Ask the user to confirm the transaction
-        keyboard = [
-            [
-                InlineKeyboardButton("Confirm", callback_data="confirm"),
-                InlineKeyboardButton("Cancel", callback_data="cancel"),
-            ]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-
+    if user_wallet and reward_amount >= 1:
+        context.user_data["reward_amount"] = reward_amount
         await update.message.reply_text(
-            f"✅ Transfer of {total_sol} SOL is ready.\n\n"
-            "Do you want to confirm the transaction?",
-            reply_markup=reply_markup,
+            f"Your reward of {reward_amount} SOL is valid. Proceeding to confirm the transfer."
         )
+        return await handle_transfer_confirmation(update, context)
 
-        return State.TRANSFER_CONFIRMATION
-
-    except Exception as e:
-        logger.error(f"Error during transaction preparation: {str(e)}")
-        await update.message.reply_text(
-            f"❌ Error: {str(e)}. Please check your private key and try again."
-        )
-        return State.ENTER_PRIVATE_KEY
+    await update.message.reply_text(
+        "Minimum reward amount is 1 SOL. Please enter a higher amount."
+    )
+    return State.CREATE_CASE_ASK_REWARD
 
 
 async def handle_transfer_confirmation(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
-    """Execute the transaction if the user confirms, otherwise cancel."""
+    """Handle the user's transfer confirmation."""
     query = update.callback_query
     await query.answer()
+    user_id = query.from_user.id
+    reward_amount = context.user_data.get("reward_amount")
 
-    if query.data == "confirm":
-        try:
-            # Retrieve stored transaction details
-            transaction_data = context.user_data.get("transaction")
-            if not transaction_data:
-                await query.message.reply_text("❌ Error: No transaction found.")
-                return State.END
+    if not reward_amount:
+        await query.edit_message_text(
+            "Reward amount not found. Please restart the process."
+        )
+        return State.CREATE_CASE_ASK_REWARD
 
-            private_key = transaction_data["private_key"]
-            transaction = transaction_data["transaction"]
-            recent_blockhash = transaction_data["recent_blockhash"]
+    confirm_kb = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton(
+                    "✔️ Confirm Transfer", callback_data="confirm_transfer"
+                ),
+                InlineKeyboardButton("❌ Cancel", callback_data="cancel_transfer"),
+            ]
+        ]
+    )
 
-            # Recreate the sender keypair
-            sender = Keypair.from_base58_string(private_key)
+    await query.edit_message_text(
+        f"Do you want to transfer {reward_amount} SOL to the owner's account?",
+        reply_markup=confirm_kb,
+    )
+    return State.CREATE_CASE_CONFIRM_TRANSFER
 
-            # Sign and send the transaction
-            transaction.sign([sender], recent_blockhash=recent_blockhash)
-            send_response = client.send_transaction(transaction)
-            logger.info(f"Transaction sent! Response: {send_response}")
 
-            await query.message.reply_text(
-                f"✅ Transfer successful!\n\nTransaction ID: {send_response}"
-            )
+async def transfer_to_owner(user_id: int, reward_amount: float) -> bool:
+    """Transfer SOL to the owner's account."""
+    user_wallet = await Wallet.find_one({"user_id": user_id})
+    if not user_wallet:
+        return False
 
-            """Submit the case."""
-            user_id = query.from_user.id
-            case_data = context.user_data.get("case", {})
+    owner_public_key = Pubkey.from_string(STAKE_WALLET_PUBLIC_KEY)
+    transfer_params = TransferParams(
+        from_pubkey=Pubkey.from_string(user_wallet["public_key"]),
+        to_pubkey=owner_public_key,
+        lamports=int(reward_amount * 1e9),
+    )
+    transaction = Transaction().add(transfer(transfer_params))
 
-            # Generate a unique case number
-            case_no = f"CASE-{user_id}-{len(context.user_data)}"
-
-            # Create and insert case into the database
-            case = Case(
-                user_id=user_id,
-                case_no=case_no,
-                name=case_data.get("name", ""),
-                mobile=context.user_data.get("mobile"),
-                person_name=case_data.get("person_name", ""),
-                relationship=case_data.get("relationship", ""),
-                photo_path=case_data.get("photo_path", ""),
-                last_seen_location=case_data.get("last_seen_location", ""),
-                sex=case_data.get("sex", ""),
-                age=case_data.get("age", ""),
-                hair_color=case_data.get("hair_color", ""),
-                eye_color=case_data.get("eye_color", ""),
-                height=case_data.get("height", ""),
-                weight=case_data.get("weight", ""),
-                distinctive_features=case_data.get("distinctive_features", ""),
-                reward=case_data.get("reward", 0),
-                reward_type=case_data.get("reward_type", "SOL"),
-            )
-            await case.insert()
-
-            wallet = Wallet(
-                public_key=user_data_store[user_id]["wallet"]["public_key"],
-                private_key=user_data_store[user_id]["wallet"]["secret_key"],
-                case_no=case_no,
-                user_id=user_id,
-            )
-
-            await wallet.insert()
-
-            await query.message.reply_text("✅ Your transaction has been confirmed.")
-
-        except Exception as e:
-            logger.error(f"Error executing transaction: {str(e)}")
-            await query.message.reply_text(
-                f"❌ Transaction failed: {str(e)}. Please try again."
-            )
-
-    else:
-        # If canceled, notify the user
-        await query.message.reply_text("❌ Transaction has been canceled.")
-
-    return State.END
+    try:
+        result = await client.send_transaction(
+            transaction, Keypair.from_secret_key(bytes(user_wallet["private_key"]))
+        )
+        return result.get("result", False)
+    except Exception as e:
+        logger.error(f"SOL Transfer failed: {e}")
+        return False

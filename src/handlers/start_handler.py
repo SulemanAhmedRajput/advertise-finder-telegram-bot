@@ -34,7 +34,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         user_data_store[user_id] = {"lang": user_lang}
         context.user_data["lang"] = user_lang
         await update.message.reply_text(get_text(user_id, "choose_country"))
-        return State.CHOOSE_COUNTRY
+        # return State.CHOOSE_COUNTRY
+        return State.CREATE_CASE_SUBMIT
 
     # Show language selection buttons
     btns = [

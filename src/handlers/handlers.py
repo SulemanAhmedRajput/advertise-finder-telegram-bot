@@ -1,6 +1,7 @@
 from handlers.case_handler import (
     disclaimer_2_callback,
     handle_age,
+    handle_ask_reward,
     handle_distinctive_features,
     handle_eye_color,
     handle_hair_color,
@@ -11,7 +12,6 @@ from handlers.case_handler import (
     handle_name,
     handle_person_name,
     handle_photo,
-    handle_private_key,
     handle_reason_for_finding,
     handle_relationship,
     handle_sex,
@@ -34,11 +34,12 @@ from handlers.finder_handler import (
 from handlers.listing_handler import (
     cancel_edit_callback,
     case_details_callback,
+    delete_case_callback,
     edit_case_callback,
-    edit_name_callback,
-    edit_reward_callback,
+    edit_field_callback,
     listing_command,
     pagination_callback,
+    update_case_field,
 )
 from handlers.wallet_handler import (
     create_wallet,
@@ -183,20 +184,15 @@ start_handler = ConversationHandler(
         State.CREATE_CASE_SUBMIT: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reason_for_finding)
         ],
-        State.CREATE_CASE_REWARD_TYPE: [
-            CallbackQueryHandler(handle_reward_type, pattern="^(SOL|USDT)$"),
+        State.CREATE_CASE_ASK_REWARD: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_ask_reward)
         ],
-        State.CREATE_CASE_REWARD_AMOUNT: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reward_amount),
+        State.CREATE_CASE_CONFIRM_TRANSFER: [
+            CallbackQueryHandler(handle_transfer_confirmation)
         ],
-        State.ENTER_PRIVATE_KEY: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_private_key),
-        ],
-        State.TRANSFER_CONFIRMATION: [
-            CallbackQueryHandler(
-                handle_transfer_confirmation, pattern="^(confirm|cancel)$"
-            ),
-        ],
+        # State.CREATE_CASE_WALLET_TRANSFER: [
+        #     MessageHandler(filters.TEXT & ~filters.COMMAND, handle_wallet_and_transfer)
+        # ],
         # From here the finder is the one who is going to find the person
         State.CHOOSE_PROVINCE: [
             CallbackQueryHandler(
@@ -273,27 +269,29 @@ wallet_handler = ConversationHandler(
 )
 
 # # # Define ConversationHandler
-# listing_handler = ConversationHandler(
-#     entry_points=[CommandHandler("listing", listing_command)],
-#     states={
-#         State.CASE_DETAILS: [
-#             # Handle case details when a case is selected
-#             CallbackQueryHandler(case_details_callback, pattern="^case_.*$"),
-#             # Handle pagination (previous/next buttons)
-#             CallbackQueryHandler(
-#                 pagination_callback, pattern="^(page_previous|page_next)$"
-#             ),
-#             # Handle the "Edit" button for cases
-#             CallbackQueryHandler(edit_case_callback, pattern="^edit_.*$"),
-#             # Handle specific edit actions (e.g., editing name or reward)
-#             CallbackQueryHandler(edit_name_callback, pattern="^edit_name_.*$"),
-#             CallbackQueryHandler(edit_reward_callback, pattern="^edit_reward_.*$"),
-#             # Handle cancel action for the edit menu
-#             CallbackQueryHandler(cancel_edit_callback, pattern="^cancel_edit$"),
-#         ]
-#     },
-#     fallbacks=[CommandHandler("cancel", lambda update, context: State.END)],
-# )
+listing_handler = ConversationHandler(
+    entry_points=[CommandHandler("listing", listing_command)],
+    states={
+        State.CASE_DETAILS: [
+            CallbackQueryHandler(case_details_callback, pattern="^case_.*$"),
+            CallbackQueryHandler(
+                pagination_callback, pattern="^(page_previous|page_next)$"
+            ),
+            CallbackQueryHandler(edit_case_callback, pattern="^edit_.*$"),
+            CallbackQueryHandler(edit_field_callback, pattern="^edit_field_.*$"),
+            CallbackQueryHandler(cancel_edit_callback, pattern="^cancel_edit$"),
+            CallbackQueryHandler(delete_case_callback, pattern="^delete_.*$"),
+        ],
+        State.EDIT_FIELD: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, update_case_field)
+        ],
+    },
+    fallbacks=[
+        CommandHandler("cancel", lambda update, context: State.END),
+        CallbackQueryHandler(delete_case_callback, pattern="^delete_.*$"),
+    ],
+    allow_reentry=True,
+)
 
 # Settings conversation handler  -- TODO: Completed
 settings_handler = ConversationHandler(
