@@ -1,9 +1,13 @@
+import logging
 from datetime import datetime
-
 from beanie import PydanticObjectId
 from constants import State
 from models.case_model import Case, CaseStatus
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import (
+    Update,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+)
 from telegram.ext import (
     ContextTypes,
     ConversationHandler,
@@ -12,17 +16,16 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
-import logging
-from bson import ObjectId  # Ensure ObjectId is imported
+from bson import ObjectId, errors
 import traceback
 import math
 from utils.helper import paginate_list
-
 
 # Setup logging
 logger = logging.getLogger(__name__)
 
 
+# Handlers
 async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handler for the /listing command."""
     user_id = update.effective_user.id
@@ -93,14 +96,15 @@ async def case_details_callback(
     user_id = update.effective_user.id
     query = update.callback_query
     await query.answer()
+
     try:
         case_id = query.data.removeprefix("case_")  # Extract case ID
-
-        # Convert case_id to ObjectId before querying
         case = await Case.find_one({"_id": ObjectId(case_id)})
+        print("THIS IS THE CASE", case)
+
         if not case:
             await query.message.edit_text("❌ Case not found.")
-            return State.END
+            return State.END  # Terminate the conversation
 
         # Fetch wallet and mobile number details
         wallet = await case.wallet.fetch() if case.wallet else None
@@ -109,45 +113,23 @@ async def case_details_callback(
         # Format the case details
         case_message = (
             f"📌 **Case Details**\n"
-            f"🔹 **Case No:** {case.case_no or 'None'}\n"
             f"👤 **Person Name:** {case.person_name}\n"
             f"📍 **Last Seen Location:** {case.last_seen_location}\n"
             f"💰 **Reward:** {case.reward or 'None'} {case.reward_type or 'None'}\n"
-            f"📞 **Contact Info:** {mobile_number.number if mobile_number else 'Not provided'}\n"
-            f"💼 **Wallet:** {wallet.public_key if wallet else 'Not provided'}\n"  # Adjust based on your wallet model
+            f"💼 **Wallet:** {wallet.public_key if wallet else 'Not provided'}\n"
             f"👤 **Gender:** {case.gender}\n"
             f"🧒 **Age:** {case.age}\n"
             f"📏 **Height:** {case.height} cm\n"
-            if case.height
-            else (
-                "" f"⚖️ **Weight:** {case.weight} kg\n"
-                if case.weight
-                else (
-                    "" f"🎨 **Hair Color:** {case.hair_color}\n"
-                    if case.hair_color
-                    else (
-                        "" f"👁️ **Eye Color:** {case.eye_color}\n"
-                        if case.eye_color
-                        else (
-                            ""
-                            f"✨ **Distinctive Features:** {case.distinctive_features}\n"
-                            if case.distinctive_features
-                            else ""
-                        )
-                    )
-                )
-            )
         )
-        keyboard = []
 
-        row = []
+        keyboard = []
         if case.user_id == user_id:
-            row.append(
-                InlineKeyboardButton("📝 Edit", callback_data=f"edit_{str(case.id)}")
-            )
-            row.append(
-                InlineKeyboardButton("🗑 Delete", callback_data=f"delete_{str(case.id)}")
-            )
+            row = [
+                InlineKeyboardButton("📝 Edit", callback_data=f"edit_{str(case.id)}"),
+                InlineKeyboardButton(
+                    "🗑 Delete", callback_data=f"delete_{str(case.id)}"
+                ),
+            ]
             keyboard.append(row)
 
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -158,7 +140,11 @@ async def case_details_callback(
             reply_markup=reply_markup,
             parse_mode="Markdown",
         )
-        return State.END
+        if case.user_id == user_id:
+            return State.CASE_DETAILS
+
+        return State.END  # Terminate the conversation
+
     except Exception as e:
         logger.error(
             f"Error in case_details_callback: {str(e)}\n{traceback.format_exc()}"
@@ -166,7 +152,7 @@ async def case_details_callback(
         await query.message.edit_text(
             "❌ An error occurred while fetching case details."
         )
-        return State.END
+        return State.END  # Terminate the conversation
 
 
 async def pagination_callback(
@@ -205,7 +191,7 @@ async def pagination_callback(
                 )
             ]
 
-            # 🛑 Only show "Edit" and "Delete" buttons if the case belongs to the user
+            # Only show "Edit" and "Delete" buttons if the case belongs to the user
             if case.user_id == update.effective_user.id:
                 row.append(
                     InlineKeyboardButton(
@@ -255,12 +241,22 @@ async def edit_case_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
     query = update.callback_query
     await query.answer()
 
+    # Extract case_id from callback data
     case_id = query.data.removeprefix("edit_")
+    if "_" in case_id:
+        case_id = case_id.split("_", maxsplit=1)[-1]  # Extract only the case ID
 
-    print(case_id)
+    print(f"Extracted case_id: {case_id}")
 
-    case = await Case.find_one({"_id": PydanticObjectId(case_id)})
+    # Validate case_id
+    try:
+        case_id = ObjectId(case_id)
+    except errors.InvalidId:
+        await query.message.edit_text("❌ Invalid case ID.")
+        return State.END
 
+    # Fetch the case from the database
+    case = await Case.find_one({"_id": case_id})
     if not case:
         await query.message.edit_text("❌ Case not found.")
         return State.END
@@ -283,7 +279,7 @@ async def edit_case_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
         "Height": "height",
         "Weight": "weight",
         "Distinctive Features": "distinctive_features",
-        "Status": "status",
+        # "Status": "status",
         "Country": "country",
         "City": "city",
     }
@@ -330,16 +326,21 @@ async def edit_field_callback(
     query = update.callback_query
     await query.answer()
 
-    print(f"Query Data: {query.data.split("edit_field_")[0].split("_")}")
+    # Extract field and case ID from callback data
+    parts = query.data.split("_")
+    field_name = "_".join(parts[1:-1])  # Join all parts except the first and last
+    case_id = parts[-1]  # The last part is always the case ID
 
-    _, field_name, case_id = query.data.split(
-        "_", maxsplit=2
-    )  # Extract field and case ID
+    print("Field name:", field_name, "Case ID:", case_id)
+
+    # Store the case ID and field name in user_data for later use
     context.user_data["editing_case_id"] = case_id
-    context.user_data["editing_field"] = field_name
+    context.user_data["editing_field"] = field_name.split("_")[1]
 
+    # Prompt the user to enter a new value for the field
     await query.message.edit_text(
-        f"✏️ Please enter the new value for **{field_name.replace('_', ' ').title()}**:"
+        f"✏️ Please enter the new value for **{field_name.replace('_', ' ').title()}**: ",
+        parse_mode="Markdown",
     )
     return State.EDIT_FIELD
 
@@ -351,11 +352,12 @@ async def update_case_field(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     field_name = context.user_data.get("editing_field")
     new_value = update.message.text.strip()
 
+    print(f"CaseId: {case_id}, Field Name: {field_name}, New Value: {new_value}")
+
     if not case_id or not field_name:
         await update.message.reply_text("❌ Invalid request. Please try again.")
         return State.END
 
-    print(f"Case ID: {case_id}")
     # Fetch the case
     case = await Case.find_one({"_id": ObjectId(case_id)})
     if not case:

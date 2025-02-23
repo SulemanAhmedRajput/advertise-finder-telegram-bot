@@ -265,7 +265,8 @@ wallet_handler = ConversationHandler(
     allow_reentry=True,
 )
 
-# # # Define ConversationHandler
+
+# Define ConversationHandler
 listing_handler = ConversationHandler(
     entry_points=[CommandHandler("listing", listing_command)],
     states={
@@ -274,8 +275,8 @@ listing_handler = ConversationHandler(
             CallbackQueryHandler(
                 pagination_callback, pattern="^(page_previous|page_next)$"
             ),
-            CallbackQueryHandler(edit_case_callback, pattern="^edit_.*$"),
             CallbackQueryHandler(edit_field_callback, pattern="^edit_field_.*$"),
+            CallbackQueryHandler(edit_case_callback, pattern="^edit_.*$"),
             CallbackQueryHandler(cancel_edit_callback, pattern="^cancel_edit$"),
             CallbackQueryHandler(delete_case_callback, pattern="^delete_.*$"),
         ],
@@ -289,6 +290,7 @@ listing_handler = ConversationHandler(
     ],
     allow_reentry=True,
 )
+
 
 # Settings conversation handler  -- TODO: Completed
 settings_handler = ConversationHandler(
