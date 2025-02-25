@@ -15,7 +15,7 @@ from constants import (
 )
 from models.mobile_number_model import MobileNumber
 from services.case_service import get_drafted_case_wallet, update_or_create_case
-from services.wallet_service import WalletService, get_wallet_balance, transfer_to_owner
+from services.wallet_service import WalletService
 import utils.cloudinary
 from utils.twilio import generate_tac
 from utils.wallet import load_user_wallet
@@ -392,7 +392,7 @@ async def handle_distinctive_features(
     context.user_data["case"]["distinctive_features"] = features
     logger.info(f"User {user_id} entered distinctive features: {features}")
     await update.message.reply_text(get_text(user_id, "reason_for_finding"))
-    return State.CREATE_CASE_SUBMIT  # Transition to the next state
+    return State.CREATE_CASE_ASK_REASON
 
 
 # Handlers for each state
@@ -408,7 +408,7 @@ async def handle_reason_for_finding(
 
     if not case:
         await update.message.reply_text(get_text(user_id, "case_not_found"))
-        return State.CREATE_CASE_ASK_REASON
+        return State.END
 
     # Store reason in case and ask for reward amount
     case.reason = reason
@@ -436,14 +436,21 @@ async def handle_ask_reward_amount(
 ) -> int:
     """Handle asking for reward amount and check wallet balance."""
     user_id = update.effective_user.id
+    print(f"I am calling from the ask reward amount handler")
     reward_amount = float(update.message.text.strip())  # User's input as float
 
     # Fetch the case and wallet info
     case = await Case.find_one({"user_id": user_id, "status": CaseStatus.DRAFT})
     wallet = await case.wallet.fetch()
 
+    print(f"Wallet: {wallet}")
+
     # Get wallet balance (assuming you have a method to fetch balance)
-    wallet_balance = await get_wallet_balance(wallet.id)
+    wallet_balance = (
+        await WalletService.get_sol_balance(wallet.public_key)
+        if wallet.wallet_type == "SOL"
+        else await WalletService.get_usdt_balance(wallet.public_key)
+    )
     print(f"Wallet balance: {wallet_balance}")
 
     # Check if the reward amount is greater than available balance
@@ -492,7 +499,11 @@ async def handle_transfer_confirmation(
         # Proceed with the transfer
         try:
             # Check if wallet has sufficient balance
-            wallet_balance = await get_wallet_balance(wallet.id)
+            wallet_balance = wallet_balance = (
+                await WalletService.get_sol_balance(wallet.public_key)
+                if wallet.wallet_type == "SOL"
+                else await WalletService.get_usdt_balance(wallet.public_key)
+            )
             if wallet_balance < reward_amount:
                 await query.answer()
                 await query.edit_message_text(
@@ -504,7 +515,9 @@ async def handle_transfer_confirmation(
 
             # Transfer the reward (this is just a placeholder, you need to implement transfer logic)
             transfer_success = False
-            transfer_success = transfer_to_owner(wallet_type, wallet.id, reward_amount)
+            transfer_success = await WalletService.transfer_to_owner(
+                wallet_type, wallet.id, reward_amount
+            )
 
             if transfer_success:
                 await query.answer()

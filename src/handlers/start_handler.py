@@ -22,22 +22,17 @@ from utils.helper import get_city_matches, get_country_matches, paginate_list
 from constant.language_constant import LANG_DATA, get_text, user_data_store
 
 
-# Handlers
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """/start command entry point."""
     user_id = update.message.from_user.id
 
-    # Check if the user's language preference is already saved
     user_lang = await get_user_lang(user_id)
     if user_lang:
-        # Skip language selection if the user's preference is already set
         user_data_store[user_id] = {"lang": user_lang}
         context.user_data["lang"] = user_lang
         await update.message.reply_text(get_text(user_id, "choose_country"))
-        # return State.CHOOSE_COUNTRY
-        return State.CREATE_CASE_ASK_REASON
+        return State.CHOOSE_COUNTRY
 
-    # Show language selection buttons
     btns = [
         [
             InlineKeyboardButton(
@@ -64,15 +59,14 @@ async def select_lang_callback(
     data = query.data
     user_id = query.from_user.id
 
-    # Save the selected language to the database
     lang = data.replace("lang_", "")
     await save_user_lang(user_id, lang)
 
-    # Update user data store
     user_data_store[user_id] = {"lang": lang}
     context.user_data["lang"] = lang
 
     await query.edit_message_text(get_text(user_id, "choose_country"))
+
     return State.CHOOSE_COUNTRY
 
 
@@ -389,6 +383,7 @@ async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         return State.END
 
 
+# DEBUGGING FROM START
 async def wallet_type_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -396,89 +391,98 @@ async def wallet_type_callback(
     await query.answer()
     user_id = query.from_user.id
 
-    if query.data == "SOL":
-        # Check if there are existing wallets
-        existing_wallets = await WalletService.get_wallet_by_user(user_id)
-        if existing_wallets:
-            print(f"Existing wallets: {existing_wallets}")
-            # Show existing wallets with an option to create a new one
-            kb = [
-                [
-                    InlineKeyboardButton(
-                        wallet.name, callback_data=f"wallet_{wallet.name}"
-                    )
-                ]
-                for wallet in existing_wallets
+    # Determine wallet type (SOL or USDT) from callback data
+    wallet_type = query.data
+
+    context.user_data["wallet_type"] = wallet_type
+
+    print(f"Wallet type: {wallet_type}")
+
+    existing_wallets = await WalletService.get_wallet_by_type(user_id, wallet_type)
+
+    if existing_wallets:
+        kb = [
+            [
+                InlineKeyboardButton(
+                    wallet.name, callback_data=f"wallet_{str(wallet.id)}"
+                )
             ]
-            kb.append(
-                [
-                    InlineKeyboardButton(
-                        get_text(user_id, "create_new_wallet"),
-                        callback_data="create_new_wallet",
-                    )
-                ]
-            )
-            await query.edit_message_text(
-                get_text(user_id, "choose_existing_or_new_wallet"),
-                reply_markup=InlineKeyboardMarkup(kb),
-                parse_mode="HTML",
-            )
-            return State.CHOOSE_WALLET_TYPE
-        else:
-            # Ask for the name of the wallet
-            await query.edit_message_text(
-                get_text(user_id, "wallet_name_prompt"), parse_mode="HTML"
-            )
-            return State.NAME_WALLET
-    elif query.data == "USDT":
-        await query.edit_message_text(get_text(user_id, "btc_dev"), parse_mode="HTML")
-        return State.END
-    else:
-        await query.edit_message_text(
-            get_text(user_id, "invalid_choice"), parse_mode="HTML"
+            for wallet in existing_wallets
+        ]
+        kb.append(
+            [
+                InlineKeyboardButton(
+                    get_text(user_id, "create_new_wallet"),
+                    callback_data="create_new_wallet",
+                )
+            ]
         )
-        return State.END
+        await query.edit_message_text(
+            get_text(user_id, "choose_existing_or_new_wallet"),
+            reply_markup=InlineKeyboardMarkup(kb),
+            parse_mode="HTML",
+        )
+        return State.CHOOSE_WALLET_TYPE
+    else:
+        msg = get_text(user_id, "wallet_name_prompt")
+        if update.message:
+            await update.message.reply_text(msg, parse_mode="HTML")
+        elif update.callback_query:
+            await update.callback_query.message.reply_text(msg, parse_mode="HTML")
+
+        return State.NAME_WALLET
 
 
 async def wallet_selection_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
-    """Handle the selection of an existing wallet."""
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
 
-    # Extract wallet name from callback data
-    wallet_name = query.data.replace("wallet_", "")
+    # Extract wallet name and type from callback data
+    wallet_id = query.data.replace("wallet_", "")
+    wallet_type = context.user_data.get("wallet_type")  # 'sol' or 'usdt'
 
-    # Fetch wallet details (assuming WalletService can fetch by name)
-    wallet_details = await WalletService.get_wallet_by_name(user_id, wallet_name)
+    # Fetch wallet details by name and type
+    wallet_details = await WalletService.get_wallet_by_id(wallet_id)
+
+    print(f"Wallet details: {wallet_details}")
 
     if wallet_details:
-        total_sol = solana_client.get_balance(
-            Pubkey.from_string(wallet_details["public_key"])
-        )
+        # Fetch balance for the specific wallet type (SOL or USDT)
+        print(f"This is the wallet type: {wallet_type}")
+        total_sol = 0
+        if wallet_type == "SOL":
+            total_sol = await WalletService.get_sol_balance(
+                Pubkey.from_string(wallet_details["public_key"])
+            )
+        elif wallet_type == "USDT":
+            total_sol = await WalletService.get_usdt_balance(
+                wallet_details["public_key"],
+            )
+        print(f"Total {wallet_type}: {total_sol}")
+
         context.user_data["wallet"] = wallet_details  # Store in memory
-        print(wallet_details["id"])
         await update_or_create_case(user_id, wallet=str(wallet_details["id"]))
 
         msg = get_text(user_id, "wallet_create_details").format(
             name=wallet_details["name"],
             public_key=wallet_details["public_key"],
             secret_key=wallet_details["private_key"],
-            balance=total_sol.value,  # TODO: its must provide the proper balance
-            wallet_type=wallet_details["wallet_type"],
+            balance=total_sol,  # For USDT, balance might be different
+            wallet_type=wallet_type,
         )
 
         transfer_instructions = (
-            f"\n\n<b>How to Transfer SOL to Your Wallet:</b>\n\n"
-            f"1️⃣ Open your Solana wallet app or any Solana-compatible wallet.\n"
+            f"\n\n<b>How to Transfer {wallet_type} to Your Wallet:</b>\n\n"
+            f"1️⃣ Open your {wallet_type} wallet app or any compatible wallet.\n"
             f"2️⃣ Go to the <b>Send</b> or <b>Transfer</b> section of the wallet.\n"
             f"3️⃣ Paste your <b>Public Key</b> into the recipient address field. Your public key is:\n"
             f"<code>{wallet_details['public_key']}</code>\n\n"
-            f"4️⃣ Enter the amount of SOL you want to transfer to your wallet.\n"
+            f"4️⃣ Enter the amount of {wallet_type} you want to transfer.\n"
             f"5️⃣ Review the transaction details and confirm the transfer.\n\n"
-            f"Once the transfer is successful, the SOL will appear in your wallet balance."
+            f"Once the transfer is successful, the {wallet_type} will appear in your wallet balance."
         )
 
         # Combine the wallet details and transfer instructions
@@ -500,10 +504,7 @@ async def wallet_selection_callback(
 async def wallet_name_handler(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
-    """Handle wallet name input and transition to Create Case flow."""
     user_id = update.effective_user.id
-
-    # Check if the update is a callback query or a message
     if update.callback_query:
         # If it's a callback query, prompt the user to enter a wallet name
         await update.callback_query.answer()
@@ -512,8 +513,9 @@ async def wallet_name_handler(
         )
         return State.NAME_WALLET
 
-    # If it's a text message, process the wallet name
     wallet_name = update.message.text.strip()
+
+    print(f"Wallet name: {wallet_name}")
 
     if not wallet_name:
         await update.message.reply_text(
@@ -521,32 +523,43 @@ async def wallet_name_handler(
         )
         return State.NAME_WALLET
 
-    wallet_details = create_sol_wallet(wallet_name)
-    wallet = await WalletService.create_wallet(user_id, "SOL", wallet_name)
+    print("Hello there how are you doing", wallet_name)
+
+    wallet_type = context.user_data.get("wallet_type")
+
+    print(f"Wallet type: {wallet_type}")
+
+    wallet = await WalletService.create_wallet(user_id, wallet_type, wallet_name)
     if wallet:
-        # Get the total sol
-        total_sol = solana_client.get_balance(Pubkey.from_string(wallet.public_key))
-        context.user_data["wallet"] = wallet  # Store in memory
+
+        if wallet_type == "SOL":
+            total_sol = await WalletService.get_sol_balance(wallet.public_key)
+        elif wallet_type == "USDT":
+            total_sol = await WalletService.get_usdt_balance(wallet.public_key)
+
+        print(f"Total SOL: {total_sol}")
+        print(f"This is the wallet type: {wallet_type}")
+
+        context.user_data["wallet"] = wallet
         msg = get_text(user_id, "wallet_create_details").format(
             name=wallet.name,
             public_key=wallet.public_key,
             secret_key=wallet.private_key,
-            balance=total_sol.value,  # TODO: its must provide the proper balance
-            wallet_type="SOL",
+            balance=total_sol,  # For USDT, the balance logic will vary
+            wallet_type=wallet_type,
         )
 
         transfer_instructions = (
-            f"\n\n<b>How to Transfer SOL to Your Wallet:</b>\n\n"
-            f"1️⃣ Open your Solana wallet app or any Solana-compatible wallet.\n"
+            f"\n\n<b>How to Transfer {wallet_type} to Your Wallet:</b>\n\n"
+            f"1️⃣ Open your {wallet_type} wallet app or any compatible wallet.\n"
             f"2️⃣ Go to the <b>Send</b> or <b>Transfer</b> section of the wallet.\n"
             f"3️⃣ Paste your <b>Public Key</b> into the recipient address field. Your public key is:\n"
-            f"<code>{wallet_details['public_key']}</code>\n\n"
-            f"4️⃣ Enter the amount of SOL you want to transfer to your wallet.\n"
+            f"<code>{wallet.public_key}</code>\n\n"
+            f"4️⃣ Enter the amount of {wallet_type} you want to transfer.\n"
             f"5️⃣ Review the transaction details and confirm the transfer.\n\n"
-            f"Once the transfer is successful, the SOL will appear in your wallet balance."
+            f"Once the transfer is successful, the {wallet_type} will appear in your wallet balance."
         )
 
-        # Combine the wallet details and transfer instructions
         msg += transfer_instructions
 
         await update.message.reply_text(msg, parse_mode="HTML")

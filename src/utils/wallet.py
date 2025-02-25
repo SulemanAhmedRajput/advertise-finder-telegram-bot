@@ -100,6 +100,34 @@ def create_sol_wallet(wallet_name):
         return None
 
 
+def create_usdt_wallet(wallet_name):
+    """Create a USDT wallet with Keypair, store it as JSON, and return its details."""
+    if not client:
+        return None
+    try:
+        keypair = Keypair()
+        public_key = str(keypair.pubkey())
+        secret_key = base58.b58encode(bytes(keypair.to_bytes_array())).decode("utf-8")
+
+        print(f"Secret key: {secret_key}")
+        wallet = {
+            "name": wallet_name,
+            "public_key": public_key,
+            "secret_key": secret_key,
+        }
+
+        # Fetch balance
+        balance_response = client.get_balance(Pubkey.from_string(public_key))
+        balance_lamports = balance_response.value if balance_response else 0
+        balance_usdt = balance_lamports / 1e6
+        wallet["balance_usdt"] = balance_usdt
+        return wallet
+
+    except Exception as e:
+        print(f"Error creating USDT wallet: {e}")
+        return None
+
+
 def load_user_wallet(user_id):
     """Load wallet info from user_data_store or from file if needed."""
     user_wallet = user_data_store[user_id].get("wallet")

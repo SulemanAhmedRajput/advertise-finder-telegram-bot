@@ -117,49 +117,6 @@ DUMMY_DATA = {
         "case_failed": "❌ Failed to submit case. Please try again.",
         "escrow_transfer": "Reward amount transferred to escrow wallet.",
         # Find People Functionality
-        "choose_province": "Please select a province:",
-        "more_provinces": "More provinces...",
-        "case_list": "Available cases:",
-        "case_details": "Case Details:",
-        "save_case": "Save Case",
-        "found_case": "Found Case",
-        "upload_proof": "Please upload a photo or video as proof.",
-        "invalid_proof": "Invalid proof. Please upload a photo or video.",
-        "enter_location": "Enter the location where the person was found:",
-        "notify_advertiser": "The advertiser has been notified. Thank you!",
-        "province_not_found": "No matching provinces found. Please try again:",
-        "province_multi": "Multiple provinces found (Page {page} of {total}):",
-        "province_selected": "You have selected",
-        "missing_information": "❌ Missing information. Please start over.",
-        "notification_text": (
-            "🚨 Potential Match Alert! 🚨\n\n"
-            "Case #{case_no}: {person_name}\n"
-            "📍 Reported Location: {location}\n"
-            "🔗 Proof File: {proof_path}"
-        ),
-        "reply_to_advertiser": "✅ The case owner has been notified!\n\n"
-        "Thank you for your contribution. We'll contact you if more information is needed.",
-        "error_sending_notification": "❌ Error sending notification. Please try again later.",
-        "proof_upload": "Please upload photo/video proof:",
-        "error_processing_proof": "❌ Error processing your proof. Please try again.",
-        "case_not_found": "❌ Case not found.",
-        "proof_received": "✅ Proof received. \n \n  Please enter the location where you found this person:",
-        "error_upload_proof": "❌ Please upload a photo or video.",
-        "no_case_selected": "Error: No case selected. Please start over.",
-        "error_loading_case": "Error loading case details, Please try again.",
-        "mark_as_found": "✅ Mark as Found",
-        "back_to_list": "🔙 Back to List",
-        "case_not_found_in_province": "No cases found in this province.",
-        "select_province": "Please select a province first.",
-        "no_case_found_in_province": "No cases found for {province}.",
-        # Remaining messages
-        "choose_number_or_add_new": "Choose a number or add a new one:",
-        "add_new_number": "Add New Number",
-        "enter_new_number": "Please enter a new number:",
-        "number_already_exists": "The number <b>{number}</b> already exists.",
-        "otp_sent": "An OTP has been sent to <b>{number}</b>. Please enter the OTP to verify.",
-        "number_added": "The number <b>{number}</b> has been added successfully.",
-        "invalid_otp": "Invalid OTP. Please try again.",
     },
     "zh": {
         "menu_settings_title": "设置菜单",

@@ -144,7 +144,7 @@ async def sol_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 message += f"Name: {wallet.name}, Balance: {balance} SOL\n"
 
-    await update.callback_query.message.reply_text(message)
+    await update.callback_query.message.edit_text(message)
     return State.WALLET_MENU
 
 
@@ -163,7 +163,7 @@ async def usdt_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 balance = await WalletService.get_usdt_balance(wallet.public_key)
                 message += f"Name: {wallet.name}, Balance: {balance} USDT\n"
 
-    await update.callback_query.message.reply_text(message)
+    await update.callback_query.message.edit_text(message)
     return State.WALLET_MENU
 
 
@@ -189,7 +189,9 @@ async def show_address(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         message = "Select a wallet to view its address:"
 
-    await query.message.reply_text(message, reply_markup=InlineKeyboardMarkup(kb))
+    await update.callback_query.message.edit_text(
+        message, reply_markup=InlineKeyboardMarkup(kb)
+    )  # TODO Must be check this line
     return State.SHOW_ADDRESS
 
 
@@ -207,7 +209,7 @@ async def show_specific_address(update: Update, context: ContextTypes.DEFAULT_TY
     else:
         message = "Wallet not found."
 
-    await query.message.reply_text(message)
+    await update.callback_query.message.edit_text(message)
     return State.WALLET_MENU
 
 
@@ -236,7 +238,9 @@ async def view_history(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message = "Select a wallet to view its transaction history:"
 
     # Ensure `kb` is always defined before using it
-    await query.message.reply_text(message, reply_markup=InlineKeyboardMarkup(kb))
+    await update.callback_query.message.edit_text(
+        message, reply_markup=InlineKeyboardMarkup(kb)
+    )
     return State.VIEW_HISTORY
 
 
@@ -255,7 +259,7 @@ async def view_specific_history(update: Update, context: ContextTypes.DEFAULT_TY
     else:
         message = "Wallet not found."
 
-    await query.message.reply_text(message)
+    await update.callback_query.message.edit_text(message)
     return State.WALLET_MENU
 
 
@@ -267,7 +271,7 @@ async def create_wallet(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = (
         "Enter the wallet name and type (e.g., 'MyWallet SOL' or 'MyWallet USDT'):"
     )
-    await query.message.reply_text(message)
+    await update.callback_query.message.edit_text(message)
     return State.CREATE_WALLET
 
 
@@ -303,7 +307,7 @@ async def process_create_wallet(update: Update, context: ContextTypes.DEFAULT_TY
             f"Public Key: {wallet.public_key}"
         )
 
-    await update.message.reply_text(message)
+    await update.callback_query.message.edit_text(message)
     return State.WALLET_MENU
 
 
@@ -329,7 +333,9 @@ async def delete_wallet(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         message = "Select a wallet to delete:"
 
-    await query.message.reply_text(message, reply_markup=InlineKeyboardMarkup(kb))
+    await update.callback_query.message.edit_text(
+        message, reply_markup=InlineKeyboardMarkup(kb)
+    )
     return State.DELETE_WALLET
 
 
@@ -345,5 +351,5 @@ async def process_delete_wallet(update: Update, context: ContextTypes.DEFAULT_TY
     else:
         message = "Failed to delete wallet."
 
-    await query.message.reply_text(message)
+    await update.callback_query.message.edit_text(message)
     return State.WALLET_MENU
