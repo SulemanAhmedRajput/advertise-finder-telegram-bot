@@ -454,3 +454,4 @@ async def cancel_edit_callback(
         )
         await query.message.edit_text("❌ An error occurred while canceling the edit.")
         return State.END
+    handle_transfer,

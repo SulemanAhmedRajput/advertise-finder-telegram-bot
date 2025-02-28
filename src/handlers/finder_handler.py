@@ -304,7 +304,7 @@ async def show_advertisements(
         await update.effective_message.reply_text(
             get_text(user_id, "error_loading_cases")
         )
-        return END
+        return State.END
 
 
 async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -324,13 +324,17 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             await query.edit_message_text(get_text(user_id, "case_not_found"))
             return State.END
 
+        wallet = await case.wallet.fetch() if case.wallet else None
+
         details = (
-            f"🔍 Case #{case.case_no}\n\n"
-            f"👤 Name: {case.person_name}\n"
-            f"📍 Last Seen: {case.last_seen_location}\n"
-            # f"📅 Last Seen Date: {case.last_seen_date}\n"
-            # f"🏷️ Reward: {case.reward} {case.reward_currency}\n\n"
-            # f"ℹ️ Additional Info:\n{case.description}"
+            f"📌 **Case Details**\n"
+            f"👤 **Person Name:** {case.person_name}\n"
+            f"📍 **Last Seen Location:** {case.last_seen_location}\n"
+            f"💰 **Reward:** {case.reward or 'None'} {case.reward_type if case.reward_type else 'None'}\n"
+            f"💼 **Wallet:** {wallet.public_key if wallet else 'Not provided'}\n"
+            f"👤 **Gender:** {case.gender}\n"
+            f"🧒 **Age:** {case.age}\n"
+            f"📏 **Height:** {case.height} cm\n"
         )
 
         keyboard = [
@@ -415,7 +419,7 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     except Exception as e:
         print(f"Error handling proof: {e}")
         await update.message.reply_text(get_text(user_id, "error_processing_proof"))
-        return State.LOAD_PROOF
+        return State.END
 
 
 # TODO: Add a check to see if the user has already been notified
@@ -477,121 +481,121 @@ async def notify_advertiser(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         return State.END
 
 
-async def handle_advertiser_confirmation(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
-    """Handles the advertiser's decision on reward transfer."""
-    query = update.callback_query
-    await query.answer()
+# async def handle_advertiser_confirmation(
+#     update: Update, context: ContextTypes.DEFAULT_TYPE
+# ) -> int:
+#     """Handles the advertiser's decision on reward transfer."""
+#     query = update.callback_query
+#     await query.answer()
 
-    user_id = query.from_user.id
-    case_no = context.user_data.get("case_no")
-    finder_chat_id = context.user_data.get("finder_chat_id")
+#     user_id = query.from_user.id
+#     case_no = context.user_data.get("case_no")
+#     finder_chat_id = context.user_data.get("finder_chat_id")
 
-    if query.data == "approve_reward":
-        await context.bot.send_message(
-            chat_id=finder_chat_id,
-            text="✅ The advertiser has **approved** the reward! 🎉\n\n"
-            "🔑 Please enter your **Solana public key** to receive the reward.",
-        )
-        return State.ENTER_PUBLIC_KEY  # Next step: Finder enters public key
+#     if query.data == "approve_reward":
+#         await context.bot.send_message(
+#             chat_id=finder_chat_id,
+#             text="✅ The advertiser has **approved** the reward! 🎉\n\n"
+#             "🔑 Please enter your **Solana public key** to receive the reward.",
+#         )
+#         return State.ENTER_PUBLIC_KEY  # Next step: Finder enters public key
 
-    elif query.data == "reject_reward":
-        await context.bot.send_message(
-            chat_id=finder_chat_id,
-            text="❌ The advertiser **rejected** the reward transfer. No SOL will be sent.",
-        )
-        await query.message.reply_text("You have declined the reward transfer.")
-        return State.END
-
-
-async def handle_public_key(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handles the user's public key entry."""
-    finder_id = update.effective_user.id
-    public_key = update.message.text.strip()
-
-    try:
-        to_pubkey = Pubkey.from_string(public_key)  # Validate Solana public key
-        context.user_data["finder_public_key"] = public_key
-
-        keyboard = [
-            [
-                InlineKeyboardButton(
-                    "✅ Confirm Transfer", callback_data="confirm_transfer"
-                )
-            ],
-            [InlineKeyboardButton("❌ Cancel", callback_data="cancel_transfer")],
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-
-        await update.message.reply_text(
-            f"🔑 Public Key Received: `{public_key}`\n\n" "⚠️ **Confirm the transfer?**",
-            reply_markup=reply_markup,
-        )
-
-        return State.CONFIRM_TRANSFER
-
-    except Exception:
-        await update.message.reply_text(
-            "❌ Invalid public key. Please enter a valid Solana address."
-        )
-        return State.ENTER_PUBLIC_KEY
+#     elif query.data == "reject_reward":
+#         await context.bot.send_message(
+#             chat_id=finder_chat_id,
+#             text="❌ The advertiser **rejected** the reward transfer. No SOL will be sent.",
+#         )
+#         await query.message.reply_text("You have declined the reward transfer.")
+#         return State.END
 
 
-async def handle_transfer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Executes the SOL transfer upon advertiser confirmation."""
-    query = update.callback_query
-    await query.answer()
+# async def handle_public_key(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+#     """Handles the user's public key entry."""
+#     finder_id = update.effective_user.id
+#     public_key = update.message.text.strip()
 
-    if query.data == "confirm_transfer":
-        try:
-            # Retrieve details
-            finder_public_key = context.user_data.get("finder_public_key")
-            case_no = context.user_data.get("case_no")
-            advertiser_id = query.from_user.id
+#     try:
+#         to_pubkey = Pubkey.from_string(public_key)  # Validate Solana public key
+#         context.user_data["finder_public_key"] = public_key
 
-            # Fetch advertiser's wallet
-            advertiser_wallet = load_user_wallet(advertiser_id)
-            advertiser_private_key = advertiser_wallet["private_key"]
+#         keyboard = [
+#             [
+#                 InlineKeyboardButton(
+#                     "✅ Confirm Transfer", callback_data="confirm_transfer"
+#                 )
+#             ],
+#             [InlineKeyboardButton("❌ Cancel", callback_data="cancel_transfer")],
+#         ]
+#         reply_markup = InlineKeyboardMarkup(keyboard)
 
-            sender = Keypair.from_base58_string(advertiser_private_key)
-            to_pubkey = Pubkey.from_string(finder_public_key)
-            total_sol = context.user_data["reward_amount"]
+#         await update.message.reply_text(
+#             f"🔑 Public Key Received: `{public_key}`\n\n" "⚠️ **Confirm the transfer?**",
+#             reply_markup=reply_markup,
+#         )
 
-            # Check balance
-            sender_balance = client.get_balance(sender.pubkey()).value
-            if sender_balance < int(total_sol * 1e9):
-                await query.message.reply_text(
-                    "❌ Not enough SOL to complete this transaction."
-                )
-                return State.END
+#         return State.CONFIRM_TRANSFER
 
-            # Create transfer transaction
-            instruction = transfer(
-                TransferParams(
-                    from_pubkey=sender.pubkey(),
-                    to_pubkey=to_pubkey,
-                    lamports=int(total_sol * 1e9),
-                )
-            )
-            message = Message(instructions=[instruction], payer=sender.pubkey())
-            transaction = Transaction(from_keypairs=[sender], message=message)
+#     except Exception:
+#         await update.message.reply_text(
+#             "❌ Invalid public key. Please enter a valid Solana address."
+#         )
+#         return State.ENTER_PUBLIC_KEY
 
-            send_response = client.send_transaction(transaction)
 
-            await query.message.reply_text(
-                f"✅ Transfer successful! Transaction ID: {send_response}"
-            )
+# async def handle_transfer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+#     """Executes the SOL transfer upon advertiser confirmation."""
+#     query = update.callback_query
+#     await query.answer()
 
-            return State.END
+#     if query.data == "confirm_transfer":
+#         try:
+#             # Retrieve details
+#             finder_public_key = context.user_data.get("finder_public_key")
+#             case_no = context.user_data.get("case_no")
+#             advertiser_id = query.from_user.id
 
-        except Exception as e:
-            await query.message.reply_text(f"❌ Transaction failed: {str(e)}")
-            return State.END
+#             # Fetch advertiser's wallet
+#             advertiser_wallet = load_user_wallet(advertiser_id)
+#             advertiser_private_key = advertiser_wallet["private_key"]
 
-    else:
-        await query.message.reply_text("❌ Transaction has been canceled.")
-        return State.END
+#             sender = Keypair.from_base58_string(advertiser_private_key)
+#             to_pubkey = Pubkey.from_string(finder_public_key)
+#             total_sol = context.user_data["reward_amount"]
+
+#             # Check balance
+#             sender_balance = client.get_balance(sender.pubkey()).value
+#             if sender_balance < int(total_sol * 1e9):
+#                 await query.message.reply_text(
+#                     "❌ Not enough SOL to complete this transaction."
+#                 )
+#                 return State.END
+
+#             # Create transfer transaction
+#             instruction = transfer(
+#                 TransferParams(
+#                     from_pubkey=sender.pubkey(),
+#                     to_pubkey=to_pubkey,
+#                     lamports=int(total_sol * 1e9),
+#                 )
+#             )
+#             message = Message(instructions=[instruction], payer=sender.pubkey())
+#             transaction = Transaction(from_keypairs=[sender], message=message)
+
+#             send_response = client.send_transaction(transaction)
+
+#             await query.message.reply_text(
+#                 f"✅ Transfer successful! Transaction ID: {send_response}"
+#             )
+
+#             return State.END
+
+#         except Exception as e:
+#             await query.message.reply_text(f"❌ Transaction failed: {str(e)}")
+#             return State.END
+
+#     else:
+#         await query.message.reply_text("❌ Transaction has been canceled.")
+#         return State.END
 
 
 async def handle_found_case(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:

@@ -28,9 +28,6 @@ from handlers.finder_handler import (
     handle_found_case,
     province_callback,
     choose_province,
-    handle_advertiser_confirmation,
-    handle_public_key,
-    handle_transfer,
 )
 from handlers.listing_handler import (
     cancel_edit_callback,
@@ -212,20 +209,6 @@ start_handler = ConversationHandler(
         ],
         State.ENTER_LOCATION: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, notify_advertiser)
-        ],
-        State.ADVERTISER_CONFIRMATION: [  # NEW: Advertiser confirms reward
-            CallbackQueryHandler(
-                handle_advertiser_confirmation,
-                pattern="^(approve_reward|reject_reward)$",
-            )
-        ],
-        State.ENTER_PUBLIC_KEY: [  # NEW: Finder enters their Solana public key
-            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_public_key)
-        ],
-        State.CONFIRM_TRANSFER: [  # NEW: Advertiser confirms SOL transfer
-            CallbackQueryHandler(
-                handle_transfer, pattern="^(confirm_transfer|cancel_transfer)$"
-            )
         ],
         State.END: [CommandHandler("start", start)],
     },
