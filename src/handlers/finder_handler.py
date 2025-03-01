@@ -655,7 +655,11 @@ async def handle_wallet_selection(
     print(f"Wallet: {wallet}")
 
     # Check balance
-    balance = await WalletService.get_balance(wallet.public_key, wallet.wallet_type)
+    balance = (
+        await WalletService.get_sol_balance(wallet.public_key)
+        if wallet.wallet_type == "SOL"
+        else await WalletService.get_usdt_balance(wallet.public_key)
+    )
     required = context.user_data["reward_difference"]
 
     if balance < required:

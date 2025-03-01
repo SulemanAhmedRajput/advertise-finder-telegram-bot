@@ -1,6 +1,5 @@
-import base64
-import json
 from typing import Any, Dict, List, Optional
+import base58
 from beanie import PydanticObjectId
 from solders.pubkey import Pubkey
 from solana.rpc.api import Client
@@ -13,10 +12,8 @@ from models.wallet_model import Wallet
 from utils.wallet import create_sol_wallet, create_usdt_wallet
 from solders.keypair import Keypair
 from solders.transaction import Transaction
-from solana.rpc.types import TxOpts
-from spl.token.instructions import transfer_checked, TransferCheckedParams
-from solana.rpc.async_api import AsyncClient
 from solders.system_program import TransferParams, transfer
+from solders.rpc.config import RpcSendTransactionConfig
 
 
 # Initialize Solana client
@@ -155,7 +152,6 @@ class WalletService:
         :return: Transaction signature if successful, or an error message.
         """
         try:
-            from solders.keypair import Keypair
 
             sender_keypair = Keypair.from_secret_key(bytes.fromhex(sender_private_key))
             sender_pubkey = sender_keypair.pubkey()
@@ -325,83 +321,39 @@ class WalletService:
             return {"status": "error", "message": f"❌ Error: {str(e)}"}
 
     @staticmethod
-    async def transfer_to_owner(
-        from_wallet_public_key: str, amount: float, wallet_type: str
-    ) -> dict:
+    def transfer_sol(
+        sender_private_key: str,
+        recipient_public_key: str,
+        amount_sol: float,
+    ):
         """
-        Transfer funds from the user's wallet to the owner's (stake) wallet.
-        :param from_wallet_public_key: The public key of the user's wallet.
-        :param amount: The amount to transfer (in SOL or USDT).
-        :param wallet_type: The type of wallet (SOL or USDT).
-        :return: A dictionary with the status of the transaction.
+        Transfer SOL from one wallet to another using the solders library.
+
+        :param sender_private_key: Base58 encoded private key of the sender
+        :param recipient_public_key: Recipient's public wallet address
+        :param amount_sol: Amount of SOL to transfer
+        :param rpc_url: Solana RPC URL (default is mainnet-beta)
+        :return: Transaction signature
         """
-        try:
-            if not STAKE_WALLET_PRIVATE_KEY or not STAKE_WALLET_PUBLIC_KEY:
-                return {"status": "error", "message": "Stake wallet keys not set."}
 
-            owner_wallet_pubkey = Pubkey(STAKE_WALLET_PUBLIC_KEY)
-            from_wallet_pubkey = Pubkey(from_wallet_public_key)
+        sender_keypair = Keypair.from_bytes(base58.b58decode(sender_private_key))
 
-            transaction = Transaction()
+        recipient_pubkey = Pubkey.from_string(recipient_public_key)
 
-            if wallet_type == "SOL":
-                # Add a SOL transfer instruction
-                transaction.add(
-                    transfer(
-                        TransferParams(
-                            from_pubkey=from_wallet_pubkey,
-                            to_pubkey=owner_wallet_pubkey,
-                            lamports=int(amount * 1e9),  # Convert SOL to lamports
-                        )
-                    )
-                )
-
-            elif wallet_type == "USDT":
-                usdt_token_address = Pubkey(
-                    "Es9vMFrzaCERUV5yyEu25uxFr3GJeeF4kaVvsk9Lw3ov"
-                )  # USDT mint address
-
-                # Add a USDT transfer instruction
-                transaction.add(
-                    transfer_checked(
-                        TransferCheckedParams(
-                            program_id=TOKEN_PROGRAM_ID,
-                            source=from_wallet_pubkey,
-                            mint=usdt_token_address,
-                            dest=owner_wallet_pubkey,
-                            owner=from_wallet_pubkey,
-                            amount=int(
-                                amount * 1e6
-                            ),  # Convert USDT to smallest unit (6 decimals)
-                            decimals=6,  # USDT has 6 decimals
-                        )
-                    )
-                )
-            else:
-                return {"status": "error", "message": "Invalid wallet type"}
-
-            # Load the user's private key to sign the transaction
-            from_wallet_keypair = Keypair.from_base58_string(STAKE_WALLET_PRIVATE_KEY)
-
-            # Send the transaction
-            response = solana_client.send_transaction(
-                transaction,
-                from_wallet_keypair,  # Sign with the stake wallet's private key
-                opts=TxOpts(skip_preflight=False, preflight_commitment="confirmed"),
+        transfer_instruction = transfer(
+            TransferParams(
+                from_pubkey=sender_keypair.pubkey(),
+                to_pubkey=recipient_pubkey,
+                lamports=int(amount_sol * 1_000_000_000),  # Convert SOL to lamports
             )
+        )
+        txn = Transaction.new_unsigned([transfer_instruction])
+        txn = txn.sign([sender_keypair])
+        result = solana_client.send_transaction(
+            txn, config=RpcSendTransactionConfig(skip_preflight=True)
+        )
 
-            if "result" in response:
-                return {
-                    "status": "success",
-                    "message": "Transfer successful",
-                    "signature": response["result"],
-                }
-            else:
-                return {"status": "error", "message": "Transaction failed"}
-
-        except Exception as e:
-            print(f"Error during transfer: {str(e)}")
-            return {"status": "error", "message": f"Transaction failed: {str(e)}"}
+        return result  # Returns transaction signature
 
     @staticmethod
     async def get_usdt_history(
@@ -416,10 +368,9 @@ class WalletService:
         """
         try:
             pubkey = Pubkey.from_string(public_key)
-            async_client = AsyncClient(SOLANA_NETWORK)
 
             # Fetch transaction signatures with pagination
-            response = await async_client.get_signatures_for_address(
+            response = await solana_client.get_signatures_for_address(
                 pubkey, limit=limit, before=before
             )
 
@@ -433,14 +384,14 @@ class WalletService:
 
             transactions = []
             for signature in signatures:
-                tx_response = await async_client.get_transaction(
+                tx_response = await solana_client.get_transaction(
                     signature, "jsonParsed"
                 )
 
                 if "result" in tx_response and tx_response["result"]:
                     transactions.append(tx_response["result"])
 
-            await async_client.close()
+            await solana_client.close()
             return {"transactions": transactions, "next_before": next_before}
 
         except Exception as e:

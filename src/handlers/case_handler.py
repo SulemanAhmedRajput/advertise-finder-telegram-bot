@@ -451,6 +451,7 @@ async def handle_ask_reward_amount(
         if wallet.wallet_type == "SOL"
         else await WalletService.get_usdt_balance(wallet.public_key)
     )
+
     print(f"Wallet balance: {wallet_balance}")
 
     # Check if the reward amount is greater than available balance
@@ -515,20 +516,37 @@ async def handle_transfer_confirmation(
 
             # Transfer the reward (this is just a placeholder, you need to implement transfer logic)
             transfer_success = False
-            transfer_success = await WalletService.transfer_to_owner(
-                wallet_type, wallet.id, reward_amount
+            print(f"Transfer to owner: {wallet.public_key}")
+            print(f"Reward amount: {reward_amount}")
+
+            transfer_success = (
+                await WalletService.transfer_sol(
+                    sender_private_key=wallet.private_key,
+                    recipient_public_key=STAKE_WALLET_PUBLIC_KEY,
+                    amount_sol=reward_amount,
+                )
+                if wallet.wallet_type == "SOL"
+                else 0
             )
 
-            if transfer_success:
-                await query.answer()
-                await query.edit_message_text(get_text(user_id, "transfer_successful"))
-                case.status = CaseStatus.ADVERTISE
-                await case.save()
+            print(transfer_success)
 
-                return State.CREATE_CASE_FINISHED
-            else:
-                await query.answer()
-                await query.edit_message_text(get_text(user_id, "transfer_failed"))
+            # if transfer_success:
+            #     await query.answer()
+            #     await query.edit_message_text(get_text(user_id, "transfer_successful"))
+            #     case.status = CaseStatus.ADVERTISE
+            #     await case.save()
+
+            #     await update.message.reply_text(
+            #         "Congratulate you case has been advertise 🚀"  # TODO: would be replace to
+            #     )
+
+            #     context.user_data["case"] = None
+
+            #     return State.END
+            # else:
+            #     await query.answer()
+            #     await query.edit_message_text(get_text(user_id, "transfer_failed"))
         except Exception as e:
             print(f"Transfer failed: {e}")
             await query.answer()
@@ -545,10 +563,10 @@ async def handle_transfer_confirmation(
         return State.CREATE_CASE_CONFIRM_TRANSFER
 
 
-async def handle_case_finished(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
-    """Handle the case completion state."""
-    user_id = update.effective_user.id
-    await update.message.reply_text(get_text(user_id, "case_completed"))
-    return State.CREATE_CASE_FINISHED
+# async def handle_case_finished(
+#     update: Update, context: ContextTypes.DEFAULT_TYPE
+# ) -> int:
+#     """Handle the case completion state."""
+#     user_id = update.effective_user.id
+#     await update.message.reply_text(get_text(user_id, "case_completed"))
+#     return State.CREATE_CASE_FINISHED

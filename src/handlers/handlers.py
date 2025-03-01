@@ -2,7 +2,6 @@ from handlers.case_handler import (
     disclaimer_2_callback,
     handle_age,
     handle_ask_reward_amount,
-    handle_case_finished,
     handle_distinctive_features,
     handle_eye_color,
     handle_hair_color,
@@ -189,9 +188,6 @@ start_handler = ConversationHandler(
                 handle_transfer_confirmation,
                 pattern="^(confirm_transfer|cancel_transfer)$",
             )
-        ],
-        State.CREATE_CASE_FINISHED: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_case_finished)
         ],
         # From here the finder is the one who is going to find the person
         State.CHOOSE_PROVINCE: [
