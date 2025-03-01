@@ -45,11 +45,13 @@ from handlers.listing_handler import (
     update_case_field,
 )
 from handlers.wallet_handler import (
+    confirm_delete_wallet,
     create_wallet,
     delete_wallet,
     process_create_wallet,
     process_delete_wallet,
     refresh_wallets,
+    select_wallet_type,
     show_address,
     show_specific_address,
     sol_wallets,
@@ -250,8 +252,15 @@ start_handler = ConversationHandler(
 )
 
 # Wallet conversation handler
+from telegram.ext import (
+    ConversationHandler,
+    CommandHandler,
+    CallbackQueryHandler,
+    MessageHandler,
+    filters,
+)
 
-# # Define conversation handler
+# Define conversation handler
 wallet_handler = ConversationHandler(
     entry_points=[CommandHandler("wallet", wallet_command)],
     states={
@@ -261,7 +270,9 @@ wallet_handler = ConversationHandler(
             CallbackQueryHandler(usdt_wallets, pattern="^usdt_wallets$"),
             CallbackQueryHandler(show_address, pattern="^show_address$"),
             CallbackQueryHandler(view_history, pattern="^view_history$"),
-            CallbackQueryHandler(create_wallet, pattern="^create_wallet$"),
+            CallbackQueryHandler(
+                create_wallet, pattern="^create_wallet$"
+            ),  # Entry point for wallet creation
             CallbackQueryHandler(delete_wallet, pattern="^delete_wallet$"),
         ],
         State.SHOW_ADDRESS: [
@@ -270,8 +281,20 @@ wallet_handler = ConversationHandler(
         State.VIEW_HISTORY: [
             CallbackQueryHandler(view_specific_history, pattern="^view_history_"),
         ],
-        State.CREATE_WALLET: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, process_create_wallet),
+        State.SELECT_WALLET_TYPE: [
+            CallbackQueryHandler(
+                select_wallet_type, pattern="^(USDT|SOL)$"
+            ),  # Handle wallet type selection
+        ],
+        State.ENTER_WALLET_NAME: [
+            MessageHandler(
+                filters.TEXT & ~filters.COMMAND, process_create_wallet
+            ),  # Handle wallet name input
+        ],
+        State.CONFIRM_DELETE_WALLET: [
+            CallbackQueryHandler(
+                confirm_delete_wallet, pattern="^confirm_delete_wallet_"
+            ),
         ],
         State.DELETE_WALLET: [
             CallbackQueryHandler(process_delete_wallet, pattern="^delete_wallet_"),

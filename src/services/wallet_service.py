@@ -1,26 +1,14 @@
 from typing import Any, Dict, List, Optional
-import base58
 from beanie import PydanticObjectId
 from solders.pubkey import Pubkey
-from solana.rpc.api import Client
 from spl.token.client import Token
 from spl.token.constants import TOKEN_PROGRAM_ID
-from solders.transaction import Transaction
-from config.config_manager import STAKE_WALLET_PRIVATE_KEY, STAKE_WALLET_PUBLIC_KEY
 from constant.language_constant import USDT_MINT_ADDRESS
 from models.wallet_model import Wallet
 from utils.wallet import create_sol_wallet, create_usdt_wallet
-from solders.keypair import Keypair
-from solders.transaction import Transaction
-from solders.system_program import TransferParams, transfer
-from solders.rpc.config import RpcSendTransactionConfig
-
-
-# Initialize Solana client
-SOLANA_NETWORK = "https://api.devnet.solana.com"
-solana_client = Client(SOLANA_NETWORK)
-
-# USDT Mint Address on Solana
+from solathon import Keypair, PublicKey, Transaction
+from solathon.core.instructions import transfer
+from utils.solana_config import solana_client
 
 
 class WalletService:
@@ -111,7 +99,7 @@ class WalletService:
         balance = token_client.get_balance(wallet_pubkey)
         return balance
 
-    @staticmethod
+    @staticmethod  # TODO: Check if this works
     async def get_sol_balance(public_key: str) -> float:
         """
         Retrieve the SOL balance for a wallet.
@@ -119,8 +107,9 @@ class WalletService:
         :return: The SOL balance as a float.
         """
         try:
-            pubkey = Pubkey.from_string(public_key)
-            balance = solana_client.get_balance(pubkey).value
+            publickey = PublicKey(public_key)
+            balance = solana_client.get_balance(publickey)  # Await the async function
+            print(f"Balance: {balance}")
             return balance / 1e9  # Convert lamports to SOL
         except Exception as e:
             print(f"Error fetching SOL balance: {e}")
@@ -169,30 +158,6 @@ class WalletService:
         except Exception as e:
             print(f"Error transferring {wallet_type}: {e}")
             return f"❌ Error: {e}"
-
-    @staticmethod
-    async def transfer_sol(
-        sender_keypair, recipient_public_key: str, amount: float
-    ) -> str:
-        """
-        Transfer SOL from one wallet to another.
-        :param sender_keypair: Sender's Keypair object.
-        :param recipient_public_key: Recipient's public key.
-        :param amount: The amount to transfer.
-        :return: Transaction signature if successful.
-        """
-        recipient_pubkey = Pubkey.from_string(recipient_public_key)
-        transaction = Transaction().add(
-            transfer(
-                TransferParams(
-                    from_pubkey=sender_keypair.pubkey(),
-                    to_pubkey=recipient_pubkey,
-                    lamports=int(amount * 1e9),
-                )
-            )
-        )
-        response = solana_client.send_transaction(transaction, sender_keypair)
-        return response["result"]
 
     @staticmethod
     async def transfer_usdt(
@@ -321,39 +286,31 @@ class WalletService:
             return {"status": "error", "message": f"❌ Error: {str(e)}"}
 
     @staticmethod
-    def transfer_sol(
-        sender_private_key: str,
-        recipient_public_key: str,
-        amount_sol: float,
-    ):
+    async def transfer_sol(
+        sender_private_key: str, receiver_public_key: str, amount_sol: float
+    ) -> str:
         """
-        Transfer SOL from one wallet to another using the solders library.
+        Transfer SOL from the sender's wallet to the owner's wallet.
 
-        :param sender_private_key: Base58 encoded private key of the sender
-        :param recipient_public_key: Recipient's public wallet address
+        :param sender_private_key: Sender's private key (Base58 encoded)
+        :param owner_public_key: Owner's public wallet address
         :param amount_sol: Amount of SOL to transfer
-        :param rpc_url: Solana RPC URL (default is mainnet-beta)
-        :return: Transaction signature
+        :return: Transaction signature if successful, otherwise an error message
         """
+        sender = Keypair().from_private_key(sender_private_key)
+        receiver = PublicKey(receiver_public_key)
 
-        sender_keypair = Keypair.from_bytes(base58.b58decode(sender_private_key))
-
-        recipient_pubkey = Pubkey.from_string(recipient_public_key)
-
-        transfer_instruction = transfer(
-            TransferParams(
-                from_pubkey=sender_keypair.pubkey(),
-                to_pubkey=recipient_pubkey,
-                lamports=int(amount_sol * 1_000_000_000),  # Convert SOL to lamports
-            )
+        instruction = transfer(
+            from_public_key=sender.public_key,
+            to_public_key=receiver,
+            lamports=amount_sol,
         )
-        txn = Transaction.new_unsigned([transfer_instruction])
-        txn = txn.sign([sender_keypair])
-        result = solana_client.send_transaction(
-            txn, config=RpcSendTransactionConfig(skip_preflight=True)
-        )
+        transaction = Transaction(instructions=[instruction], signers=[sender])
 
-        return result  # Returns transaction signature
+        result = solana_client.send_transaction(transaction)
+        print(result)
+
+        return result
 
     @staticmethod
     async def get_usdt_history(

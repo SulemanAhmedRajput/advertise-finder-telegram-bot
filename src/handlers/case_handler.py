@@ -21,11 +21,7 @@ from utils.twilio import generate_tac
 from utils.wallet import load_user_wallet
 from utils.cloudinary import upload_image
 from solders.keypair import Keypair
-from solders.pubkey import Pubkey
 from solana.rpc.api import Client
-from solders.system_program import transfer, TransferParams
-from solders.transaction import Transaction
-from solders.message import Message
 from models.wallet_model import Wallet
 from services.user_service import get_user_mobiles, save_user_mobiles, validate_mobile
 
@@ -521,9 +517,7 @@ async def handle_transfer_confirmation(
 
             transfer_success = (
                 await WalletService.transfer_sol(
-                    sender_private_key=wallet.private_key,
-                    recipient_public_key=STAKE_WALLET_PUBLIC_KEY,
-                    amount_sol=reward_amount,
+                    wallet.public_key, STAKE_WALLET_PUBLIC_KEY, reward_amount
                 )
                 if wallet.wallet_type == "SOL"
                 else 0

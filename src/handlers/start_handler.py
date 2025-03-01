@@ -8,7 +8,6 @@ from telegram import (
     ReplyKeyboardRemove,
 )
 from solders.pubkey import Pubkey
-from services.wallet_service import solana_client
 from telegram.ext import (
     ConversationHandler,
     ContextTypes,
@@ -17,11 +16,13 @@ from constants import (
     State,
 )
 from services.user_service import get_user_lang, save_user_lang
+from utils.error_wrapper import catch_async
 from utils.wallet import create_sol_wallet
 from utils.helper import get_city_matches, get_country_matches, paginate_list
 from constant.language_constant import LANG_DATA, get_text, user_data_store
 
 
+@catch_async
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """/start command entry point."""
     user_id = update.message.from_user.id
@@ -50,6 +51,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return State.SELECT_LANG
 
 
+@catch_async
 async def select_lang_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -70,6 +72,7 @@ async def select_lang_callback(
     return State.CHOOSE_COUNTRY
 
 
+@catch_async
 async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = update.effective_user.id
     txt = update.message.text.strip()
@@ -110,6 +113,7 @@ async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return State.CHOOSE_COUNTRY
 
 
+@catch_async
 async def country_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
@@ -167,6 +171,7 @@ async def country_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         return State.END
 
 
+@catch_async
 async def show_disclaimer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = (
         update.effective_user.id
@@ -199,6 +204,7 @@ async def show_disclaimer(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     return State.SHOW_DISCLAIMER
 
 
+@catch_async
 async def disclaimer_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -217,6 +223,7 @@ async def disclaimer_callback(
         return State.END
 
 
+@catch_async
 async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = update.effective_user.id
     city_input = update.message.text.strip()
@@ -266,6 +273,7 @@ async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         return State.CHOOSE_CITY
 
 
+@catch_async
 async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
@@ -320,6 +328,7 @@ async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         return State.END
 
 
+@catch_async
 async def choose_action(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = (
         update.effective_user.id
@@ -349,6 +358,7 @@ async def choose_action(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     return State.CHOOSE_ACTION
 
 
+@catch_async
 async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
@@ -384,6 +394,7 @@ async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 
 # DEBUGGING FROM START
+@catch_async
 async def wallet_type_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -433,6 +444,7 @@ async def wallet_type_callback(
         return State.NAME_WALLET
 
 
+@catch_async
 async def wallet_selection_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -499,6 +511,7 @@ async def wallet_selection_callback(
         return State.END
 
 
+@catch_async
 async def wallet_name_handler(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -572,6 +585,7 @@ async def wallet_name_handler(
         return State.END
 
 
+@catch_async
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = update.effective_user.id
     await update.message.reply_text(
@@ -580,6 +594,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return State.END
 
 
+@catch_async
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
     logger = logging.getLogger(__name__)
     logger.error("Exception:", exc_info=context.error)
