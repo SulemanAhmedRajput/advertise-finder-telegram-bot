@@ -452,15 +452,13 @@ async def wallet_selection_callback(
     if wallet_details:
         # Fetch balance for the specific wallet type (SOL or USDT)
         print(f"This is the wallet type: {wallet_type}")
-        total_sol = 0
-        if wallet_type == "SOL":
-            total_sol = await WalletService.get_sol_balance(
-                Pubkey.from_string(wallet_details["public_key"])
-            )
-        elif wallet_type == "USDT":
-            total_sol = await WalletService.get_usdt_balance(
-                wallet_details["public_key"],
-            )
+
+        total_sol = (
+            await WalletService.get_sol_balance(wallet_details["public_key"])
+            if wallet_type == "SOL"
+            else await WalletService.get_usdt_balance(wallet_details["public_key"])
+        )
+
         print(f"Total {wallet_type}: {total_sol}")
 
         context.user_data["wallet"] = wallet_details  # Store in memory

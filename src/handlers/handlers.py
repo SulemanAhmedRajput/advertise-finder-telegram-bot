@@ -21,10 +21,16 @@ from handlers.case_handler import (
     handle_weight,
 )
 from handlers.finder_handler import (
+    handle_advertiser_response,
+    handle_confirm_found,
+    handle_enter_location,
+    handle_extend_reward,
+    handle_extend_reward_amount,
+    handle_pagination,
+    handle_wallet_selection,
     show_advertisements,
     case_details,
     handle_proof,
-    notify_advertiser,
     handle_found_case,
     province_callback,
     choose_province,
@@ -200,15 +206,46 @@ start_handler = ConversationHandler(
             CallbackQueryHandler(show_advertisements, pattern="^back_to_list"),
         ],
         State.CASE_DETAILS: [
+            CallbackQueryHandler(handle_pagination, pattern="^case_page_"),
             CallbackQueryHandler(case_details, pattern="^case_"),
-            CallbackQueryHandler(handle_found_case, pattern="^found_"),  # Add this line
+            CallbackQueryHandler(handle_found_case, pattern="^found_"),
             CallbackQueryHandler(show_advertisements, pattern="^back_to_list"),
         ],
         State.UPLOAD_PROOF: [
             MessageHandler(filters.PHOTO | filters.VIDEO, handle_proof)
         ],
         State.ENTER_LOCATION: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, notify_advertiser)
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_enter_location)
+        ],
+        State.EXTEND_REWARD: [
+            CallbackQueryHandler(
+                handle_extend_reward, pattern="^(yes_extend|no_extend)$"
+            )
+        ],
+        State.EXTEND_REWARD_AMOUNT: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_extend_reward_amount)
+        ],
+        State.ADVERTISER_RESPONSE: [
+            CallbackQueryHandler(
+                handle_advertiser_response, pattern="^(accept_extend|reject_extend)$"
+            )
+        ],
+        State.SELECT_WALLET: [
+            CallbackQueryHandler(
+                handle_wallet_selection,
+                pattern="^(select_extend_wallet_|create_extend_wallet)",
+            )
+        ],
+        State.TRANSFER_CONFIRMATION: [
+            CallbackQueryHandler(
+                handle_transfer_confirmation,
+                pattern="^(confirm_transfer|cancel_transfer)$",
+            )
+        ],
+        State.CONFIRM_FOUND: [
+            CallbackQueryHandler(
+                handle_confirm_found, pattern="^(confirm_found|cancel_found)$"
+            )
         ],
         State.END: [CommandHandler("start", start)],
     },

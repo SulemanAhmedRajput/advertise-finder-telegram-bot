@@ -1,3 +1,5 @@
+import base64
+import json
 from typing import Any, Dict, List, Optional
 from beanie import PydanticObjectId
 from solders.pubkey import Pubkey
@@ -6,20 +8,22 @@ from spl.token.client import Token
 from spl.token.constants import TOKEN_PROGRAM_ID
 from solders.transaction import Transaction
 from config.config_manager import STAKE_WALLET_PRIVATE_KEY, STAKE_WALLET_PUBLIC_KEY
+from constant.language_constant import USDT_MINT_ADDRESS
 from models.wallet_model import Wallet
 from utils.wallet import create_sol_wallet, create_usdt_wallet
 from solders.keypair import Keypair
 from solders.transaction import Transaction
 from solana.rpc.types import TxOpts
-from spl.token.instructions import transfer as TokenTransferInstruction
+from spl.token.instructions import transfer_checked, TransferCheckedParams
 from solana.rpc.async_api import AsyncClient
+from solders.system_program import TransferParams, transfer
+
 
 # Initialize Solana client
 SOLANA_NETWORK = "https://api.devnet.solana.com"
 solana_client = Client(SOLANA_NETWORK)
 
 # USDT Mint Address on Solana
-USDT_MINT_ADDRESS = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
 
 
 class WalletService:
@@ -99,33 +103,16 @@ class WalletService:
         ).to_list()
 
     @staticmethod
-    async def get_usdt_balance(public_key: str) -> float:
-        """
-        Retrieve the USDT balance for a wallet.
-        :param public_key: The public key of the wallet.
-        :return: The USDT balance as a float.
-        """
-        try:
-            pubkey = Pubkey.from_string(public_key)
-            usdt_mint = Pubkey.from_string(USDT_MINT_ADDRESS)
+    async def get_usdt_balance(wallet_pubkey):
+        token_client = Token(
+            conn=solana_client,
+            pubkey=Pubkey.from_string(USDT_MINT_ADDRESS),
+            program_id=TOKEN_PROGRAM_ID,
+            payer=wallet_pubkey,
+        )
 
-            # Ensure you await this call if it's an async function
-            response = await solana_client.get_token_accounts_by_owner(
-                pubkey, {"mint": usdt_mint}
-            )
-
-            print(f"This is the response: {response}")
-
-            if not response["result"]["value"]:
-                return 0.0  # No USDT token account found
-
-            token_account_info = response["result"]["value"][0]["account"]["data"][
-                "parsed"
-            ]["info"]
-            return float(token_account_info["tokenAmount"]["uiAmount"])
-        except Exception as e:
-            print(f"Error fetching USDT balance: {e}")
-            return 0.0
+        balance = token_client.get_balance(wallet_pubkey)
+        return balance
 
     @staticmethod
     async def get_sol_balance(public_key: str) -> float:
@@ -199,8 +186,17 @@ class WalletService:
         :return: Transaction signature if successful.
         """
         recipient_pubkey = Pubkey.from_string(recipient_public_key)
-        # Add logic for SOL transfer here
-        return "SOL Transfer successful"
+        transaction = Transaction().add(
+            transfer(
+                TransferParams(
+                    from_pubkey=sender_keypair.pubkey(),
+                    to_pubkey=recipient_pubkey,
+                    lamports=int(amount * 1e9),
+                )
+            )
+        )
+        response = solana_client.send_transaction(transaction, sender_keypair)
+        return response["result"]
 
     @staticmethod
     async def transfer_usdt(
@@ -315,7 +311,6 @@ class WalletService:
                 balance = await solana_client.get_balance(Pubkey(public_key))
                 return {"status": "success", "balance": balance["result"]["value"]}
             elif wallet_type == "USDT":
-                # Assuming USDT is handled as a token (mint: USDT mint address)
                 token_account = await solana_client.get_token_account_balance(
                     Pubkey(public_key), mint=Pubkey(USDT_MINT_ADDRESS)
                 )
@@ -347,72 +342,66 @@ class WalletService:
             owner_wallet_pubkey = Pubkey(STAKE_WALLET_PUBLIC_KEY)
             from_wallet_pubkey = Pubkey(from_wallet_public_key)
 
+            transaction = Transaction()
+
             if wallet_type == "SOL":
-                transaction = Transaction()
+                # Add a SOL transfer instruction
                 transaction.add(
-                    solana_client.request_airdrop(from_wallet_pubkey, int(amount * 1e9))
+                    transfer(
+                        TransferParams(
+                            from_pubkey=from_wallet_pubkey,
+                            to_pubkey=owner_wallet_pubkey,
+                            lamports=int(amount * 1e9),  # Convert SOL to lamports
+                        )
+                    )
                 )
-
-                # Load stake wallet's private key
-                owner_wallet_keypair = Keypair.from_base58_string(
-                    STAKE_WALLET_PRIVATE_KEY
-                )
-
-                # Send the transaction
-                response = solana_client.send_transaction(
-                    transaction,
-                    owner_wallet_keypair,
-                    opts=TxOpts(skip_preflight=False, preflight_commitment="confirmed"),
-                )
-
-                if "result" in response:
-                    return {
-                        "status": "success",
-                        "message": "Transfer successful",
-                        "signature": response["result"],
-                    }
-                else:
-                    return {"status": "error", "message": "Transaction failed"}
 
             elif wallet_type == "USDT":
                 usdt_token_address = Pubkey(
                     "Es9vMFrzaCERUV5yyEu25uxFr3GJeeF4kaVvsk9Lw3ov"
                 )  # USDT mint address
 
-                token_transfer_instruction = TokenTransferInstruction(
-                    from_pubkey=from_wallet_pubkey,
-                    to_pubkey=owner_wallet_pubkey,
-                    amount=int(
-                        amount * 1e6
-                    ),  # Convert USDT to smallest unit (6 decimals)
-                    mint=usdt_token_address,
-                    owner_public_key=from_wallet_pubkey,
+                # Add a USDT transfer instruction
+                transaction.add(
+                    transfer_checked(
+                        TransferCheckedParams(
+                            program_id=TOKEN_PROGRAM_ID,
+                            source=from_wallet_pubkey,
+                            mint=usdt_token_address,
+                            dest=owner_wallet_pubkey,
+                            owner=from_wallet_pubkey,
+                            amount=int(
+                                amount * 1e6
+                            ),  # Convert USDT to smallest unit (6 decimals)
+                            decimals=6,  # USDT has 6 decimals
+                        )
+                    )
                 )
-
-                transaction = Transaction().add(token_transfer_instruction)
-                owner_wallet_keypair = Keypair.from_base58_string(
-                    STAKE_WALLET_PRIVATE_KEY
-                )
-
-                response = solana_client.send_transaction(
-                    transaction,
-                    owner_wallet_keypair,
-                    opts=TxOpts(skip_preflight=False, preflight_commitment="confirmed"),
-                )
-
-                if "result" in response:
-                    return {
-                        "status": "success",
-                        "message": "Transfer successful",
-                        "signature": response["result"],
-                    }
-                else:
-                    return {"status": "error", "message": "Transaction failed"}
             else:
                 return {"status": "error", "message": "Invalid wallet type"}
 
+            # Load the user's private key to sign the transaction
+            from_wallet_keypair = Keypair.from_base58_string(STAKE_WALLET_PRIVATE_KEY)
+
+            # Send the transaction
+            response = solana_client.send_transaction(
+                transaction,
+                from_wallet_keypair,  # Sign with the stake wallet's private key
+                opts=TxOpts(skip_preflight=False, preflight_commitment="confirmed"),
+            )
+
+            if "result" in response:
+                return {
+                    "status": "success",
+                    "message": "Transfer successful",
+                    "signature": response["result"],
+                }
+            else:
+                return {"status": "error", "message": "Transaction failed"}
+
         except Exception as e:
-            return {"status": "error", "message": f"Error: {str(e)}"}
+            print(f"Error during transfer: {str(e)}")
+            return {"status": "error", "message": f"Transaction failed: {str(e)}"}
 
     @staticmethod
     async def get_usdt_history(

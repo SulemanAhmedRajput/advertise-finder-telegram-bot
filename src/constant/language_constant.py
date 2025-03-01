@@ -25,6 +25,8 @@ LANG_DATA = merge_lang_data(
     FINDER_CONSTANT,
 )
 
+USDT_MINT_ADDRESS = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
+
 
 user_data_store = {}
 
@@ -36,4 +38,4 @@ def get_text(user_id, key):
 
 
 # Pagination Constants
-ITEMS_PER_PAGE = 10  # Number of items per page for pagination
+ITEMS_PER_PAGE = 5  # Number of items per page for pagination

@@ -1,3 +1,4 @@
+from beanie import PydanticObjectId
 from bson import ObjectId
 import datetime
 import os
@@ -11,11 +12,14 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from constant.language_constant import ITEMS_PER_PAGE
 from models.case_model import Case
 from handlers.listing_handler import logger
+from services.case_service import get_case_by_id
+from services.wallet_service import WalletService
 from utils.cloudinary import upload_image
 from utils.helper import paginate_list
 from utils.wallet import load_user_wallet
 from constants import State
 from constant.language_constant import get_text, user_data_store
+from services.finder_service import FinderService
 
 
 def get_provinces_for_country(country):
@@ -73,6 +77,7 @@ async def choose_province(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
     # Get country from user_data
     country = context.user_data.get("country", None)
+    city = context.user_data.get("city", None)
 
     if not country:
         await update.message.reply_text(
@@ -87,7 +92,13 @@ async def choose_province(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     if len(matches) == 1:
         # If there's only one match, fetch and display cases
         selected_province = matches[0]
-        context.user_data["province"] = selected_province
+        await FinderService.update_or_create_finder(
+            user_id=user_id,
+            province=selected_province,
+            city=city,
+            country=country,
+        )
+        context.user_data["province"] = selected_province  # Save province in context
 
         # Fetch cases from DB where last_seen_location matches province
         cases = await Case.find({"last_seen_location": selected_province}).to_list()
@@ -175,7 +186,7 @@ async def province_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     if data.startswith("province_select_"):
         province = data.replace("province_select_", "")
-        user_data_store[user_id]["province"] = province
+        context.user_data["province"] = province  # Save province in context
         await query.edit_message_text(
             f"{get_text(user_id, 'province_selected')} {province}.",
             parse_mode="HTML",
@@ -247,8 +258,8 @@ async def show_advertisements(
         return State.CHOOSE_PROVINCE
 
     try:
-        # Get current page and calculate offset
-        page = context.user_data.get("page", 0)
+        # Get current page from context
+        page = context.user_data.get("page", 1)  # Default to page 1
         items_per_page = ITEMS_PER_PAGE
 
         # Fetch cases from database
@@ -263,7 +274,7 @@ async def show_advertisements(
 
         # Pagination calculations
         total_pages = (total_cases + items_per_page - 1) // items_per_page
-        start_idx = page * items_per_page
+        start_idx = (page - 1) * items_per_page
         end_idx = start_idx + items_per_page
         cases = all_cases[start_idx:end_idx]
 
@@ -272,25 +283,27 @@ async def show_advertisements(
         for case in cases:
             case_info = f"Case #{case.case_no}: {case.person_name} ({case.age})"
             keyboard.append(
-                [InlineKeyboardButton(case_info, callback_data=f"case_{case.case_no}")]
+                [InlineKeyboardButton(case_info, callback_data=f"case_{case.id}")]
             )
 
         # Add pagination controls
         pagination_buttons = []
-        if page > 0:
+        if page > 1:
             pagination_buttons.append(
-                InlineKeyboardButton("⬅ Previous", callback_data="page_previous")
+                InlineKeyboardButton(
+                    "⬅️ Previous", callback_data=f"case_page_{page - 1}"
+                )
             )
-        if page < total_pages - 1:
+        if page < total_pages:
             pagination_buttons.append(
-                InlineKeyboardButton("Next ➡", callback_data="page_next")
+                InlineKeyboardButton("Next ➡️", callback_data=f"case_page_{page + 1}")
             )
 
         if pagination_buttons:
             keyboard.append(pagination_buttons)
 
         reply_markup = InlineKeyboardMarkup(keyboard)
-        text = f"Cases in {province} (Page {page+1} of {total_pages}):"
+        text = f"Cases in {province} (Page {page} of {total_pages}):"
 
         if query:
             await query.edit_message_text(text, reply_markup=reply_markup)
@@ -307,6 +320,31 @@ async def show_advertisements(
         return State.END
 
 
+async def handle_pagination(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handle pagination for case listings."""
+    query = update.callback_query
+    await query.answer()
+    user_id = update.effective_user.id
+
+    # Extract page number from callback data
+    if query.data.startswith("case_page_"):
+        page_str = query.data.replace("case_page_", "")
+        try:
+            page = int(page_str)
+            if page < 1:
+                page = 1
+        except ValueError:
+            page = 1
+
+        # Save updated page in context
+        context.user_data["page"] = page
+
+        # Re-fetch and display cases for the updated page
+        return await show_advertisements(update, context)
+
+    return State.CASE_DETAILS
+
+
 async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Show detailed information about a case"""
     print("case_details_callback")
@@ -316,9 +354,9 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
     try:
         print(f"Printing the Query: {query.data}")
-        case_no = query.data.split("_")[1]
-        print(f"Case Number are {case_no}")
-        case = await fetch_case_by_number(case_no)
+        case_id = query.data.split("_")[1]
+        print(f"Case ID: {case_id}")
+        case = await fetch_case_by_number(case_id)
 
         if not case:
             await query.edit_message_text(get_text(user_id, "case_not_found"))
@@ -330,7 +368,7 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             f"📌 **Case Details**\n"
             f"👤 **Person Name:** {case.person_name}\n"
             f"📍 **Last Seen Location:** {case.last_seen_location}\n"
-            f"💰 **Reward:** {case.reward or 'None'} {case.reward_type if case.reward_type else 'None'}\n"
+            f"💰 **Reward:** {case.reward or 'None'} \n"
             f"💼 **Wallet:** {wallet.public_key if wallet else 'Not provided'}\n"
             f"👤 **Gender:** {case.gender}\n"
             f"🧒 **Age:** {case.age}\n"
@@ -338,11 +376,6 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         )
 
         keyboard = [
-            # [
-            #     InlineKeyboardButton(
-            #         "📌 Save Case", callback_data=f"save_{case.case_no}"
-            #     )
-            # ],
             [
                 InlineKeyboardButton(
                     get_text(user_id, "mark_as_found"),
@@ -423,57 +456,29 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
 
 # TODO: Add a check to see if the user has already been notified
-async def notify_advertiser(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def handle_enter_location(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
     """Notify the advertiser and ask them to confirm the reward transfer."""
     user_id = update.effective_user.id
     try:
         location = update.message.text.strip()
-        case_no = context.user_data.get("found_case_no")
-        proof_path = context.user_data.get("proof_path")
 
-        if not all([case_no, location, proof_path]):
-            await update.message.reply_text(get_text(user_id, "missing_information"))
-            return State.END
-
-        # Fetch case details
-        case = await fetch_case_by_number(case_no)
-        if not case:
-            await update.message.reply_text(get_text(user_id, "case_not_found"))
-            return State.END
-
-        # Store necessary information in context
-        context.user_data["case_no"] = case_no
-        context.user_data["reported_location"] = location
-        context.user_data["finder_chat_id"] = user_id  # Store finder’s ID
-
-        # Get advertiser's chat ID
-        advertiser_chat_id = case.user_id
-
-        # Send confirmation request to advertiser
-        keyboard = [
-            [InlineKeyboardButton("✅ Approve Reward", callback_data="approve_reward")],
-            [InlineKeyboardButton("❌ Reject", callback_data="reject_reward")],
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-
-        notification_text = (
-            f"🚨 **Potential Match Alert!** 🚨\n\n"
-            f"🔹 **Case #{case_no}:** {case.person_name}\n"
-            f"📍 **Reported Location:** {location}\n"
-            f"🔗 **Proof:** [Dev Mode]\n\n"
-            "💰 **Do you approve sending the reward to the finder?**"
+        context.user_data["finder_location"] = location
+        await update.message.reply_text(
+            "Do you want to extend the reward?",
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton("Yes", callback_data="yes_extend"),
+                        InlineKeyboardButton("No", callback_data="no_extend"),
+                    ],
+                ]
+            ),
         )
-
-        await context.bot.send_message(
-            chat_id=advertiser_chat_id,
-            text=notification_text,
-            reply_markup=reply_markup,
-        )
-
-        # Confirm to finder
-        await update.message.reply_text(get_text(user_id, "reply_to_advertiser"))
-
-        return State.ADVERTISER_CONFIRMATION
+        return (
+            State.EXTEND_REWARD
+        )  # Ensure this matches the state name in your ConversationHandler
 
     except Exception as e:
         logger.error(f"Error notifying advertiser: {e}")
@@ -481,121 +486,273 @@ async def notify_advertiser(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         return State.END
 
 
-# async def handle_advertiser_confirmation(
-#     update: Update, context: ContextTypes.DEFAULT_TYPE
-# ) -> int:
-#     """Handles the advertiser's decision on reward transfer."""
-#     query = update.callback_query
-#     await query.answer()
+async def handle_extend_reward(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    case_id = context.user_data.get("found_case_no")
 
-#     user_id = query.from_user.id
-#     case_no = context.user_data.get("case_no")
-#     finder_chat_id = context.user_data.get("finder_chat_id")
-
-#     if query.data == "approve_reward":
-#         await context.bot.send_message(
-#             chat_id=finder_chat_id,
-#             text="✅ The advertiser has **approved** the reward! 🎉\n\n"
-#             "🔑 Please enter your **Solana public key** to receive the reward.",
-#         )
-#         return State.ENTER_PUBLIC_KEY  # Next step: Finder enters public key
-
-#     elif query.data == "reject_reward":
-#         await context.bot.send_message(
-#             chat_id=finder_chat_id,
-#             text="❌ The advertiser **rejected** the reward transfer. No SOL will be sent.",
-#         )
-#         await query.message.reply_text("You have declined the reward transfer.")
-#         return State.END
-
-
-# async def handle_public_key(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-#     """Handles the user's public key entry."""
-#     finder_id = update.effective_user.id
-#     public_key = update.message.text.strip()
-
-#     try:
-#         to_pubkey = Pubkey.from_string(public_key)  # Validate Solana public key
-#         context.user_data["finder_public_key"] = public_key
-
-#         keyboard = [
-#             [
-#                 InlineKeyboardButton(
-#                     "✅ Confirm Transfer", callback_data="confirm_transfer"
-#                 )
-#             ],
-#             [InlineKeyboardButton("❌ Cancel", callback_data="cancel_transfer")],
-#         ]
-#         reply_markup = InlineKeyboardMarkup(keyboard)
-
-#         await update.message.reply_text(
-#             f"🔑 Public Key Received: `{public_key}`\n\n" "⚠️ **Confirm the transfer?**",
-#             reply_markup=reply_markup,
-#         )
-
-#         return State.CONFIRM_TRANSFER
-
-#     except Exception:
-#         await update.message.reply_text(
-#             "❌ Invalid public key. Please enter a valid Solana address."
-#         )
-#         return State.ENTER_PUBLIC_KEY
+    if query.data == "yes_extend":
+        await query.message.reply_text("Please enter the new reward amount:")
+        return State.EXTEND_REWARD_AMOUNT  # Transition to reward amount input
+    else:
+        # Handle "No" response
+        case = await get_case_by_id(PydanticObjectId(case_id))
+        advertiser_id = case.user_id if case else None
+        if advertiser_id:
+            await context.bot.send_message(
+                advertiser_id, "Someone has confirmed finding the person in your case!"
+            )
+        await query.message.reply_text(
+            "Are you sure you have found this person?",
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            "Yes, Confirm", callback_data="confirm_found"
+                        ),
+                        InlineKeyboardButton(
+                            "No, Cancel", callback_data="cancel_found"
+                        ),
+                    ],
+                ]
+            ),
+        )
+        return State.CONFIRM_FOUND
 
 
-# async def handle_transfer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-#     """Executes the SOL transfer upon advertiser confirmation."""
-#     query = update.callback_query
-#     await query.answer()
+async def handle_extend_reward_amount(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    user_id = update.effective_user.id
+    new_reward_str = update.message.text.strip()
+    context.user_data["extend_flow"] = True
 
-#     if query.data == "confirm_transfer":
-#         try:
-#             # Retrieve details
-#             finder_public_key = context.user_data.get("finder_public_key")
-#             case_no = context.user_data.get("case_no")
-#             advertiser_id = query.from_user.id
+    try:
+        demanded_reward = float(new_reward_str)
+        case_id = context.user_data.get("found_case_no")
+        case = await get_case_by_id(PydanticObjectId(case_id))
 
-#             # Fetch advertiser's wallet
-#             advertiser_wallet = load_user_wallet(advertiser_id)
-#             advertiser_private_key = advertiser_wallet["private_key"]
+        if not case:
+            await update.message.reply_text("Case not found")
+            return State.END
 
-#             sender = Keypair.from_base58_string(advertiser_private_key)
-#             to_pubkey = Pubkey.from_string(finder_public_key)
-#             total_sol = context.user_data["reward_amount"]
+        current_reward = case.reward or 0
 
-#             # Check balance
-#             sender_balance = client.get_balance(sender.pubkey()).value
-#             if sender_balance < int(total_sol * 1e9):
-#                 await query.message.reply_text(
-#                     "❌ Not enough SOL to complete this transaction."
-#                 )
-#                 return State.END
+        if demanded_reward <= current_reward:
+            await update.message.reply_text(
+                f"Please enter an amount greater than current reward ({current_reward})"
+            )
+            return State.EXTEND_REWARD_AMOUNT
 
-#             # Create transfer transaction
-#             instruction = transfer(
-#                 TransferParams(
-#                     from_pubkey=sender.pubkey(),
-#                     to_pubkey=to_pubkey,
-#                     lamports=int(total_sol * 1e9),
-#                 )
-#             )
-#             message = Message(instructions=[instruction], payer=sender.pubkey())
-#             transaction = Transaction(from_keypairs=[sender], message=message)
+        context.user_data["demanded_reward"] = demanded_reward
+        context.user_data["reward_difference"] = demanded_reward - current_reward
 
-#             send_response = client.send_transaction(transaction)
+        # Notify advertiser
+        keyboard = [
+            [
+                InlineKeyboardButton("Accept", callback_data="accept_extend"),
+                InlineKeyboardButton("Reject", callback_data="reject_extend"),
+            ]
+        ]
 
-#             await query.message.reply_text(
-#                 f"✅ Transfer successful! Transaction ID: {send_response}"
-#             )
+        wallet = await case.wallet.fetch()
+        await context.bot.send_message(
+            chat_id=case.user_id,
+            text=f"🚨 Reward Extension Request 🚨\n\n"
+            f"Finder is demanding {demanded_reward} {wallet.wallet_type}\n"
+            f"Additional amount needed: {context.user_data['reward_difference']} {wallet.wallet_type}\n\n"
+            f"Do you want to accept this extension?",
+            reply_markup=InlineKeyboardMarkup(keyboard),
+        )
 
-#             return State.END
+        await update.message.reply_text("Extension request sent to case owner")
+        return State.ADVERTISER_RESPONSE
 
-#         except Exception as e:
-#             await query.message.reply_text(f"❌ Transaction failed: {str(e)}")
-#             return State.END
+    except ValueError:
+        await update.message.reply_text("Please enter a valid number")
+        return State.EXTEND_REWARD_AMOUNT
 
-#     else:
-#         await query.message.reply_text("❌ Transaction has been canceled.")
-#         return State.END
+
+async def handle_advertiser_response(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    query = update.callback_query
+    await query.answer()
+    user_id = query.from_user.id
+
+    if query.data == "reject_extend":
+        await query.edit_message_text("Extension request rejected")
+        return State.END
+
+    # Get case details from context
+    case_id = context.user_data.get("found_case_no")
+    case = await get_case_by_id(PydanticObjectId(case_id))
+
+    # Get advertiser's wallets
+    wallets = await WalletService.get_wallet_by_user(user_id)
+
+    if not wallets:
+        # No wallets found, prompt to create one
+        keyboard = [
+            [
+                InlineKeyboardButton(
+                    "Create New Wallet", callback_data="create_extend_wallet"
+                )
+            ]
+        ]
+        await query.edit_message_text(
+            "No wallets found. Please create a wallet to proceed:",
+            reply_markup=InlineKeyboardMarkup(keyboard),
+        )
+        return State.SELECT_WALLET
+
+    # Show existing wallets
+    keyboard = []
+    for wallet in wallets:
+        keyboard.append(
+            [
+                InlineKeyboardButton(
+                    f"{wallet.name} ({wallet.wallet_type})",
+                    callback_data=f"select_extend_wallet_{wallet.id}",
+                )
+            ]
+        )
+
+    keyboard.append(
+        [
+            InlineKeyboardButton(
+                "Create New Wallet", callback_data="create_extend_wallet"
+            )
+        ]
+    )
+
+    await query.edit_message_text(
+        "Select a wallet to use for the transfer:",
+        reply_markup=InlineKeyboardMarkup(keyboard),
+    )
+    return State.SELECT_WALLET
+
+
+async def handle_wallet_selection(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    query = update.callback_query
+    await query.answer()
+
+    if query.data == "create_extend_wallet":
+        await query.edit_message_text("Enter a name for your new wallet:")
+        return State.NAME_WALLET
+
+    wallet_id = query.data.split("_")[-1]
+    wallet = await WalletService.get_wallet_by_id(wallet_id)
+
+    if not wallet:
+        await query.edit_message_text("Wallet not found")
+        return State.END
+
+    context.user_data["selected_wallet"] = wallet
+
+    print(f"Wallet: {wallet}")
+
+    # Check balance
+    balance = await WalletService.get_balance(wallet.public_key, wallet.wallet_type)
+    required = context.user_data["reward_difference"]
+
+    if balance < required:
+        await query.edit_message_text(
+            f"Insufficient balance. Needed: {required} {wallet.wallet_type}\n"
+            f"Current balance: {balance} {wallet.wallet_type}"
+        )
+        return State.END
+
+    # Show confirmation
+    keyboard = [
+        [
+            InlineKeyboardButton("Confirm Transfer", callback_data="confirm_transfer"),
+            InlineKeyboardButton("Cancel", callback_data="cancel_transfer"),
+        ]
+    ]
+
+    await query.edit_message_text(
+        f"Confirm transfer of {required} {wallet.wallet_type} from {wallet.name}?\n"
+        f"Wallet address: {wallet.public_key}",
+        reply_markup=InlineKeyboardMarkup(keyboard),
+    )
+    return State.TRANSFER_CONFIRMATION
+
+
+async def handle_transfer_confirmation(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    query = update.callback_query
+    await query.answer()
+
+    if query.data == "cancel_transfer":
+        await query.edit_message_text("Transfer cancelled")
+        return State.END
+
+    wallet = context.user_data["selected_wallet"]
+    amount = context.user_data["reward_difference"]
+    case_id = context.user_data.get("found_case_no")
+    case = await get_case_by_id(PydanticObjectId(case_id))
+
+    try:
+        # Perform actual transfer
+        success = await WalletService.transfer(
+            private_key=wallet.private_key,
+            recipient_address=case.wallet.public_key,  # Assuming case has a wallet
+            amount=amount,
+            currency=wallet.type,
+        )
+
+        if success:
+            # Update case reward
+            case.reward = context.user_data["demanded_reward"]
+            await case.save()
+
+            # Notify both parties
+            await context.bot.send_message(
+                chat_id=case.user_id,
+                text=f"Successfully transferred {amount} {wallet.wallet_type}!\n"
+                f"New total reward: {case.reward} {wallet.wallet_type}",
+            )
+
+            await context.bot.send_message(
+                chat_id=context.user_data["finder_id"],  # Store finder ID earlier
+                text=f"Reward extended to {case.reward} {wallet.wallet_type}!\n"
+                f"The additional amount has been secured.",
+            )
+
+            await query.edit_message_text("Transfer successful! Reward updated.")
+        else:
+            await query.edit_message_text("Transfer failed. Please try again.")
+
+    except Exception as e:
+        logger.error(f"Transfer error: {e}")
+        await query.edit_message_text("An error occurred during transfer")
+
+    return State.END
+
+
+async def handle_confirm_found(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    if query.data == "confirm_found":
+        # Notify the owner
+        case_id = context.user_data.get("found_case_no")
+        case = await get_case_by_id(PydanticObjectId(case_id))
+        if case:
+            await context.bot.send_message(
+                case.user_id, "Someone has confirmed finding the person in your case!"
+            )
+        await query.message.reply_text(
+            "The case owner has been notified & reward would be sent to you soon."
+        )
+        return State.END
+    else:
+        query.message.reply_text("Okay, let us know if you have any updates.")
+        return State.END
 
 
 async def handle_found_case(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:

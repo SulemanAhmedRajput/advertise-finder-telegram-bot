@@ -8,12 +8,13 @@ from telegram import Update
 from constants import WALLETS_DIR
 from solders.transaction import Transaction
 from solders.system_program import transfer
-from solders.signature import Signature
 from solana.rpc.types import TxOpts
 from telegram.ext import (
     ContextTypes,
 )
-from constant.language_constant import user_data_store
+from constant.language_constant import USDT_MINT_ADDRESS, user_data_store
+from spl.token.constants import TOKEN_PROGRAM_ID
+from spl.token.client import Token
 
 # Initialize Solana client
 try:
@@ -101,26 +102,69 @@ def create_sol_wallet(wallet_name):
 
 
 def create_usdt_wallet(wallet_name):
-    """Create a USDT wallet with Keypair, store it as JSON, and return its details."""
+    """
+    Create a USDT wallet with Keypair, store it as JSON, and return its details.
+    This function creates a Solana wallet and associates it with a USDT token account.
+    """
     if not client:
         return None
     try:
+        # Generate a new Solana wallet (keypair)
         keypair = Keypair()
         public_key = str(keypair.pubkey())
         secret_key = base58.b58encode(bytes(keypair.to_bytes_array())).decode("utf-8")
 
-        print(f"Secret key: {secret_key}")
+        # Check SOL balance
+        balance_response = client.get_balance(Pubkey.from_string(public_key))
+        balance_lamports = balance_response.value if balance_response else 0
+        balance_sol = balance_lamports / 1e9
+
+        # Minimum SOL required for transactions (e.g., 0.01 SOL)
+        min_sol_required = 0.01
+
+        if balance_sol < min_sol_required:
+            print(
+                f"Wallet has insufficient SOL balance: {balance_sol}. Funding with airdrop..."
+            )
+            # Request airdrop (1 SOL)
+            airdrop_response = client.request_airdrop(
+                Pubkey.from_string(public_key), int(1e9)
+            )  # 1 SOL
+            client.confirm_transaction(airdrop_response["result"])
+            print("Airdrop successful!")
+
+            # Re-check balance after airdrop
+            balance_response = client.get_balance(Pubkey.from_string(public_key))
+            balance_lamports = balance_response.value if balance_response else 0
+            balance_sol = balance_lamports / 1e9
+
+        # Initialize the USDT token client
+        usdt_token = Token(
+            conn=client,
+            pubkey=Pubkey.from_string(USDT_MINT_ADDRESS),
+            program_id=TOKEN_PROGRAM_ID,
+            payer=keypair,
+        )
+
+        # Create an associated token account for USDT
+        usdt_token_account = usdt_token.create_associated_token_account(
+            keypair.pubkey()
+        )
+        print(f"USDT Token Account created: {usdt_token_account}")
+
+        # Fetch USDT balance
+        usdt_balance_response = usdt_token.get_balance(usdt_token_account)
+        usdt_balance = usdt_balance_response["result"]["value"]["uiAmount"]
+
         wallet = {
             "name": wallet_name,
             "public_key": public_key,
             "secret_key": secret_key,
+            "balance_sol": balance_sol,
+            "usdt_balance": usdt_balance,
+            "usdt_token_account": str(usdt_token_account),
         }
 
-        # Fetch balance
-        balance_response = client.get_balance(Pubkey.from_string(public_key))
-        balance_lamports = balance_response.value if balance_response else 0
-        balance_usdt = balance_lamports / 1e6
-        wallet["balance_usdt"] = balance_usdt
         return wallet
 
     except Exception as e:

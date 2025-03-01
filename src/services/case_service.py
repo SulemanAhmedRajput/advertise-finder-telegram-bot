@@ -17,6 +17,16 @@ async def find_case_by_user_id(user_id: int) -> Optional[Case]:
     return await Case.find_one(Case.user_id == user_id)
 
 
+async def get_case_by_id(id: PydanticObjectId) -> Optional[Case]:
+    """
+    Get a case by its ID.
+
+    :param id: The ID of the case to retrieve.
+    :return: The case if found, otherwise None.
+    """
+    return await Case.get(id)
+
+
 async def add_or_update_case(case_data: dict) -> Case:
     """
     Add a new case or update an existing case based on the user ID.

@@ -33,7 +33,7 @@ class Case(Document):
     height: Optional[float] = None
     weight: Optional[float] = None
     distinctive_features: Optional[str] = None
-
+    reward_type: Optional[str] = None
     reward: Optional[float] = None
     reason: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
