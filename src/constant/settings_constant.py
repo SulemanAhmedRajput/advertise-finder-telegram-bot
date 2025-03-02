@@ -1,9 +1,12 @@
+# Updated Constants
 SETTINGS_CONSTANT = {
     "en": {
         "btn_language": "🌍 Change Language",
         "btn_mobile_number": "📱 Manage Mobile Numbers",
         "btn_close_menu": "❌ Close Menu",
         "menu_settings_title": "⚙️ Settings Menu",
+        "choose_language": "🌍 Choose your preferred language:",
+        "saved_mobile_numbers": "📱 Your saved mobile numbers:",
         "enter_mobile": "📞 Please enter your mobile number:",
         "invalid_mobile_number": "❌ Invalid mobile number. Please try again.",
         "enter_tac": "🔢 Enter the TAC (verification code) sent to your mobile:",
@@ -11,12 +14,19 @@ SETTINGS_CONSTANT = {
         "lang_updated": "✅ Language updated successfully!",
         "invalid_choice": "❌ Invalid choice. Please try again.",
         "btn_add_new": "➕ Add New",
+        "remove_mobile": "❌ Remove",
+        "back_to_mobile_menu": "🔙 Back to Mobile Menu",
+        "selected_mobile_options": "Selected mobile: {mobile}\nWhat would you like to do?",
+        "mobile_removed": "✅ Removed mobile: {mobile}",
+        "mobile_verified_and_saved": "✅ Mobile number verified and saved successfully!\nYour saved mobile numbers:",
     },
     "zh": {
         "btn_language": "🌍 更改语言",
         "btn_mobile_number": "📱 管理手机号码",
         "btn_close_menu": "❌ 关闭菜单",
         "menu_settings_title": "⚙️ 设置菜单",
+        "choose_language": "🌍 选择您喜欢的语言：",
+        "saved_mobile_numbers": "📱 您保存的手机号码：",
         "enter_mobile": "📞 请输入您的手机号码：",
         "invalid_mobile_number": "❌ 无效的手机号码，请重试。",
         "enter_tac": "🔢 请输入发送到您手机的验证码：",
@@ -24,5 +34,10 @@ SETTINGS_CONSTANT = {
         "lang_updated": "✅ 语言更新成功！",
         "invalid_choice": "❌ 无效的选择，请重试。",
         "btn_add_new": "➕ 添加新的",
+        "remove_mobile": "❌ 移除",
+        "back_to_mobile_menu": "🔙 返回手机号码菜单",
+        "selected_mobile_options": "已选手机号码：{mobile}\n您想做什么？",
+        "mobile_removed": "✅ 已移除手机号码：{mobile}",
+        "mobile_verified_and_saved": "✅ 手机号码验证并保存成功！\n您的保存的手机号码：",
     },
 }

@@ -1,13 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
-from constants import (
-    State,
-)
+from constants import State
 from constant.language_constant import get_text, user_data_store, LANG_DATA
-from telegram.ext import (
-    ContextTypes,
-)
-
 from services.user_service import (
     delete_user_mobile,
     get_user_lang,
@@ -74,7 +68,7 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
             ],
         ]
         await query.edit_message_text(
-            text="Choose your preferred language:",  # TODO: lang not applied
+            text=get_text(user_id, "choose_language"),
             reply_markup=InlineKeyboardMarkup(kb),
             parse_mode="HTML",
         )
@@ -103,7 +97,7 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
                 ]
             )
             await query.edit_message_text(
-                "Your saved mobile numbers:",  # TODO: lang not applied
+                get_text(user_id, "saved_mobile_numbers"),
                 reply_markup=InlineKeyboardMarkup(kb),
                 parse_mode="HTML",
             )
@@ -140,14 +134,20 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
             # Options for selected mobile
             kb = [
                 [
-                    InlineKeyboardButton("❌ Remove", callback_data=f"remove_{mobile}")
-                ],  # TODO: lang not applied
+                    InlineKeyboardButton(
+                        get_text(user_id, "remove_mobile"),
+                        callback_data=f"remove_{mobile}",
+                    )
+                ],
                 [
-                    InlineKeyboardButton("🔙 Back", callback_data="settings_mobile")
-                ],  # TODO: lang not applied
+                    InlineKeyboardButton(
+                        get_text(user_id, "back_to_mobile_menu"),
+                        callback_data="settings_mobile",
+                    )
+                ],
             ]
             await query.edit_message_text(
-                f"Selected mobile: {mobile}\nWhat would you like to do?",  # TODO: lang not applied
+                get_text(user_id, "selected_mobile_options").format(mobile=mobile),
                 reply_markup=InlineKeyboardMarkup(kb),
                 parse_mode="HTML",
             )
@@ -157,10 +157,9 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
         mobile = choice.replace("remove_", "")
         await delete_user_mobile(user_id, mobile)
         await query.edit_message_text(
-                f"✅ Removed mobile: {mobile}",
-                parse_mode="HTML",  # TODO: lang not applied
-            )
-       
+            get_text(user_id, "mobile_removed").format(mobile=mobile),
+            parse_mode="HTML",
+        )
         return State.MOBILE_MANAGEMENT
 
     else:
@@ -221,10 +220,16 @@ async def handle_setting_tac(update: Update, context: ContextTypes.DEFAULT_TYPE)
             [InlineKeyboardButton(f"📱 {number}", callback_data=f"mobile_{number}")]
             for number in mobiles
         ]
-        kb.append([InlineKeyboardButton("➕ Add New", callback_data="mobile_add")])
+        kb.append(
+            [
+                InlineKeyboardButton(
+                    get_text(user_id, "btn_add_new"), callback_data="mobile_add"
+                )
+            ]
+        )
 
         await update.message.reply_text(
-            "✅ Mobile number verified and saved successfully!\nYour saved mobile numbers:",
+            get_text(user_id, "mobile_verified_and_saved"),
             reply_markup=InlineKeyboardMarkup(kb),
             parse_mode="HTML",
         )
