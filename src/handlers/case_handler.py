@@ -516,7 +516,7 @@ async def handle_transfer_confirmation(
             print(f"Reward amount: {reward_amount}")
 
             transfer_success = (
-                await WalletService.transfer_sol(
+                await WalletService.send_sol(
                     wallet.public_key, STAKE_WALLET_PUBLIC_KEY, reward_amount
                 )
                 if wallet.wallet_type == "SOL"

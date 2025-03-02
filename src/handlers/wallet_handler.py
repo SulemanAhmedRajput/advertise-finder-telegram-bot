@@ -1,14 +1,16 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from constant.language_constant import get_text
 from constants import State
+from helpers import get_sol_balance
 from services.wallet_service import WalletService
+from solders.pubkey import Pubkey
 from utils.error_wrapper import catch_async
 from utils.solana_config import solana_client
-from telegram.ext import (
-    ContextTypes,
-)
+from telegram.ext import ContextTypes
+from solders.token.associated import get_associated_token_address
+from constant.language_constant import USDT_MINT_ADDRESS
 
-from solathon import PublicKey
+# Define the USDT mint address
 
 
 @catch_async
@@ -125,23 +127,26 @@ async def sol_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
             {"wallet_name": "SOL"}
         )  # TODO: Must be check the condition
     else:
-        # TODO: From there must be done when light has arrive
         message = "<b>Your SOL Wallets:</b>\n"
         for wallet in wallets:
             if wallet.wallet_type == "SOL":
-                balance = (
-                    solana_client.get_balance(PublicKey(wallet.public_key))
-                    / 1_000_000_000
-                )
-                message += (
-                    f"<b>Name:</b> {wallet.name}, <b>Balance:</b> {balance} SOL\n"
-                )
+                try:
+                    balance = await get_sol_balance(wallet.public_key)
+                    message += (
+                        f"<b>Name:</b> {wallet.name}, <b>Balance:</b> {balance} SOL\n"
+                    )
+                except Exception as e:
+                    message += f"<b>Name:</b> {wallet.name}, <b>Error:</b> {str(e)}\n"
 
-    await update.callback_query.message.edit_text(message, parse_mode="HTML")
+    # Check if the update is from a callback query or a command
+    if update.callback_query:
+        await update.callback_query.message.edit_text(message, parse_mode="HTML")
+    else:
+        await update.message.reply_text(message, parse_mode="HTML")
+
     return State.WALLET_MENU
 
 
-# TODO: !IMPORTANT! This function is not working properly. It should be fixed.
 @catch_async
 async def usdt_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Display USDT wallet balances."""
@@ -154,25 +159,26 @@ async def usdt_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message = "Your USDT Wallets:\n"
         for wallet in wallets:
             if wallet.wallet_type == "USDT":
-                # Fetch the USDT balance for the wallet's public key
                 try:
-                    # USDT token mint address on Solana
-                    usdt_mint_address = PublicKey(
-                        "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
+                    # Get the associated token account for the wallet
+                    token_account = get_associated_token_address(
+                        Pubkey(wallet.public_key), Pubkey.from_string(USDT_MINT_ADDRESS)
                     )
 
-                    # Get the associated token account for the wallet
-                    token_account = PublicKey.find_program_address(
-                        [
-                            bytes(wallet.public_key, "utf-8"),
-                            bytes(usdt_mint_address, "utf-8"),
-                        ],
-                        PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-                    )[0]
-
-                    # Fetch the USDT balance
-                    balance = await get_token_balance(solana_client, token_account)
-                    message += f"Name: {wallet.name}, Balance: {balance} USDT\n"
+                    # Fetch the USDT balance using get_token_account_balance
+                    response = solana_client.get_token_account_balance(token_account)
+                    if response.value:
+                        balance = (
+                            response.value.amount
+                        )  # Balance in the smallest unit (e.g., lamports for SOL)
+                        decimals = response.value.decimals  # Decimals for the token
+                        # Convert balance to human-readable format
+                        human_balance = int(balance) / (10**decimals)
+                        message += (
+                            f"Name: {wallet.name}, Balance: {human_balance} USDT\n"
+                        )
+                    else:
+                        message += f"Name: {wallet.name}, Balance: 0 USDT\n"
                 except Exception as e:
                     message += (
                         f"Name: {wallet.name}, Error fetching balance: {str(e)}\n"

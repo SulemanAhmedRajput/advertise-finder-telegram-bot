@@ -3,6 +3,8 @@ from telegram.ext import (
 )
 
 from enum import Enum
+from solana.rpc.api import Client
+from config.config_manager import CLIENT
 
 
 class State(Enum):
@@ -227,4 +229,9 @@ WALLETS_DIR = "wallets"  # Directory to store user wallets
 PHOTOS_DIR = "photos"  # Directory to store uploaded photos
 PROOFS_DIR = "proofs"  # Directory to store proof uploads
 
-# A simple in-memory data store for user preferences (language, etc.)
+
+# ====================== Solana ======================
+
+solana_client = Client(CLIENT)
+
+

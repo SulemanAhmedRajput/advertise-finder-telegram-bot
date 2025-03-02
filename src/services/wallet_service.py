@@ -5,10 +5,14 @@ from spl.token.client import Token
 from spl.token.constants import TOKEN_PROGRAM_ID
 from constant.language_constant import USDT_MINT_ADDRESS
 from models.wallet_model import Wallet
+from utils.error_wrapper import catch_async
 from utils.wallet import create_sol_wallet, create_usdt_wallet
-from solathon import Keypair, PublicKey, Transaction
-from solathon.core.instructions import transfer
 from utils.solana_config import solana_client
+from solana.rpc.api import Client
+from solders.system_program import transfer, TransferParams
+from solders.transaction import Transaction
+from solders.message import Message
+from solders.keypair import Keypair
 
 
 class WalletService:
@@ -107,7 +111,7 @@ class WalletService:
         :return: The SOL balance as a float.
         """
         try:
-            publickey = PublicKey(public_key)
+            publickey = Pubkey.from_string(public_key)
             balance = solana_client.get_balance(publickey)  # Await the async function
             print(f"Balance: {balance}")
             return balance / 1e9  # Convert lamports to SOL
@@ -286,74 +290,59 @@ class WalletService:
             return {"status": "error", "message": f"❌ Error: {str(e)}"}
 
     @staticmethod
-    async def transfer_sol(
-        sender_private_key: str, receiver_public_key: str, amount_sol: float
-    ) -> str:
+    @catch_async
+    def send_sol(
+        self, sender_private_key: str, recipient_address: str, amount_sol: float
+    ):
         """
-        Transfer SOL from the sender's wallet to the owner's wallet.
+        Send SOL from the sender to the recipient.
 
-        :param sender_private_key: Sender's private key (Base58 encoded)
-        :param owner_public_key: Owner's public wallet address
-        :param amount_sol: Amount of SOL to transfer
-        :return: Transaction signature if successful, otherwise an error message
-        """
-        sender = Keypair().from_private_key(sender_private_key)
-        receiver = PublicKey(receiver_public_key)
-
-        instruction = transfer(
-            from_public_key=sender.public_key,
-            to_public_key=receiver,
-            lamports=amount_sol,
-        )
-        transaction = Transaction(instructions=[instruction], signers=[sender])
-
-        result = solana_client.send_transaction(transaction)
-        print(result)
-
-        return result
-
-    @staticmethod
-    async def get_usdt_history(
-        public_key: str, limit: int = 10, before: Optional[str] = None
-    ) -> Dict[str, Any]:
-        """
-        Retrieve the USDT transaction history for a given wallet with pagination support.
-        :param public_key: The public key of the wallet.
-        :param limit: Number of transactions to fetch per page.
-        :param before: The transaction signature to start before (for pagination).
-        :return: A dictionary containing transactions and pagination info.
+        :param sender_private_key: The private key of the sender (Base58 encoded).
+        :param recipient_address: The public key of the recipient.
+        :param amount_sol: The amount of SOL to send.
+        :return: Transaction signature.
         """
         try:
-            pubkey = Pubkey.from_string(public_key)
+            # Convert SOL to lamports (1 SOL = 1,000,000,000 lamports)
+            lamports = int(amount_sol * 1_000_000_000)
 
-            # Fetch transaction signatures with pagination
-            response = await solana_client.get_signatures_for_address(
-                pubkey, limit=limit, before=before
+            # Load sender keypair
+            sender = Keypair.from_base58_string(sender_private_key)
+
+            # Load recipient public key
+            recipient = Pubkey.from_string(recipient_address)
+
+            # Create transfer instruction
+            instruction = transfer(
+                TransferParams(
+                    from_pubkey=sender.pubkey(),
+                    to_pubkey=recipient,
+                    lamports=lamports,
+                )
             )
 
-            if "result" not in response or not response["result"]:
-                return {"transactions": [], "next_before": None}
+            # Get latest blockhash
+            blockhash_response = solana_client.get_latest_blockhash()
+            recent_blockhash = blockhash_response.value.blockhash
 
-            signatures = [tx["signature"] for tx in response["result"]]
-            next_before = (
-                signatures[-1] if len(signatures) == limit else None
-            )  # For pagination
+            # Create message and transaction
+            message = Message(instructions=[instruction], payer=sender.pubkey())
+            transaction = Transaction(
+                from_keypairs=[sender],
+                message=message,
+                recent_blockhash=recent_blockhash,
+            )
 
-            transactions = []
-            for signature in signatures:
-                tx_response = await solana_client.get_transaction(
-                    signature, "jsonParsed"
-                )
+            # Sign transaction
+            transaction.sign([sender], recent_blockhash=recent_blockhash)
 
-                if "result" in tx_response and tx_response["result"]:
-                    transactions.append(tx_response["result"])
+            # Send transaction
+            send_response = self.client.send_transaction(transaction)
 
-            await solana_client.close()
-            return {"transactions": transactions, "next_before": next_before}
+            return f"Transaction sent! Signature: {send_response.value}"
 
         except Exception as e:
-            print(f"Error fetching USDT history: {e}")
-            return {"transactions": [], "next_before": None}
+            return f"Error: {str(e)}"
 
     @staticmethod
     async def check_wallet_name_used(user_id: int, wallet_name: str) -> bool:

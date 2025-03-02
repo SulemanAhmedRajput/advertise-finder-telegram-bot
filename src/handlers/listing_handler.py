@@ -19,6 +19,7 @@ from telegram.ext import (
 from bson import ObjectId, errors
 import traceback
 import math
+from utils.error_wrapper import catch_async
 from utils.helper import paginate_list
 
 # Setup logging
@@ -26,6 +27,9 @@ logger = logging.getLogger(__name__)
 
 
 # Handlers
+
+
+@catch_async
 async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handler for the /listing command."""
     user_id = update.effective_user.id
@@ -89,6 +93,7 @@ async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         return State.END
 
 
+@catch_async
 async def case_details_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -155,6 +160,7 @@ async def case_details_callback(
         return State.END  # Terminate the conversation
 
 
+@catch_async
 async def pagination_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -236,6 +242,7 @@ async def pagination_callback(
         return State.END
 
 
+@catch_async
 async def edit_case_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handler for editing a case."""
     query = update.callback_query
@@ -319,6 +326,7 @@ async def edit_case_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
     return State.CASE_DETAILS
 
 
+@catch_async
 async def edit_field_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -327,15 +335,16 @@ async def edit_field_callback(
     await query.answer()
 
     # Extract field and case ID from callback data
-    parts = query.data.split("_")
-    field_name = "_".join(parts[1:-1])  # Join all parts except the first and last
-    case_id = parts[-1]  # The last part is always the case ID
+    callback_data = query.data.removeprefix("edit_field_")
+    last_underscore_index = callback_data.rfind("_")
+    field_name = callback_data[:last_underscore_index]  # Extract field name correctly
+    case_id = callback_data[last_underscore_index + 1 :]  # Extract case ID
 
     print("Field name:", field_name, "Case ID:", case_id)
 
     # Store the case ID and field name in user_data for later use
     context.user_data["editing_case_id"] = case_id
-    context.user_data["editing_field"] = field_name.split("_")[1]
+    context.user_data["editing_field"] = field_name  # Keep full field name
 
     # Prompt the user to enter a new value for the field
     await query.message.edit_text(
@@ -345,11 +354,12 @@ async def edit_field_callback(
     return State.EDIT_FIELD
 
 
+@catch_async
 async def update_case_field(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Update the specified field in the case document."""
     print("I'm Calling :smile")
     case_id = context.user_data.get("editing_case_id")
-    field_name = context.user_data.get("editing_field")
+    field_name = context.user_data.get("editing_field")  # Use full field name
     new_value = update.message.text.strip()
 
     print(f"CaseId: {case_id}, Field Name: {field_name}, New Value: {new_value}")
@@ -382,7 +392,7 @@ async def update_case_field(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             )
 
         # Update the case document
-        setattr(case, field_name, new_value)
+        setattr(case, field_name, new_value)  # Ensure it updates correctly
         case.updated_at = datetime.utcnow()
         await case.save()
 
@@ -397,6 +407,7 @@ async def update_case_field(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     return State.END
 
 
+@catch_async
 async def delete_case_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -434,6 +445,7 @@ async def delete_case_callback(
         return State.END
 
 
+@catch_async
 async def cancel_edit_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
