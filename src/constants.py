@@ -84,6 +84,7 @@ class State(Enum):
     ENTER_WALLET_NAME = "ENTER_WALLET_NAME"
     SELECT_WALLET_TYPE = "SELECT_WALLET_TYPE"
     CONFIRM_DELETE_WALLET = "CONFIRM_DELETE_WALLET"
+    CONFIRM_REWARD = "CONFIRM_REWARD"
 
 
 # ======================
@@ -233,5 +234,3 @@ PROOFS_DIR = "proofs"  # Directory to store proof uploads
 # ====================== Solana ======================
 
 solana_client = Client(CLIENT)
-
-

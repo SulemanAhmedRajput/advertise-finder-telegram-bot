@@ -1,14 +1,16 @@
 from enum import Enum
 from beanie import Document, Link
-from typing import Optional
+from typing import List, Optional
 from datetime import datetime
 from pydantic import Field
 from models.case_model import Case
+from models.wallet_model import Wallet
 
 
 class FinderStatus(Enum):
     DRAFT = "draft"
     FIND = "find"
+    COMPLETED = "completed"
 
 
 class RewardExtensionStatus(Enum):
@@ -25,7 +27,10 @@ class Finder(Document):
     status: FinderStatus = Field(default=FinderStatus.DRAFT)
     user_id: int  # Telegram user ID of the finder
     case: Optional[Link[Case]] = None  # Reference to the case the finder is reporting
-    proof_url: Optional[str] = None  # Uploaded proof image/video URL
+    proof_url: Optional[List[str]] = None  # Uploaded proof image/video URL
+    wallet: Optional[Link[Wallet]] = (
+        (None),  # Reference to the wallet used for the reward
+    )
     reported_location: Optional[str] = None  # Location where the person was seen
     timestamp: datetime = Field(
         default_factory=datetime.utcnow

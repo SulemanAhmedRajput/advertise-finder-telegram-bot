@@ -29,7 +29,6 @@ START_LANG_DATA = {
         "advertise_btn": "Advertise 📢",
         "find_btn": "Find People 👥",
         "find_dev": "Find People is under development.",
-        # buttons
         "btn_language": "Change Language",
         "create_new_wallet": "➕ Create New Wallet",
         "btn_mobile_number": "Mobile Number",
@@ -38,14 +37,23 @@ START_LANG_DATA = {
         "lang_updated": "Language has been updated.",
         "invalid_choice": "Invalid choice. Conversation ended.",
         "invalid_mobile_number": "❌ Invalid mobile number. Please enter a valid 10-digit number.",
-        # settings
         "menu_settings_title": "Settings Menu",
-        # tac
         "enter_tac": "Enter the TAC sent to your mobile:",
         "verify_tac": "Verifying TAC...",
         "tac_verified": "✅ TAC verified successfully.",
         "tac_invalid": "❌ Invalid TAC. Please try again.",
-        "choose_existing_mobile": "Please select an existing number or add a new one."
+        "choose_existing_mobile": "Please select an existing number or add a new one.",
+        # Transfer Instructions
+        "transfer_instructions": (
+            "\n\n<b>How to Transfer {wallet_type} to Your Wallet:</b>\n\n"
+            "1️⃣ Open your {wallet_type} wallet app or any compatible wallet.\n"
+            "2️⃣ Go to the <b>Send</b> or <b>Transfer</b> section of the wallet.\n"
+            "3️⃣ Paste your <b>Public Key</b> into the recipient address field. Your public key is:\n"
+            "<code>{public_key}</code>\n\n"
+            "4️⃣ Enter the amount of {wallet_type} you want to transfer.\n"
+            "5️⃣ Review the transaction details and confirm the transfer.\n\n"
+            "Once the transfer is successful, the {wallet_type} will appear in your wallet balance."
+        ),
     },
     "zh": {
         "lang_choice": "中文",
@@ -77,7 +85,6 @@ START_LANG_DATA = {
         "advertise_btn": "发布悬赏 📢",
         "find_btn": "寻找信息 👥",
         "find_dev": "寻找信息功能正在开发中。",
-        # buttons
         "btn_language": "更改语言",
         "create_new_wallet": "➕ 创建新钱包",
         "btn_mobile_number": "手机号",
@@ -86,13 +93,22 @@ START_LANG_DATA = {
         "lang_updated": "语言已更新。",
         "invalid_choice": "无效选择。对话结束。",
         "invalid_mobile_number": "❌ 无效的手机号。请输入有效的10位数字。",
-        # settings
         "menu_settings_title": "设置菜单",
-        # tac
         "enter_tac": "请输入发送到您手机的验证码：",
         "verify_tac": "正在验证验证码...",
         "tac_verified": "✅ 验证码验证成功。",
         "tac_invalid": "❌ 验证码无效，请重试。",
-        "choose_existing_mobile": "请选择一个已有的手机号或添加一个新的手机号。"
+        "choose_existing_mobile": "请选择一个已有的手机号或添加一个新的手机号。",
+        # Transfer Instructions
+        "transfer_instructions": (
+            "\n\n<b>如何将 {wallet_type} 转入您的钱包：</b>\n\n"
+            "1️⃣ 打开您的 {wallet_type} 钱包应用或兼容的钱包。\n"
+            "2️⃣ 进入钱包的 <b>发送</b> 或 <b>转账</b> 部分。\n"
+            "3️⃣ 将您的 <b>公钥</b> 粘贴到收款地址栏。您的公钥是：\n"
+            "<code>{public_key}</code>\n\n"
+            "4️⃣ 输入您要转账的 {wallet_type} 数量。\n"
+            "5️⃣ 检查交易详情并确认转账。\n\n"
+            "转账成功后，{wallet_type} 将显示在您的钱包余额中。"
+        ),
     },
 }

@@ -11,6 +11,7 @@ from models.wallet_model import Wallet
 class CaseStatus(Enum):
     DRAFT = "draft"
     ADVERTISE = "advertise"
+    COMPLETED = "completed"
 
 
 class Case(Document):

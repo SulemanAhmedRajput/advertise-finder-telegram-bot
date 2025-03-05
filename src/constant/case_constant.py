@@ -36,6 +36,7 @@ CASE_CONSTANT = {
         "enter_reason_for_finding": "Please provide the reason for finding.",
         "case_submitted": "Your case has been submitted successfully.",
         "case_completed": "Your case has been completed.",
+        "reward_amount_negative": "The reward amount cannot be negative.",
     },
     "zh": {
         "create_case_title": "创建新案件",
@@ -74,5 +75,6 @@ CASE_CONSTANT = {
         "enter_reason_for_finding": "请提供寻找的原因。",
         "case_submitted": "您的案件已成功提交。",
         "case_completed": "您的案件已完成。",
+        "reward_amount_negative": "奖励金额不能为负。",
     },
 }

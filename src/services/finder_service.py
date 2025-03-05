@@ -163,6 +163,12 @@ class FinderService:
         # Update fields if provided
         for key, value in kwargs.items():
             if value is not None:
+
+                if key == "case" and isinstance(value, str):
+                    case = await Case.get(PydanticObjectId(value))
+                    if case:
+                        value = case
+
                 setattr(finder, key, value)
 
         # Save the case (update or create)

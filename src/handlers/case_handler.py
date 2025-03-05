@@ -451,6 +451,12 @@ async def handle_ask_reward_amount(
     print(f"Wallet balance: {wallet_balance}")
 
     # Check if the reward amount is greater than available balance
+    if reward_amount < 0:
+        await update.message.reply_text(
+            get_text(user_id, "reward_amount_negative").format(reward_amount)
+        )
+        return State.CREATE_CASE_ASK_REWARD
+
     if wallet_balance < reward_amount:
         await update.message.reply_text(
             get_text(user_id, "insufficient_balance").format(wallet_balance)
@@ -517,30 +523,31 @@ async def handle_transfer_confirmation(
 
             transfer_success = (
                 await WalletService.send_sol(
-                    wallet.public_key, STAKE_WALLET_PUBLIC_KEY, reward_amount
+                    wallet.private_key, STAKE_WALLET_PUBLIC_KEY, reward_amount
                 )
                 if wallet.wallet_type == "SOL"
                 else 0
             )
 
-            print(transfer_success)
+            print("Getting the balance of the wallet")
+            print(f"Transfer_success: {transfer_success}")
 
-            # if transfer_success:
-            #     await query.answer()
-            #     await query.edit_message_text(get_text(user_id, "transfer_successful"))
-            #     case.status = CaseStatus.ADVERTISE
-            #     await case.save()
+            if transfer_success:
+                await query.answer()
+                await query.edit_message_text(get_text(user_id, "transfer_successful"))
+                case.status = CaseStatus.ADVERTISE
+                await case.save()
 
-            #     await update.message.reply_text(
-            #         "Congratulate you case has been advertise 🚀"  # TODO: would be replace to
-            #     )
+                await query.message.reply_text(
+                    "Congratulate you case has been advertise 🚀"  # TODO: would be replace to
+                )
 
-            #     context.user_data["case"] = None
+                context.user_data["case"] = None
 
-            #     return State.END
-            # else:
-            #     await query.answer()
-            #     await query.edit_message_text(get_text(user_id, "transfer_failed"))
+                return State.END
+            else:
+                await query.answer()
+                await query.edit_message_text(get_text(user_id, "transfer_failed"))
         except Exception as e:
             print(f"Transfer failed: {e}")
             await query.answer()

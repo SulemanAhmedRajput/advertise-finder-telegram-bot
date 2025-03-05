@@ -35,13 +35,18 @@ from handlers.finder_handler import (
     choose_province,
 )
 from handlers.listing_handler import (
+    ask_reward_amount,
     cancel_edit_callback,
+    cancel_reward,
     case_details_callback,
+    confirm_reward,
     delete_case_callback,
     edit_case_callback,
     edit_field_callback,
     listing_command,
     pagination_callback,
+    process_reward_transfer,
+    reward_case_callback,
     update_case_field,
 )
 from handlers.wallet_handler import (
@@ -305,7 +310,6 @@ wallet_handler = ConversationHandler(
 )
 
 
-# Define ConversationHandler
 listing_handler = ConversationHandler(
     entry_points=[CommandHandler("listing", listing_command)],
     states={
@@ -318,14 +322,19 @@ listing_handler = ConversationHandler(
             CallbackQueryHandler(edit_case_callback, pattern="^edit_.*$"),
             CallbackQueryHandler(cancel_edit_callback, pattern="^cancel_edit$"),
             CallbackQueryHandler(delete_case_callback, pattern="^delete_.*$"),
+            CallbackQueryHandler(reward_case_callback, pattern="^reward_.*$"),
+            CallbackQueryHandler(ask_reward_amount, pattern="^send_reward_.*$"),
         ],
         State.EDIT_FIELD: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, update_case_field)
+            MessageHandler(filters.TEXT & ~filters.COMMAND, process_reward_transfer)
+        ],
+        State.CONFIRM_REWARD: [  # New state for confirmation
+            CallbackQueryHandler(confirm_reward, pattern="^confirm_reward$"),
+            CallbackQueryHandler(cancel_reward, pattern="^cancel_reward$"),
         ],
     },
     fallbacks=[
         CommandHandler("cancel", lambda update, context: State.END),
-        CallbackQueryHandler(delete_case_callback, pattern="^delete_.*$"),
     ],
     allow_reentry=True,
 )

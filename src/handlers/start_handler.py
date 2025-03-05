@@ -48,6 +48,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         f"{LANG_DATA['en']['start_msg']}\n\n{LANG_DATA['zh']['start_msg']}",
         reply_markup=InlineKeyboardMarkup(btns),
     )
+
     return State.SELECT_LANG
 
 
@@ -484,18 +485,10 @@ async def wallet_selection_callback(
             wallet_type=wallet_type,
         )
 
-        transfer_instructions = (
-            f"\n\n<b>How to Transfer {wallet_type} to Your Wallet:</b>\n\n"
-            f"1️⃣ Open your {wallet_type} wallet app or any compatible wallet.\n"
-            f"2️⃣ Go to the <b>Send</b> or <b>Transfer</b> section of the wallet.\n"
-            f"3️⃣ Paste your <b>Public Key</b> into the recipient address field. Your public key is:\n"
-            f"<code>{wallet_details['public_key']}</code>\n\n"
-            f"4️⃣ Enter the amount of {wallet_type} you want to transfer.\n"
-            f"5️⃣ Review the transaction details and confirm the transfer.\n\n"
-            f"Once the transfer is successful, the {wallet_type} will appear in your wallet balance."
+        transfer_instructions = get_text(user_id, "transfer_instructions").format(
+            wallet_type=wallet_type,
+            public_key=wallet_details["public_key"],
         )
-
-        # Combine the wallet details and transfer instructions
         msg += transfer_instructions
 
         await query.edit_message_text(msg, parse_mode="HTML")
@@ -560,17 +553,10 @@ async def wallet_name_handler(
             wallet_type=wallet_type,
         )
 
-        transfer_instructions = (
-            f"\n\n<b>How to Transfer {wallet_type} to Your Wallet:</b>\n\n"
-            f"1️⃣ Open your {wallet_type} wallet app or any compatible wallet.\n"
-            f"2️⃣ Go to the <b>Send</b> or <b>Transfer</b> section of the wallet.\n"
-            f"3️⃣ Paste your <b>Public Key</b> into the recipient address field. Your public key is:\n"
-            f"<code>{wallet.public_key}</code>\n\n"
-            f"4️⃣ Enter the amount of {wallet_type} you want to transfer.\n"
-            f"5️⃣ Review the transaction details and confirm the transfer.\n\n"
-            f"Once the transfer is successful, the {wallet_type} will appear in your wallet balance."
+        transfer_instructions = get_text(user_id, "transfer_instructions").format(
+            wallet_type=wallet_type,
+            public_key=wallet.public_key,
         )
-
         msg += transfer_instructions
 
         await update.message.reply_text(msg, parse_mode="HTML")

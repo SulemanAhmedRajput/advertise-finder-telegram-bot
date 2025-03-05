@@ -9,9 +9,11 @@ from telegram.ext import (
     ContextTypes,
 )
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from config.config_manager import OWNER_TELEGRAM_ID
 from constant.language_constant import ITEMS_PER_PAGE
 from models.case_model import Case
 from handlers.listing_handler import logger
+from models.finder_model import FinderStatus, RewardExtensionStatus
 from services.case_service import get_case_by_id
 from services.wallet_service import WalletService
 from utils.cloudinary import upload_image
@@ -343,8 +345,7 @@ async def handle_pagination(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         return await show_advertisements(update, context)
 
     return State.CASE_DETAILS
-
-
+    
 async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Show detailed information about a case"""
     print("case_details_callback")
@@ -356,6 +357,7 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         print(f"Printing the Query: {query.data}")
         case_id = query.data.split("_")[1]
         print(f"Case ID: {case_id}")
+        await FinderService.update_or_create_finder(user_id, case=case_id)
         case = await fetch_case_by_number(case_id)
 
         if not case:
@@ -364,12 +366,18 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
         wallet = await case.wallet.fetch() if case.wallet else None
 
+
+        if case.case_photo:
+            # Send the image first
+            await context.bot.send_photo(
+                chat_id=update.effective_chat.id, photo=case.case_photo
+            )
+
         details = (
             f"📌 **Case Details**\n"
             f"👤 **Person Name:** {case.person_name}\n"
             f"📍 **Last Seen Location:** {case.last_seen_location}\n"
             f"💰 **Reward:** {case.reward or 'None'} \n"
-            f"💼 **Wallet:** {wallet.public_key if wallet else 'Not provided'}\n"
             f"👤 **Gender:** {case.gender}\n"
             f"🧒 **Age:** {case.age}\n"
             f"📏 **Height:** {case.height} cm\n"
@@ -389,9 +397,13 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             ],
         ]
 
-        await query.edit_message_text(
+      
+
+        # Send case details
+        await query.message.reply_text(
             details, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown"
         )
+        
         return State.CASE_DETAILS
 
     except Exception as e:
@@ -440,6 +452,7 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         upload_result = await upload_image(
             file_path
         )  # Pass file path instead of File object
+        await FinderService.update_or_create_finder(user_id, proof_url=[upload_result])
         if upload_result:
             print(f"Uploaded Image URL: {upload_result}")
 
@@ -465,6 +478,7 @@ async def handle_enter_location(
         location = update.message.text.strip()
 
         context.user_data["finder_location"] = location
+        await FinderService.update_or_create_finder(user_id, reported_location=location)
         await update.message.reply_text(
             "Do you want to extend the reward?",
             reply_markup=InlineKeyboardMarkup(
@@ -530,7 +544,14 @@ async def handle_extend_reward_amount(
     try:
         demanded_reward = float(new_reward_str)
         case_id = context.user_data.get("found_case_no")
-        case = await get_case_by_id(PydanticObjectId(case_id))
+        case = await get_case_by_id(case_id)
+        print(f"Case: {case}")
+
+        wallet = await case.wallet.fetch(fetch_links=True)
+        mobile = await case.mobile.fetch(fetch_links=True)
+
+        print(f"Wallet: {wallet}")
+        print(f"Mobile: {mobile}")
 
         if not case:
             await update.message.reply_text("Case not found")
@@ -547,6 +568,11 @@ async def handle_extend_reward_amount(
         context.user_data["demanded_reward"] = demanded_reward
         context.user_data["reward_difference"] = demanded_reward - current_reward
 
+        # Fetch the linked Wallet document
+        if not wallet:
+            await update.message.reply_text("Wallet not found for this case")
+            return State.END
+
         # Notify advertiser
         keyboard = [
             [
@@ -555,7 +581,6 @@ async def handle_extend_reward_amount(
             ]
         ]
 
-        wallet = await case.wallet.fetch()
         await context.bot.send_message(
             chat_id=case.user_id,
             text=f"🚨 Reward Extension Request 🚨\n\n"
@@ -633,6 +658,7 @@ async def handle_advertiser_response(
     return State.SELECT_WALLET
 
 
+# TODO: to be fixed
 async def handle_wallet_selection(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -644,6 +670,7 @@ async def handle_wallet_selection(
         return State.NAME_WALLET
 
     wallet_id = query.data.split("_")[-1]
+    print(f"Wallet ID: {wallet_id}")
     wallet = await WalletService.get_wallet_by_id(wallet_id)
 
     if not wallet:
@@ -651,8 +678,6 @@ async def handle_wallet_selection(
         return State.END
 
     context.user_data["selected_wallet"] = wallet
-
-    print(f"Wallet: {wallet}")
 
     # Check balance
     balance = (
@@ -741,21 +766,77 @@ async def handle_transfer_confirmation(
 async def handle_confirm_found(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
+    user_id = update.effective_user.id
 
     if query.data == "confirm_found":
-        # Notify the owner
+        # Get case details
         case_id = context.user_data.get("found_case_no")
         case = await get_case_by_id(PydanticObjectId(case_id))
+        await FinderService.update_or_create_finder(user_id, case=case_id)
+
         if case:
-            await context.bot.send_message(
-                case.user_id, "Someone has confirmed finding the person in your case!"
+            reward_amount = case.reward  # Assuming reward is stored in case
+            tax = reward_amount * 0.05
+            final_reward = reward_amount - tax
+
+            # Notify the advertiser (the one who posted the case)
+            advertiser_message = (
+                f"🔔 *Case Update*\n\n"
+                f"Someone has confirmed finding the person in your case!\n\n"
+                f"📌 *Case Details:*\n"
+                f"👤 *Case ID:* {case_id}\n"
+                f"💰 *Total Reward:* {reward_amount} SOL\n"
+                f"⚖ *Tax (5%):* {tax:.2f} SOL\n"
+                f"✅ *Final Payout:* {final_reward:.2f} SOL\n\n"
+                f"🚀 The reward is being processed."
             )
-        await query.message.reply_text(
-            "The case owner has been notified & reward would be sent to you soon."
-        )
+            await context.bot.send_message(
+                case.user_id, advertiser_message, parse_mode="Markdown"
+            )
+
+            # Notify the finder (who reported the found person)
+            finder_message = (
+                f"🎉 Congratulations! 🎉\n\n"
+                f"The advertiser has been notified about your confirmation.\n"
+                f"💰 Your estimated reward after tax: *{final_reward:.2f} SOL*\n\n"
+                f"Please wait while the payment is processed. 🚀"
+            )
+            await context.bot.send_message(
+                user_id, finder_message, parse_mode="Markdown"
+            )
+
+            # Notify the owner (admin/platform owner)
+            owner_message = (
+                f"🔔 *Admin Alert*\n\n"
+                f"A case has been marked as *found*!\n\n"
+                f"📌 *Case ID:* {case_id}\n"
+                f"👤 *Advertiser:* {case.user_id}\n"
+                f"🔎 *Finder:* {user_id}\n"
+                f"💰 *Total Reward:* {reward_amount} SOL\n"
+                f"⚖ *Tax (5%):* {tax:.2f} SOL\n"
+                f"✅ *Final Payout:* {final_reward:.2f} SOL\n\n"
+                f"📢 Please verify and ensure the reward is sent."
+            )
+            await context.bot.send_message(
+                OWNER_TELEGRAM_ID, owner_message, parse_mode="Markdown"
+            )
+
+            await FinderService.update_or_create_finder(
+                user_id,
+                extended_reward_status=RewardExtensionStatus.PENDING,
+                status=FinderStatus.FIND,
+            )
+
+            # Notify user in chat
+            await query.message.reply_text(
+                "The case owner and advertiser have been notified. Your reward will be sent soon! 💰"
+            )
+        else:
+            await query.message.reply_text("Case not found. Please try again.")
+
         return State.END
     else:
-        query.message.reply_text("Okay, let us know if you have any updates.")
+        await query.message.reply_text("Okay, let us know if you have any updates.")
         return State.END
 
 
@@ -767,7 +848,7 @@ async def handle_found_case(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     await query.answer()
 
     try:
-        # Extract case number from callback data (format: found_<caseno>)
+        # Extract case number from callback data (format: found_<caseno>)/
         case_no = query.data.split("_")[1]
         context.user_data["found_case_no"] = case_no
 

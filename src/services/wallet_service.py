@@ -56,6 +56,46 @@ class WalletService:
             return None
 
     @staticmethod
+    async def transfer_sol(
+        sender_keypair: Keypair, recipient_public_key: str, amount: float
+    ) -> str:
+        """
+        Transfers SOL from one wallet to another.
+        :param sender_keypair: The sender's keypair.
+        :param recipient_public_key: The recipient's public key.
+        :param amount: Amount of SOL to transfer.
+        :return: Transaction signature or error message.
+        """
+        try:
+            # Convert recipient public key to Pubkey object
+            recipient_pubkey = Pubkey.from_string(recipient_public_key)
+
+            # Convert SOL to lamports (1 SOL = 1e9 lamports)
+            lamports = int(amount * 1e9)
+
+            # Create a transfer instruction
+            transfer_instruction = transfer(
+                {
+                    "from_pubkey": sender_keypair.pubkey(),
+                    "to_pubkey": recipient_pubkey,
+                    "lamports": lamports,
+                }
+            )
+
+            # Create a transaction and sign it
+            transaction = Transaction().add(transfer_instruction)
+            transaction = transaction.sign([sender_keypair])
+
+            # Send the transaction
+            response = solana_client.send_transaction(transaction)
+
+            # Return the transaction signature
+            return response.value  # Transaction signature
+        except Exception as e:
+            print(f"Error transferring SOL: {e}")
+            return f"❌ Error: {e}"
+
+    @staticmethod
     async def soft_delete_wallet(wallet_id: PydanticObjectId) -> bool:
         """
         Soft delete a wallet by setting the `deleted` flag to True.
@@ -103,7 +143,7 @@ class WalletService:
         balance = token_client.get_balance(wallet_pubkey)
         return balance
 
-    @staticmethod  # TODO: Check if this works
+    @staticmethod
     async def get_sol_balance(public_key: str) -> float:
         """
         Retrieve the SOL balance for a wallet.
@@ -111,10 +151,19 @@ class WalletService:
         :return: The SOL balance as a float.
         """
         try:
+            # Convert the public key string to a Pubkey object
             publickey = Pubkey.from_string(public_key)
-            balance = solana_client.get_balance(publickey)  # Await the async function
-            print(f"Balance: {balance}")
-            return balance / 1e9  # Convert lamports to SOL
+
+            # Fetch the balance using the Solana client (without await)
+            response = solana_client.get_balance(publickey)
+
+            # Extract the balance value from the response
+            balance = response.value
+
+            print(f"Balance: {balance}")  # Debugging output
+
+            # Convert lamports to SOL (1 SOL = 1e9 lamports)
+            return balance / 1e9
         except Exception as e:
             print(f"Error fetching SOL balance: {e}")
             return 0.0
@@ -289,10 +338,10 @@ class WalletService:
             print(f"Error fetching wallet balance: {e}")
             return {"status": "error", "message": f"❌ Error: {str(e)}"}
 
-    @staticmethod
     @catch_async
-    def send_sol(
-        self, sender_private_key: str, recipient_address: str, amount_sol: float
+    @staticmethod
+    async def send_sol(
+        sender_private_key: str, recipient_address: str, amount_sol: float
     ):
         """
         Send SOL from the sender to the recipient.
@@ -302,47 +351,28 @@ class WalletService:
         :param amount_sol: The amount of SOL to send.
         :return: Transaction signature.
         """
-        try:
-            # Convert SOL to lamports (1 SOL = 1,000,000,000 lamports)
-            lamports = int(amount_sol * 1_000_000_000)
-
-            # Load sender keypair
-            sender = Keypair.from_base58_string(sender_private_key)
-
-            # Load recipient public key
-            recipient = Pubkey.from_string(recipient_address)
-
-            # Create transfer instruction
-            instruction = transfer(
-                TransferParams(
-                    from_pubkey=sender.pubkey(),
-                    to_pubkey=recipient,
-                    lamports=lamports,
-                )
+        lamports = int(amount_sol * 1_000_000_000)
+        sender = Keypair.from_base58_string(sender_private_key)
+        recipient = Pubkey.from_string(recipient_address)
+        instruction = transfer(
+            TransferParams(
+                from_pubkey=sender.pubkey(),
+                to_pubkey=recipient,
+                lamports=lamports,
             )
-
-            # Get latest blockhash
-            blockhash_response = solana_client.get_latest_blockhash()
-            recent_blockhash = blockhash_response.value.blockhash
-
-            # Create message and transaction
-            message = Message(instructions=[instruction], payer=sender.pubkey())
-            transaction = Transaction(
-                from_keypairs=[sender],
-                message=message,
-                recent_blockhash=recent_blockhash,
-            )
-
-            # Sign transaction
-            transaction.sign([sender], recent_blockhash=recent_blockhash)
-
-            # Send transaction
-            send_response = self.client.send_transaction(transaction)
-
-            return f"Transaction sent! Signature: {send_response.value}"
-
-        except Exception as e:
-            return f"Error: {str(e)}"
+        )
+        blockhash_response = solana_client.get_latest_blockhash()
+        recent_blockhash = blockhash_response.value.blockhash
+        message = Message(instructions=[instruction], payer=sender.pubkey())
+        transaction = Transaction(
+            from_keypairs=[sender],
+            message=message,
+            recent_blockhash=recent_blockhash,
+        )
+        transaction.sign([sender], recent_blockhash=recent_blockhash)
+        send_response = solana_client.send_transaction(transaction)
+        print(f"Transaction sent! Transaction signature: {send_response}")
+        return f"Transaction sent! Transaction signature: {send_response}"
 
     @staticmethod
     async def check_wallet_name_used(user_id: int, wallet_name: str) -> bool:
