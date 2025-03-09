@@ -16,6 +16,7 @@ from telegram.ext import (
 from bson import ObjectId, errors
 import traceback
 from models.finder_model import Finder, FinderStatus
+from services.case_service import update_case
 from services.finder_service import FinderService
 from services.user_service import get_user_lang
 from services.wallet_service import WalletService
@@ -654,41 +655,84 @@ async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         return State.END
 
 
+# ------------------------ Delete Case Start ------------------------
+
+
 @catch_async
-async def delete_case_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
-    """Handler for deleting a case."""
+async def delete_case_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handler for confirming and soft deleting a case."""
     query = update.callback_query
     await query.answer()
+
     try:
         case_id = query.data.removeprefix("delete_")  # Extract case ID
-        case = await Case.find_one({"_id": ObjectId(case_id)})
-        if not case:
-            await query.message.edit_text(get_text(user_id, "case_not_found"))
-            return State.END
-
-        # Check if the user owns the case
         user_id = update.effective_user.id
-        if case.user_id != user_id:
-            await query.message.edit_text(get_text(user_id, "not_authorized_delete"))
-            return State.END
 
-        # Delete the case from the database
-        await Case.delete_one({"_id": ObjectId(case_id)})
+        # Check if user is confirming deletion
+        if case_id.startswith("confirm_"):
+            case_id = case_id.removeprefix("confirm_")
+            case = await Case.find_one({"_id": PydanticObjectId(case_id)})
+            
+            if not case:
+                await query.edit_message_text(get_text(user_id, "case_not_found"))
+                return State.END
 
-        await query.message.edit_text(get_text(user_id, "case_deleted_successfully"))
+            if case.user_id != user_id:
+                await query.edit_message_text(get_text(user_id, "not_authorized_delete"))
+                return State.END
 
-        # Refresh listing after deletion
-        return await listing_command(update, context)
+            # Soft delete: update `deleted` field to `True`
+            await update_case(
+                case_id = PydanticObjectId(case_id),
+                deleted = True                  
+            )
+
+            await query.edit_message_text(get_text(user_id, "case_deleted_successfully"))
+
+            # Refresh listing after deletion
+            return await listing_command(update, context)
+
+        # Ask for confirmation before soft deleting
+        keyboard = [
+            [
+                InlineKeyboardButton(get_text(user_id, "yes"), callback_data=f"delete_confirm_{case_id}"),
+                InlineKeyboardButton(get_text(user_id, "no"), callback_data="delete_cancel"),
+            ]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        # Check if message exists before editing
+        if query.message:
+            await query.edit_message_text(get_text(user_id, "confirm_delete"), reply_markup=reply_markup)
+        else:
+            await context.bot.send_message(chat_id=user_id, text=get_text(user_id, "confirm_delete"), reply_markup=reply_markup)
+
+        return State.CASE_DETAILS
 
     except Exception as e:
-        logger.error(
-            f"Error in delete_case_callback: {str(e)}\n{traceback.format_exc()}"
-        )
-        await query.message.edit_text(get_text(user_id, "error_deleting_case"))
+        logger.error(f"Error in delete_case_callback: {str(e)}\n{traceback.format_exc()}")
+        await query.edit_message_text(get_text(update.effective_user.id, "error_deleting_case"))
         return State.END
 
+
+@catch_async
+async def cancel_delete_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handler to cancel delete request."""
+    query = update.callback_query
+    await query.answer()
+
+    try:
+        if query.message:
+            await query.edit_message_text(get_text(update.effective_user.id, "delete_cancelled"))
+        else:
+            await context.bot.send_message(chat_id=update.effective_user.id, text=get_text(update.effective_user.id, "delete_cancelled"))
+    except Exception as e:
+        logger.error(f"Error in cancel_delete_callback: {str(e)}")
+
+    return State.END
+    
+    
+# ------------------------ Delete Case End ------------------------
 
 @catch_async
 async def cancel_edit_callback(

@@ -37,6 +37,7 @@ class Case(Document):
     reward_type: Optional[str] = None
     reward: Optional[float] = None
     reason: Optional[str] = None
+    deleted: Optional[bool] = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 

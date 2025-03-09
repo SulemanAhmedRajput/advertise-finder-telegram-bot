@@ -39,6 +39,7 @@ from handlers.finder_handler import (
 )
 from handlers.listing_handler import (
     ask_reward_amount,
+    cancel_delete_callback,
     cancel_edit_callback,
     cancel_reward,
     case_details_callback,
@@ -335,7 +336,10 @@ listing_handler = ConversationHandler(
             CallbackQueryHandler(edit_field_callback, pattern="^edit_field_.*$"),
             CallbackQueryHandler(edit_case_callback, pattern="^edit_.*$"),
             CallbackQueryHandler(cancel_edit_callback, pattern="^cancel_edit$"),
+            # For deleting the case
             CallbackQueryHandler(delete_case_callback, pattern="^delete_.*$"),
+            CallbackQueryHandler(cancel_delete_callback, pattern="^delete_cancel$"),
+
             CallbackQueryHandler(reward_case_callback, pattern="^reward_.*$"),
             CallbackQueryHandler(ask_reward_amount, pattern="^send_reward_.*$"),
         ],

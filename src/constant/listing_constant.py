@@ -57,6 +57,17 @@ LISTING_CONSTANT = {
         "reward_cancelled": "Reward process cancelled",
         "confirm_button": "✅ Confirm",
         "cancel_button": "❌ Cancel",
+         # ----- Delete Start ------
+        "case_not_found": "⚠️ Case not found.",
+        "not_authorized_delete": "🚫 You are not authorized to delete this case.",
+        "case_deleted_successfully": "✅ Case has been successfully deleted.",
+        "confirm_delete": "❗ Are you sure you want to delete this case?",
+        "yes": "✅ Yes",
+        "no": "❌ No",
+        "delete_cancelled": "❌ Case deletion has been cancelled.",
+        "error_deleting_case": "⚠️ An error occurred while deleting the case. Please try again.",
+        # ----- Delete End ------
+
     },
     "zh": {
         "no_advertise_cases": "未找到广告案例。",
@@ -116,5 +127,15 @@ LISTING_CONSTANT = {
         "reward_cancelled": "奖励过程已取消。",
         "confirm_button": "✅ 确认",
         "cancel_button": "❌ 取消",
+        # ----- Delete Start ------
+        "case_not_found": "⚠️ 案例未找到。",
+        "not_authorized_delete": "🚫 您无权删除此案例。",       
+        "case_deleted_successfully": "✅ 案例已成功删除。",
+        "confirm_delete": "❗ 您确定要删除此案例吗？",
+        "yes": "✅ 是",
+        "no": "❌ 否",
+        "delete_cancelled": "❌ 案例删除已取消。",
+        "error_deleting_case": "⚠️ 删除案例时发生错误。请重试。",
+        # ----- Delete End ------
     },
 }

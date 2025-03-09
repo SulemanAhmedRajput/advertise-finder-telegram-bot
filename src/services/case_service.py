@@ -117,6 +117,29 @@ async def update_or_create_case(user_id: int, **kwargs) -> Case:
     await case.save()
     return case
 
+    
+async def update_case(case_id: PydanticObjectId, **kwargs) -> Case:
+    """
+    Update a case with the provided data.
+
+    Args:
+    - case_id (PydanticObjectId): The ID of the case to update.
+    - kwargs (dict): The fields to update.
+
+    Returns:
+    - case (Case): The updated case.
+    """
+    case = await Case.get(case_id)
+    if not case:
+        raise ValueError("Case not found")
+
+    for key, value in kwargs.items():
+        if value is not None:
+            setattr(case, key, value)
+
+    await case.save()
+    
+
 
 async def get_drafted_case_wallet(user_id: int) -> dict:
     try:
