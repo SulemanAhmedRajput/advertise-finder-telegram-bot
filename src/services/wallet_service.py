@@ -3,6 +3,7 @@ from beanie import PydanticObjectId
 from solders.pubkey import Pubkey
 from spl.token.client import Token
 from spl.token.constants import TOKEN_PROGRAM_ID
+from config.config_manager import CLIENT
 from constant.language_constant import USDT_MINT_ADDRESS
 from models.wallet_model import Wallet
 from utils.error_wrapper import catch_async
@@ -13,6 +14,9 @@ from solders.system_program import transfer, TransferParams
 from solders.transaction import Transaction
 from solders.message import Message
 from solders.keypair import Keypair
+from solana.rpc.types import MemcmpOpts, TokenAccountOpts
+
+from solana.rpc.async_api import AsyncClient
 
 
 class WalletService:
@@ -128,7 +132,7 @@ class WalletService:
     async def get_wallet_by_type(user_id: int, wallet_type: str) -> List[Wallet]:
         print(f"Getting wallets by type: {wallet_type}")
         return await Wallet.find(
-            Wallet.user_id == user_id, Wallet.wallet_type == wallet_type
+            {"user_id": user_id, "wallet_type": wallet_type, "deleted": False}
         ).to_list()
 
     @staticmethod
@@ -386,3 +390,102 @@ class WalletService:
             Wallet.user_id == user_id, Wallet.name == wallet_name
         )
         return wallet is not None
+
+    # HISTORY OF THE WALLET
+    @staticmethod
+    async def get_sol_history(wallet_address: str) -> list:
+        """
+        Retrieve SOL transaction history for a given Solana wallet address.
+        :param wallet_address: The public Solana wallet address.
+        :return: A list of SOL transactions with details.
+        """
+        async with AsyncClient(CLIENT) as client:
+            try:
+                # Fetch the latest transaction signatures
+                response = await client.get_signatures_for_address(wallet_address)
+
+                if not response or "result" not in response or not response["result"]:
+                    return []
+
+                transactions = response["result"]
+                tx_details = []
+
+                for tx in transactions[:10]:  # Fetch last 10 transactions
+                    tx_info = await client.get_transaction(tx["signature"])
+                    if tx_info and "result" in tx_info:
+                        meta = tx_info["result"]["meta"]
+                        pre_balances = meta["preBalances"]
+                        post_balances = meta["postBalances"]
+
+                        # Check if it's a SOL transfer
+                        if (
+                            pre_balances
+                            and post_balances
+                            and pre_balances[0] != post_balances[0]
+                        ):
+                            amount = (
+                                pre_balances[0] - post_balances[0]
+                            ) / 1_000_000_000  # Convert lamports to SOL
+                            tx_details.append(
+                                {
+                                    "signature": tx["signature"],
+                                    "block_time": tx_info["result"]["blockTime"],
+                                    "amount": f"{amount} SOL",
+                                    "fee": f"{meta['fee'] / 1_000_000_000} SOL",
+                                }
+                            )
+
+                return tx_details
+
+            except Exception as e:
+                print(f"Error fetching SOL history: {e}")
+                return []
+
+    @staticmethod
+    async def get_sol_history(wallet_address: str) -> list:
+        """
+        Retrieve SOL transaction history for a given Solana wallet address.
+        :param wallet_address: The public Solana wallet address.
+        :return: A list of SOL transactions with details.
+        """
+        async with AsyncClient(CLIENT) as client:
+            try:
+                # Fetch the latest transaction signatures
+                response = await client.get_signatures_for_address(wallet_address)
+
+                if not response or "result" not in response or not response["result"]:
+                    return []
+
+                transactions = response["result"]
+                tx_details = []
+
+                for tx in transactions[:10]:  # Fetch last 10 transactions
+                    tx_info = await client.get_transaction(tx["signature"])
+                    if tx_info and "result" in tx_info:
+                        meta = tx_info["result"]["meta"]
+                        pre_balances = meta["preBalances"]
+                        post_balances = meta["postBalances"]
+
+                        # Check if it's a SOL transfer
+                        if (
+                            pre_balances
+                            and post_balances
+                            and pre_balances[0] != post_balances[0]
+                        ):
+                            amount = (
+                                pre_balances[0] - post_balances[0]
+                            ) / 1_000_000_000  # Convert lamports to SOL
+                            tx_details.append(
+                                {
+                                    "signature": tx["signature"],
+                                    "block_time": tx_info["result"]["blockTime"],
+                                    "amount": f"{amount} SOL",
+                                    "fee": f"{meta['fee'] / 1_000_000_000} SOL",
+                                }
+                            )
+
+                return tx_details
+
+            except Exception as e:
+                print(f"Error fetching SOL history: {e}")
+                return []

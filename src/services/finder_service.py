@@ -3,6 +3,7 @@ from typing import Optional, List
 from beanie import PydanticObjectId
 from models.finder_model import Finder, FinderStatus, RewardExtensionStatus
 from models.case_model import Case, CaseStatus
+from models.wallet_model import Wallet
 from utils.logger import logger
 
 
@@ -163,8 +164,11 @@ class FinderService:
         # Update fields if provided
         for key, value in kwargs.items():
             if value is not None:
+                if key == "wallet" and isinstance(value, str):
+                    wallet = await Wallet.get(PydanticObjectId(value))
+                    value = wallet  # Directly link the Wallet instance
 
-                if key == "case" and isinstance(value, str):
+                elif key == "case" and isinstance(value, str):
                     case = await Case.get(PydanticObjectId(value))
                     if case:
                         value = case

@@ -1,7 +1,6 @@
 import re
-import traceback
-from config.config_manager import STAKE_WALLET_PUBLIC_KEY
-from constant.language_constant import get_text, user_data_store
+from config.config_manager import CLIENT, STAKE_WALLET_PUBLIC_KEY
+from constant.language_constant import get_text
 from models.case_model import Case, CaseStatus
 import os
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
@@ -14,19 +13,17 @@ from constants import (
     State,
 )
 from models.mobile_number_model import MobileNumber
-from services.case_service import get_drafted_case_wallet, update_or_create_case
+from services.case_service import  update_or_create_case
 from services.wallet_service import WalletService
-import utils.cloudinary
 from utils.twilio import generate_tac
 from utils.wallet import load_user_wallet
 from utils.cloudinary import upload_image
-from solders.keypair import Keypair
 from solana.rpc.api import Client
 from models.wallet_model import Wallet
 from services.user_service import get_user_mobiles, save_user_mobiles, validate_mobile
 
 
-client = Client("https://api.devnet.solana.com")
+client = Client(CLIENT)
 
 
 logging.basicConfig(

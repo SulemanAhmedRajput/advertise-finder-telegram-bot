@@ -10,6 +10,18 @@ from telegram.ext import ContextTypes
 from solders.token.associated import get_associated_token_address
 from constant.language_constant import USDT_MINT_ADDRESS
 
+# Utility functions
+
+# - escape_markdown_v2
+import re
+
+
+def escape_markdown_v2(text: str) -> str:
+    """Escapes special characters for Telegram MarkdownV2"""
+    escape_chars = r"_*[]()~`>#+-=|{}.!"
+    return re.sub(f"([{re.escape(escape_chars)}])", r"\\\1", text)
+
+
 # Define the USDT mint address
 
 
@@ -123,15 +135,13 @@ async def sol_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
     wallets = await WalletService.get_wallet_by_user(user_id)
 
     if not wallets:
-        message = get_text(user_id, "no_wallet").format(
-            {"wallet_name": "SOL"}
-        )  # TODO: Must be check the condition
+        message = get_text(user_id, "no_wallet")
     else:
         message = "<b>Your SOL Wallets:</b>\n"
         for wallet in wallets:
             if wallet.wallet_type == "SOL":
                 try:
-                    balance = await get_sol_balance(wallet.public_key)
+                    balance = await WalletService.get_sol_balance(wallet.public_key)
                     message += (
                         f"<b>Name:</b> {wallet.name}, <b>Balance:</b> {balance} SOL\n"
                     )
@@ -223,12 +233,16 @@ async def show_specific_address(update: Update, context: ContextTypes.DEFAULT_TY
     wallet_id = query.data.split("_")[-1]
     wallet = await WalletService.get_wallet_by_id(wallet_id)
 
+    print(f"Inside show_specific_address: {wallet}")
+
     if wallet:
-        message = f"Wallet Name: {wallet.name} \n\n Public Address: {wallet.public_key}"
+        message = f"**Wallet Name:** {wallet["name"]} \n\n **Public Address:** {wallet['public_key']}"
     else:
         message = "Wallet not found."
 
-    await update.callback_query.message.edit_text(message)
+    await update.callback_query.message.edit_text(
+        message, parse_mode="Markdown"
+    )  # TODO: Add parse_mode properly
     return State.WALLET_MENU
 
 
@@ -270,8 +284,12 @@ async def view_specific_history(update: Update, context: ContextTypes.DEFAULT_TY
     wallet = await WalletService.get_wallet_by_id(wallet_id)
 
     if wallet:
-        history = await WalletService.get_usdt_history(wallet.public_key)
-        message = f"Transaction History for {wallet.name}:\n"
+        history = (
+            await WalletService.get_usdt_history(wallet["public_key"])
+            if wallet["wallet_type"] == "USDT"
+            else await WalletService.get_sol_history(wallet["public_key"])
+        )
+        message = f"Transaction History for {wallet["name"]}:\n"
         for tx in history:
             message += f"Signature: {tx['signature']}, Time: {tx['block_time']}\n"
     else:
@@ -286,12 +304,13 @@ async def create_wallet(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Ask the user to select the wallet type."""
     query = update.callback_query
     await query.answer()
+    user_id = update.effective_user.id
 
     # Create buttons for wallet type selection
     keyboard = [
         [
-            InlineKeyboardButton("USDT", callback_data="USDT"),
-            InlineKeyboardButton("SOL", callback_data="SOL"),
+            InlineKeyboardButton(get_text(user_id, "usdt_btn"), callback_data="USDT"),
+            InlineKeyboardButton(get_text(user_id, "sol_btn"), callback_data="SOL"),
         ],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -332,14 +351,17 @@ async def process_create_wallet(update: Update, context: ContextTypes.DEFAULT_TY
 
     # Create the wallet
     wallet = await WalletService.create_wallet(user_id, wallet_type, wallet_name)
-    message = (
+
+    message = (  # TODO: Must be bold
         f"Wallet created successfully!\n"
-        f"Name: {wallet.name}\n"
-        f"Type: {wallet.wallet_type}\n"
-        f"Public Key: {wallet.public_key}"
+        f"Name: `{wallet.name}`\n"
+        f"Type: `{wallet.wallet_type}`\n"
+        f"Public Key: `{wallet.public_key}`"
     )
 
-    await update.message.reply_text(message)
+    await update.message.reply_text(
+        message,
+    )
     return State.WALLET_MENU
 
 

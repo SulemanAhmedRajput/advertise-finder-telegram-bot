@@ -21,7 +21,7 @@ from services.user_service import get_user_lang
 from services.wallet_service import WalletService
 from utils.logger import logger
 from utils.error_wrapper import catch_async
-from utils.helper import paginate_list
+from utils.helper import get_city_matches, get_country_matches, paginate_list
 
 
 @catch_async
@@ -29,7 +29,12 @@ async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     """Handler for the /listing command."""
     user_id = update.effective_user.id
     logger.info(f"User {user_id} issued /listing command")
-    all_cases = await Case.find({"status": CaseStatus.ADVERTISE}).to_list()
+    all_cases = (
+        await Case.find({"status": CaseStatus.ADVERTISE})
+        .sort(-Case.created_at)  # Sorting in descending order
+        .to_list()
+    )
+
     logger.info(f"Fetched {len(all_cases)} ADVERTISE cases from the database")
     user_lang = await get_user_lang(user_id)
     if user_lang:
@@ -49,7 +54,11 @@ async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 callback_data=f"case_{str(case.id)}",
             )
         ]
-        if case.user_id == user_id:
+        finder_exist = await Finder.find(
+            {"case.$id": PydanticObjectId(case.id)}
+        ).to_list()
+
+        if case.user_id == user_id and len(finder_exist) == 0:
             row.append(
                 InlineKeyboardButton(
                     get_text(user_id, "edit_button"),
@@ -64,10 +73,6 @@ async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             )
 
         print(user_id, OWNER_TELEGRAM_ID)
-
-        finder_exist = await Finder.find(
-            {"case.$id": PydanticObjectId(case.id)}
-        ).to_list()
 
         if str(user_id) == str(OWNER_TELEGRAM_ID) and finder_exist:
             row.append(
@@ -125,6 +130,12 @@ async def case_details_callback(
         # Fetch wallet and mobile number details if they exist
 
         # Format the case details using the constant template
+        proof_text = (
+            f"[Proof]({case.case_photo})"
+            if case.case_photo and case.case_photo.startswith("http")
+            else "No proof available"
+        )
+
         case_message = get_text(
             user_id,
             "case_details_template",
@@ -138,6 +149,8 @@ async def case_details_callback(
             age=case.age,
             height=case.height,
         )
+
+        case_message += f"\n\n**Proof:** {proof_text}"
 
         keyboard = []
         if case.user_id == user_id:
@@ -391,7 +404,7 @@ async def update_case_field(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         return State.END
 
     # Fetch the case
-    case = await Case.find_one({"_id": ObjectId(case_id)})
+    case = await Case.find_one({"_id": PydanticObjectId(case_id)})
     if not case:
         await update.message.reply_text(get_text(user_id, "case_not_found"))
         return State.END
@@ -435,6 +448,210 @@ async def update_case_field(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         return State.EDIT_FIELD
 
     return State.END
+
+
+@catch_async
+async def update_choose_country(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    user_id = update.effective_user.id
+    txt = update.message.text.strip()
+    matches = get_country_matches(txt)
+    if not matches:
+        await update.message.reply_text(
+            get_text(user_id, "country_not_found"), parse_mode="HTML"
+        )
+        return State.CHOOSE_COUNTRY
+    if len(matches) == 1:
+        context.user_data["country"] = matches[0]
+        # Choose the country
+        await update.message.reply_text("Choose a city:")
+        return State.CHOOSE_CITY
+    else:
+
+        context.user_data["country_matches"] = matches
+        context.user_data["country_page"] = 1
+
+        paginated, total = paginate_list(matches, 1)
+        kb = []
+        for c in paginated:
+            kb.append([InlineKeyboardButton(c, callback_data=f"country_select_{c}")])
+        # Pagination buttons
+        if total > 1:
+            kb.append(
+                [
+                    InlineKeyboardButton("⬅️", callback_data="country_page_0"),
+                    InlineKeyboardButton("➡️", callback_data="country_page_2"),
+                ]
+            )
+        markup = InlineKeyboardMarkup(kb)
+        await update.message.reply_text(
+            get_text(user_id, "country_multi").format(page=1, total=total),
+            reply_markup=markup,
+            parse_mode="HTML",
+        )
+        return State.CHOOSE_COUNTRY
+
+
+@catch_async
+async def country_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    await query.answer()
+    data = query.data
+    user_id = query.from_user.id
+    if data.startswith("country_select_"):
+
+        country = data.replace("country_select_", "")
+        context.user_data["country"] = country
+
+        await query.edit_message_text(
+            f"{get_text(user_id, 'country_selected')} {country}.",
+            parse_mode="HTML",
+        )
+        # Choose the country
+        await update.message.reply_text("Choose a city:")
+        return State.CHOOSE_CITY
+    elif data.startswith("country_page_"):
+        page_str = data.replace("country_page_", "")
+        try:
+            page_num = int(page_str)
+            if page_num < 1:
+                page_num = 1
+        except ValueError:
+            page_num = 1
+        matches = context.user_data.get("country_matches", [])
+        paginated, total = paginate_list(matches, page_num)
+        kb = []
+        for c in paginated:
+            kb.append([InlineKeyboardButton(c, callback_data=f"country_select_{c}")])
+        nav_row = []
+        if page_num > 1:
+            nav_row.append(
+                InlineKeyboardButton("⬅️", callback_data=f"country_page_{page_num-1}")
+            )
+        if page_num < total:
+            nav_row.append(
+                InlineKeyboardButton("➡️", callback_data=f"country_page_{page_num+1}")
+            )
+        if nav_row:
+            kb.append(nav_row)
+        markup = InlineKeyboardMarkup(kb)
+        await query.edit_message_text(
+            get_text(user_id, "country_multi").format(page=page_num, total=total),
+            reply_markup=markup,
+            parse_mode="HTML",
+        )
+
+        context.user_data["country_page"] = page_num
+        return State.CHOOSE_COUNTRY
+    else:
+        await query.edit_message_text(
+            get_text(user_id, "invalid_choice"), parse_mode="HTML"
+        )
+        return State.END
+
+
+@catch_async
+async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    user_id = update.effective_user.id
+    city_input = update.message.text.strip()
+    country = context.user_data.get("country")
+    if not country:
+        await update.message.reply_text(
+            get_text(user_id, "invalid_choice"), parse_mode="HTML"
+        )
+        return State.END
+    matches = get_city_matches(country, city_input)
+    if not matches:
+        await update.message.reply_text(
+            get_text(user_id, "city_not_found"), parse_mode="HTML"
+        )
+        return State.CHOOSE_CITY
+    if len(matches) == 1:
+        context.user_data["city"] = matches[0]
+        await update.message.reply_text(
+            f"{get_text(user_id, 'city_selected')} {matches[0]}",
+            parse_mode="HTML",
+        )
+        update.message.reply_text("Updated Successfully")
+        return State.END
+    else:
+        context.user_data["city_matches"] = matches
+        context.user_data["city_page"] = 1
+        paginated, total = paginate_list(matches, 1)
+        kb = []
+        for c in paginated:
+            kb.append([InlineKeyboardButton(c, callback_data=f"city_select_{c}")])
+        # Pagination
+        if total > 1:
+            kb.append(
+                [
+                    InlineKeyboardButton("⬅️", callback_data="city_page_0"),
+                    InlineKeyboardButton("➡️", callback_data="city_page_2"),
+                ]
+            )
+        markup = InlineKeyboardMarkup(kb)
+        await update.message.reply_text(
+            get_text(user_id, "city_multi").format(page=1, total=total),
+            reply_markup=markup,
+            parse_mode="HTML",
+        )
+        return State.CHOOSE_CITY
+
+
+@catch_async
+async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    await query.answer()
+    user_id = query.from_user.id
+    data = query.data
+    if data.startswith("city_select_"):
+        city = data.replace("city_select_", "")
+        context.user_data["city"] = city
+        await update_or_create_case(user_id, city=city)
+
+        await query.edit_message_text(
+            f"{get_text(user_id, 'city_selected')} {city}", parse_mode="HTML"
+        )
+        await choose_action(update, context)
+        return State.CHOOSE_ACTION
+    elif data.startswith("city_page_"):
+        page_str = data.replace("city_page_", "")
+        try:
+            page_num = int(page_str)
+            if page_num < 1:
+                page_num = 1
+        except ValueError:
+            page_num = 1
+        matches = context.user_data.get("city_matches", [])
+        paginated, total = paginate_list(matches, page_num)
+        kb = []
+        for c in paginated:
+            kb.append([InlineKeyboardButton(c, callback_data=f"city_select_{c}")])
+        nav_row = []
+        if page_num > 1:
+            nav_row.append(
+                InlineKeyboardButton("⬅️", callback_data=f"city_page_{page_num-1}")
+            )
+        if page_num < total:
+            nav_row.append(
+                InlineKeyboardButton("➡️", callback_data=f"city_page_{page_num+1}")
+            )
+        if nav_row:
+            kb.append(nav_row)
+        markup = InlineKeyboardMarkup(kb)
+        await query.edit_message_text(
+            get_text(user_id, "city_multi").format(page=page_num, total=total),
+            reply_markup=markup,
+            parse_mode="HTML",
+        )
+        context.user_data["city_page"] = page_num
+        return State.CHOOSE_CITY
+    else:
+        await query.edit_message_text(
+            get_text(user_id, "invalid_choice"), parse_mode="HTML"
+        )
+        return State.END
 
 
 @catch_async
@@ -668,9 +885,14 @@ async def confirm_reward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         amount = context.user_data.get("reward_amount")
 
         case = await Case.find_one({"_id": ObjectId(case_id)})
+
+        print(f"Case: {case}")
+
         finder = await Finder.find_one(
             {"user_id": int(finder_id), "case.$id": PydanticObjectId(case.id)}
         )
+
+        print(f"Finder: {finder}")
 
         # Perform transfer
 

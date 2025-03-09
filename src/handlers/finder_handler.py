@@ -11,12 +11,14 @@ from telegram.ext import (
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from config.config_manager import OWNER_TELEGRAM_ID
 from constant.language_constant import ITEMS_PER_PAGE
-from models.case_model import Case
+from models.case_model import Case, CaseStatus
 from handlers.listing_handler import logger
 from models.finder_model import FinderStatus, RewardExtensionStatus
+from models.wallet_model import Wallet
 from services.case_service import get_case_by_id
 from services.wallet_service import WalletService
 from utils.cloudinary import upload_image
+from utils.error_wrapper import catch_async
 from utils.helper import paginate_list
 from utils.wallet import load_user_wallet
 from constants import State
@@ -56,7 +58,7 @@ async def fetch_cases_by_province(location):
     Fetch cases from the database based on the province.
     """
     # Implement this function
-    case = await Case.find({"last_seen_location": location}).to_list()
+    case = await Case.find({"last_seen_location": location, "status": CaseStatus.ADVERTISE}).to_list()
     print(f"These are the cases for {location}: {case}")
 
     return case
@@ -345,7 +347,8 @@ async def handle_pagination(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         return await show_advertisements(update, context)
 
     return State.CASE_DETAILS
-    
+
+
 async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Show detailed information about a case"""
     print("case_details_callback")
@@ -367,11 +370,12 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         wallet = await case.wallet.fetch() if case.wallet else None
 
 
-        if case.case_photo:
-            # Send the image first
-            await context.bot.send_photo(
-                chat_id=update.effective_chat.id, photo=case.case_photo
-            )
+        proof_text = (
+            f"[Proof]({case.case_photo})"
+            if case.case_photo and case.case_photo.startswith("http")
+            else "No proof available"
+        )
+        
 
         details = (
             f"📌 **Case Details**\n"
@@ -382,6 +386,9 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             f"🧒 **Age:** {case.age}\n"
             f"📏 **Height:** {case.height} cm\n"
         )
+        
+        details +=  f"\n\n**Proof:** {proof_text}"
+
 
         keyboard = [
             [
@@ -397,13 +404,11 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             ],
         ]
 
-      
-
         # Send case details
         await query.message.reply_text(
             details, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown"
         )
-        
+
         return State.CASE_DETAILS
 
     except Exception as e:
@@ -504,6 +509,7 @@ async def handle_extend_reward(update: Update, context: ContextTypes.DEFAULT_TYP
     query = update.callback_query
     await query.answer()
     case_id = context.user_data.get("found_case_no")
+    user_id = update.effective_user.id
 
     if query.data == "yes_extend":
         await query.message.reply_text("Please enter the new reward amount:")
@@ -511,29 +517,259 @@ async def handle_extend_reward(update: Update, context: ContextTypes.DEFAULT_TYP
     else:
         # Handle "No" response
         case = await get_case_by_id(PydanticObjectId(case_id))
-        advertiser_id = case.user_id if case else None
-        if advertiser_id:
-            await context.bot.send_message(
-                advertiser_id, "Someone has confirmed finding the person in your case!"
-            )
-        await query.message.reply_text(
-            "Are you sure you have found this person?",
-            reply_markup=InlineKeyboardMarkup(
+
+        kb = InlineKeyboardMarkup(
+            [
                 [
-                    [
-                        InlineKeyboardButton(
-                            "Yes, Confirm", callback_data="confirm_found"
-                        ),
-                        InlineKeyboardButton(
-                            "No, Cancel", callback_data="cancel_found"
-                        ),
-                    ],
+                    InlineKeyboardButton(
+                        get_text(user_id, "usdt_wallet"), callback_data="USDT"
+                    ),
+                    InlineKeyboardButton(
+                        get_text(user_id, "sol_wallet"), callback_data="SOL"
+                    ),
                 ]
-            ),
+            ]
         )
-        return State.CONFIRM_FOUND
+        await query.edit_message_text(
+            get_text(user_id, "choose_wallet"), reply_markup=kb
+        )
+        return State.FINDER_CHOOSE_WALLET_TYPE
 
 
+@catch_async
+async def finder_wallet_type_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    query = update.callback_query
+    await query.answer()
+    user_id = query.from_user.id
+
+    # Determine wallet type (SOL or USDT) from callback data
+    wallet_type = query.data
+
+    context.user_data["wallet_type"] = wallet_type
+
+    print(f"Wallet type: {wallet_type}")
+
+    existing_wallets = await WalletService.get_wallet_by_type(user_id, wallet_type)
+
+    if existing_wallets:
+        kb = [
+            [
+                InlineKeyboardButton(
+                    wallet.name, callback_data=f"wallet_{str(wallet.id)}"
+                )
+            ]
+            for wallet in existing_wallets
+        ]
+        kb.append(
+            [
+                InlineKeyboardButton(
+                    get_text(user_id, "create_new_wallet"),
+                    callback_data="create_new_wallet",
+                )
+            ]
+        )
+        await query.edit_message_text(
+            get_text(user_id, "choose_existing_or_new_wallet"),
+            reply_markup=InlineKeyboardMarkup(kb),
+            parse_mode="HTML",
+        )
+        return State.FINDER_CHOOSE_WALLET_TYPE
+    else:
+        msg = get_text(user_id, "wallet_name_prompt")
+        if update.message:
+            await update.message.reply_text(msg, parse_mode="HTML")
+        elif update.callback_query:
+            await update.callback_query.message.reply_text(msg, parse_mode="HTML")
+
+        return State.FINDER_NAME_WALLET
+
+
+@catch_async
+async def finder_wallet_selection_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+
+    query = update.callback_query
+    await query.answer()
+    user_id = query.from_user.id
+
+    # Extract wallet name and type from callback data
+    wallet_id = query.data.replace("wallet_", "")
+    wallet_type = context.user_data.get("wallet_type")  # 'sol' or 'usdt'
+
+    case_id = context.user_data.get("found_case_no")
+    case = await get_case_by_id(case_id)
+
+    # Fetch wallet details by name and type
+    wallet_details = await WalletService.get_wallet_by_id(wallet_id)
+
+    print(f"Wallet details: {wallet_details}")
+
+    if wallet_details:
+        # Fetch balance for the specific wallet type (SOL or USDT)
+        print(f"This is the wallet type: {wallet_type}")
+
+        total_sol = (
+            await WalletService.get_sol_balance(wallet_details["public_key"])
+            if wallet_type == "SOL"
+            else await WalletService.get_usdt_balance(wallet_details["public_key"])
+        )
+
+        print(f"Total {wallet_type}: {total_sol}")
+
+        context.user_data["wallet"] = wallet_details  # Store in memory
+        await FinderService.update_or_create_finder(
+            user_id, wallet=str(wallet_details["id"])
+        )
+
+        msg = get_text(user_id, "wallet_create_details").format(
+            name=wallet_details["name"],
+            public_key=wallet_details["public_key"],
+            secret_key=wallet_details["private_key"],
+            balance=total_sol,  # For USDT, balance might be different
+            wallet_type=wallet_type,
+        )
+
+        await query.edit_message_text(msg, parse_mode="HTML")
+
+        # Show confirmation
+        keyboard = [
+            [
+                InlineKeyboardButton(
+                    "Confirm Transfer", callback_data="confirm_transfer"
+                ),
+                InlineKeyboardButton("Cancel", callback_data="cancel_transfer"),
+            ]
+        ]
+
+        await query.edit_message_text(
+            f"Are you Confirm you want the reward to {case.reward} {wallet_details["wallet_type"]} this Wallet ?\n"
+            f"Wallet address: {wallet_details['public_key']}",
+            reply_markup=InlineKeyboardMarkup(keyboard),
+        )
+        return State.FINDER_CONFIRM_TRANSACTION
+
+    else:
+        await query.edit_message_text(
+            get_text(user_id, "wallet_not_found"), parse_mode="HTML"
+        )
+        return State.END
+
+
+@catch_async
+async def finder_wallet_name_handler(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    user_id = update.effective_user.id
+    query = update.callback_query
+    await query.answer()
+    if update.callback_query:
+        # If it's a callback query, prompt the user to enter a wallet name
+        await update.callback_query.answer()
+        await update.callback_query.edit_message_text(
+            get_text(user_id, "wallet_name_prompt"), parse_mode="HTML"
+        )
+        return State.NAME_WALLET
+
+    wallet_name = update.message.text.strip()
+
+    case_id = context.user_data.get("found_case_no")
+    case = await get_case_by_id(case_id)
+
+    print(f"Wallet name: {wallet_name}")
+
+    if not wallet_name:
+        await update.message.reply_text(
+            get_text(user_id, "wallet_name_empty"), parse_mode="HTML"
+        )
+        return State.NAME_WALLET
+
+    print("Hello there how are you doing", wallet_name)
+
+    wallet_type = context.user_data.get("wallet_type")
+
+    print(f"Wallet type: {wallet_type}")
+
+    wallet = await WalletService.create_wallet(user_id, wallet_type, wallet_name)
+    if wallet:
+
+        if wallet_type == "SOL":
+            total_sol = await WalletService.get_sol_balance(wallet.public_key)
+        elif wallet_type == "USDT":
+            total_sol = await WalletService.get_usdt_balance(wallet.public_key)
+
+        print(f"Total SOL: {total_sol}")
+        print(f"This is the wallet type: {wallet_type}")
+
+        context.user_data["wallet"] = wallet
+        msg = get_text(user_id, "wallet_create_details").format(
+            name=wallet.name,
+            public_key=wallet.public_key,
+            secret_key=wallet.private_key,
+            balance=total_sol,  # For USDT, the balance logic will vary
+            wallet_type=wallet_type,
+        )
+
+        keyboard = [
+            [
+                InlineKeyboardButton(
+                    "Confirm Transfer", callback_data="confirm_transfer"
+                ),
+                InlineKeyboardButton("Cancel", callback_data="cancel_transfer"),
+            ]
+        ]
+
+        await query.edit_message_text(
+            f"Confirm transfer of {case.reward} {wallet.wallet_type} from {wallet.name}?\n"
+            f"Wallet address: {wallet.public_key}",
+            reply_markup=InlineKeyboardMarkup(keyboard),
+        )
+        return State.FINDER_CONFIRM_TRANSACTION
+
+    else:
+        await update.message.reply_text(
+            get_text(user_id, "wallet_create_err"), parse_mode="HTML"
+        )
+        return State.END
+
+
+@catch_async
+async def finder_handle_transaction_confirmation(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+):
+    query = update.callback_query
+    await query.answer()
+    user_id = update.effective_user.id
+    case_id = context.user_data.get("found_case_no")
+    case = await get_case_by_id(PydanticObjectId(case_id))
+    print("Case: ", case)
+    wallet = await case.wallet.fetch(fetch_links=True)
+    print(f"Wallet: {wallet}")
+    print(f"Case: {case}")
+    if case.status == CaseStatus.ADVERTISE:
+        await FinderService.update_or_create_finder(user_id, case=case_id)
+        # TODO: Add a check to see if the user has already been notified
+
+        # await context.bot.send_message(
+        #     chat_id=case.user_id,
+        #     text=f"🚨 Reward Extension Request 🚨\n\n"
+        #     f"Finder is demanding {case.reward} {wallet.wallet_type}\n"
+        #     f"Additional amount needed: {context.user_data['reward_difference']} {wallet.wallet_type}\n\n"
+        #     f"Do you want to accept this extension?",
+        #     reply_markup=InlineKeyboardMarkup(keyboard),
+        # )
+        await query.edit_message_text(
+            f"Congratulate you finder request is send to the advertiser you will receive the reward when you accepted the request 🚀"
+        )
+        return State.END
+
+
+#  FOR THE EXTEND REWARD
+
+
+@catch_async
 async def handle_extend_reward_amount(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -541,61 +777,54 @@ async def handle_extend_reward_amount(
     new_reward_str = update.message.text.strip()
     context.user_data["extend_flow"] = True
 
-    try:
-        demanded_reward = float(new_reward_str)
-        case_id = context.user_data.get("found_case_no")
-        case = await get_case_by_id(case_id)
-        print(f"Case: {case}")
+    demanded_reward = float(new_reward_str)
+    case_id = context.user_data.get("found_case_no")
 
-        wallet = await case.wallet.fetch(fetch_links=True)
-        mobile = await case.mobile.fetch(fetch_links=True)
+    # Fetch the case with linked documents (wallet)
+    case = await Case.find_one(
+        {"_id": ObjectId(case_id)}, fetch_links=True  # Ensure wallet is fetched
+    )
+    case = case.model_dump_json()
+    print(f"Case: {case}")
 
-        print(f"Wallet: {wallet}")
-        print(f"Mobile: {mobile}")
+    wallet = await WalletService.get_wallet_by_id(case["wallet"]["id"])
 
-        if not case:
-            await update.message.reply_text("Case not found")
-            return State.END
+    print(f"Case: {case}")
+    print(f"Wallet: {wallet}")
 
-        current_reward = case.reward or 0
+    # Validate wallet
+    if not wallet or not hasattr(wallet, "wallet_type"):
+        await update.message.reply_text("Wallet configuration error")
+        return State.END
 
-        if demanded_reward <= current_reward:
-            await update.message.reply_text(
-                f"Please enter an amount greater than current reward ({current_reward})"
-            )
-            return State.EXTEND_REWARD_AMOUNT
-
-        context.user_data["demanded_reward"] = demanded_reward
-        context.user_data["reward_difference"] = demanded_reward - current_reward
-
-        # Fetch the linked Wallet document
-        if not wallet:
-            await update.message.reply_text("Wallet not found for this case")
-            return State.END
-
-        # Notify advertiser
-        keyboard = [
-            [
-                InlineKeyboardButton("Accept", callback_data="accept_extend"),
-                InlineKeyboardButton("Reject", callback_data="reject_extend"),
-            ]
-        ]
-
-        await context.bot.send_message(
-            chat_id=case.user_id,
-            text=f"🚨 Reward Extension Request 🚨\n\n"
-            f"Finder is demanding {demanded_reward} {wallet.wallet_type}\n"
-            f"Additional amount needed: {context.user_data['reward_difference']} {wallet.wallet_type}\n\n"
-            f"Do you want to accept this extension?",
-            reply_markup=InlineKeyboardMarkup(keyboard),
+    current_reward = case.reward or 0
+    if demanded_reward <= current_reward:
+        await update.message.reply_text(
+            f"Please enter an amount greater than current reward ({current_reward})"
         )
-
-        await update.message.reply_text("Extension request sent to case owner")
-        return State.ADVERTISER_RESPONSE
-
-    except ValueError:
-        await update.message.reply_text("Please enter a valid number")
         return State.EXTEND_REWARD_AMOUNT
+
+    context.user_data["demanded_reward"] = demanded_reward
+    context.user_data["reward_difference"] = demanded_reward - current_reward
+
+    # Notify advertiser
+    await context.bot.send_message(
+        chat_id=case.user_id,
+        text=f"🚨 Reward Extension Request 🚨\n\n"
+        f"Finder is demanding {demanded_reward} {wallet.wallet_type}\n"
+        f"Additional amount needed: {context.user_data['reward_difference']} {wallet.wallet_type}\n\n"
+        f"Do you want to accept this extension?",
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("Accept", callback_data="accept_extend"),
+                    InlineKeyboardButton("Reject", callback_data="reject_extend"),
+                ]
+            ]
+        ),
+    )
+    await update.message.reply_text("Extension request sent to case owner")
+    return State.ADVERTISER_RESPONSE
 
 
 async def handle_advertiser_response(
@@ -658,58 +887,7 @@ async def handle_advertiser_response(
     return State.SELECT_WALLET
 
 
-# TODO: to be fixed
-async def handle_wallet_selection(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
-    query = update.callback_query
-    await query.answer()
-
-    if query.data == "create_extend_wallet":
-        await query.edit_message_text("Enter a name for your new wallet:")
-        return State.NAME_WALLET
-
-    wallet_id = query.data.split("_")[-1]
-    print(f"Wallet ID: {wallet_id}")
-    wallet = await WalletService.get_wallet_by_id(wallet_id)
-
-    if not wallet:
-        await query.edit_message_text("Wallet not found")
-        return State.END
-
-    context.user_data["selected_wallet"] = wallet
-
-    # Check balance
-    balance = (
-        await WalletService.get_sol_balance(wallet.public_key)
-        if wallet.wallet_type == "SOL"
-        else await WalletService.get_usdt_balance(wallet.public_key)
-    )
-    required = context.user_data["reward_difference"]
-
-    if balance < required:
-        await query.edit_message_text(
-            f"Insufficient balance. Needed: {required} {wallet.wallet_type}\n"
-            f"Current balance: {balance} {wallet.wallet_type}"
-        )
-        return State.END
-
-    # Show confirmation
-    keyboard = [
-        [
-            InlineKeyboardButton("Confirm Transfer", callback_data="confirm_transfer"),
-            InlineKeyboardButton("Cancel", callback_data="cancel_transfer"),
-        ]
-    ]
-
-    await query.edit_message_text(
-        f"Confirm transfer of {required} {wallet.wallet_type} from {wallet.name}?\n"
-        f"Wallet address: {wallet.public_key}",
-        reply_markup=InlineKeyboardMarkup(keyboard),
-    )
-    return State.TRANSFER_CONFIRMATION
-
-
+@catch_async
 async def handle_transfer_confirmation(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -725,42 +903,18 @@ async def handle_transfer_confirmation(
     case_id = context.user_data.get("found_case_no")
     case = await get_case_by_id(PydanticObjectId(case_id))
 
-    try:
-        # Perform actual transfer
-        success = await WalletService.transfer(
-            private_key=wallet.private_key,
-            recipient_address=case.wallet.public_key,  # Assuming case has a wallet
-            amount=amount,
-            currency=wallet.type,
-        )
-
-        if success:
-            # Update case reward
-            case.reward = context.user_data["demanded_reward"]
-            await case.save()
-
-            # Notify both parties
-            await context.bot.send_message(
-                chat_id=case.user_id,
-                text=f"Successfully transferred {amount} {wallet.wallet_type}!\n"
-                f"New total reward: {case.reward} {wallet.wallet_type}",
-            )
-
-            await context.bot.send_message(
-                chat_id=context.user_data["finder_id"],  # Store finder ID earlier
-                text=f"Reward extended to {case.reward} {wallet.wallet_type}!\n"
-                f"The additional amount has been secured.",
-            )
-
-            await query.edit_message_text("Transfer successful! Reward updated.")
-        else:
-            await query.edit_message_text("Transfer failed. Please try again.")
-
-    except Exception as e:
-        logger.error(f"Transfer error: {e}")
-        await query.edit_message_text("An error occurred during transfer")
-
-    return State.END
+    # Notify both parties
+    await context.bot.send_message(
+        chat_id=case.user_id,
+        text=f"Successfully transferred {amount} {wallet.wallet_type}!\n"
+        f"New total reward: {case.reward} {wallet.wallet_type}",
+    )
+    await context.bot.send_message(
+        chat_id=context.user_data["finder_id"],  # Store finder ID earlier
+        text=f"Reward extended to {case.reward} {wallet.wallet_type}!\n"
+        f"The additional amount has been secured.",
+    )
+    await query.edit_message_text("Transfer successful! Reward updated.")
 
 
 async def handle_confirm_found(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -774,7 +928,10 @@ async def handle_confirm_found(update: Update, context: ContextTypes.DEFAULT_TYP
         case = await get_case_by_id(PydanticObjectId(case_id))
         await FinderService.update_or_create_finder(user_id, case=case_id)
 
+        print(f"Inside the found case: {case}")
+
         if case:
+            print(f"Inside the found case: {case}")
             reward_amount = case.reward  # Assuming reward is stored in case
             tax = reward_amount * 0.05
             final_reward = reward_amount - tax

@@ -20,13 +20,16 @@ from handlers.case_handler import (
     handle_weight,
 )
 from handlers.finder_handler import (
+    finder_handle_transaction_confirmation,
+    finder_wallet_name_handler,
+    finder_wallet_selection_callback,
+    finder_wallet_type_callback,
     handle_advertiser_response,
     handle_confirm_found,
     handle_enter_location,
     handle_extend_reward,
     handle_extend_reward_amount,
     handle_pagination,
-    handle_wallet_selection,
     show_advertisements,
     case_details,
     handle_proof,
@@ -48,6 +51,7 @@ from handlers.listing_handler import (
     process_reward_transfer,
     reward_case_callback,
     update_case_field,
+    update_choose_country,
 )
 from handlers.wallet_handler import (
     confirm_delete_wallet,
@@ -225,18 +229,20 @@ start_handler = ConversationHandler(
                 handle_extend_reward, pattern="^(yes_extend|no_extend)$"
             )
         ],
-        State.EXTEND_REWARD_AMOUNT: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_extend_reward_amount)
-        ],
-        State.ADVERTISER_RESPONSE: [
+        State.FINDER_CHOOSE_WALLET_TYPE: [
+            CallbackQueryHandler(finder_wallet_type_callback, pattern="^(SOL|USDT)$"),
+            CallbackQueryHandler(finder_wallet_selection_callback, pattern="^wallet_"),
             CallbackQueryHandler(
-                handle_advertiser_response, pattern="^(accept_extend|reject_extend)$"
-            )
+                finder_wallet_name_handler, pattern="^create_new_wallet$"
+            ),  # Handle create_new_wallet
         ],
-        State.SELECT_WALLET: [
+        State.FINDER_NAME_WALLET: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, finder_wallet_name_handler),
+        ],
+        State.FINDER_CONFIRM_TRANSACTION: [
             CallbackQueryHandler(
-                handle_wallet_selection,
-                pattern="^(select_extend_wallet_|create_extend_wallet)",
+                finder_handle_transaction_confirmation,
+                pattern="^(confirm_transfer|cancel_transfer)$",
             )
         ],
         State.TRANSFER_CONFIRMATION: [
@@ -248,6 +254,14 @@ start_handler = ConversationHandler(
         State.CONFIRM_FOUND: [
             CallbackQueryHandler(
                 handle_confirm_found, pattern="^(confirm_found|cancel_found)$"
+            )
+        ],
+        State.EXTEND_REWARD_AMOUNT: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_extend_reward_amount)
+        ],
+        State.ADVERTISER_RESPONSE: [
+            CallbackQueryHandler(
+                handle_advertiser_response, pattern="^(accept_extend|reject_extend)$"
             )
         ],
         State.END: [CommandHandler("start", start)],
@@ -326,7 +340,21 @@ listing_handler = ConversationHandler(
             CallbackQueryHandler(ask_reward_amount, pattern="^send_reward_.*$"),
         ],
         State.EDIT_FIELD: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, update_case_field)
+            # TODO: must be put to somewhere else
+        ],
+        State.REWARD_TRANSFER_PROCESS: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, process_reward_transfer)
+        ],
+        State.CHOOSE_COUNTRY: [
+            CallbackQueryHandler(
+                country_callback, pattern="^(country_select_|country_page_)"
+            ),
+            MessageHandler(filters.TEXT & ~filters.COMMAND, update_choose_country),
+        ],
+        State.CHOOSE_CITY: [
+            CallbackQueryHandler(city_callback, pattern="^(city_select_|city_page_)"),
+            MessageHandler(filters.TEXT & ~filters.COMMAND, choose_city),
         ],
         State.CONFIRM_REWARD: [  # New state for confirmation
             CallbackQueryHandler(confirm_reward, pattern="^confirm_reward$"),

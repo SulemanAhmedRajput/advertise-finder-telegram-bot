@@ -28,9 +28,7 @@ class Finder(Document):
     user_id: int  # Telegram user ID of the finder
     case: Optional[Link[Case]] = None  # Reference to the case the finder is reporting
     proof_url: Optional[List[str]] = None  # Uploaded proof image/video URL
-    wallet: Optional[Link[Wallet]] = (
-        (None),  # Reference to the wallet used for the reward
-    )
+    wallet: Optional[Link[Wallet]] = None
     reported_location: Optional[str] = None  # Location where the person was seen
     timestamp: datetime = Field(
         default_factory=datetime.utcnow
