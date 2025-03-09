@@ -31,7 +31,7 @@ async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     user_id = update.effective_user.id
     logger.info(f"User {user_id} issued /listing command")
     all_cases = (
-        await Case.find({"status": CaseStatus.ADVERTISE})
+        await Case.find({"status": CaseStatus.ADVERTISE, "deleted": False})
         .sort(-Case.created_at)  # Sorting in descending order
         .to_list()
     )
@@ -121,7 +121,7 @@ async def case_details_callback(
 
     try:
         case_id = query.data.removeprefix("case_")  # Extract case ID
-        case = await Case.find_one({"_id": ObjectId(case_id)}, fetch_links=True)
+        case = await Case.find_one({"_id": PydanticObjectId(case_id), "deleted": False}, fetch_links=True)
         print("THIS IS THE CASE", case)
 
         if not case:
