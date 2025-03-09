@@ -7,7 +7,6 @@ from telegram import (
     InlineKeyboardButton,
     ReplyKeyboardRemove,
 )
-from solders.pubkey import Pubkey
 from telegram.ext import (
     ConversationHandler,
     ContextTypes,
@@ -17,7 +16,6 @@ from constants import (
 )
 from services.user_service import get_user_lang, save_user_lang
 from utils.error_wrapper import catch_async
-from utils.wallet import create_sol_wallet
 from utils.helper import get_city_matches, get_country_matches, paginate_list
 from constant.language_constant import LANG_DATA, get_text, user_data_store
 

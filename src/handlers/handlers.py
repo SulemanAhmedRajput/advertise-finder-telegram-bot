@@ -38,15 +38,21 @@ from handlers.finder_handler import (
     choose_province,
 )
 from handlers.listing_handler import (
+    advertiser_wallet_name_handler,
+    advertiser_wallet_selection_callback,
+    advertiser_wallet_type_callback,
     ask_reward_amount,
     cancel_delete_callback,
     cancel_edit_callback,
+    cancel_extend_callback,
     cancel_reward,
     case_details_callback,
+    confirm_extend_callback,
     confirm_reward,
     delete_case_callback,
     edit_case_callback,
     edit_field_callback,
+    extend_reward_callback,
     finder_details_callback,
     listing_command,
     pagination_callback,
@@ -345,6 +351,15 @@ listing_handler = ConversationHandler(
             CallbackQueryHandler(reward_case_callback, pattern="^reward_.*$"),  # Show case & finders list
             CallbackQueryHandler(finder_details_callback, pattern="^finder_details_.*$"),  # Show one finder details
             CallbackQueryHandler(ask_reward_amount, pattern="^send_reward_.*$"),  # Ask for reward amount
+
+            # New Extend handlers
+            CallbackQueryHandler(extend_reward_callback, pattern=r"^extend_reward_"),
+ 
+            
+        ],
+        State.CONFIRM_EXTEND: [
+            CallbackQueryHandler(confirm_extend_callback, pattern=r"^confirm_extend_"),
+            CallbackQueryHandler(cancel_extend_callback, pattern=r"^cancel_extend"),
         ],
         State.EDIT_FIELD: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, update_case_field),
@@ -364,6 +379,19 @@ listing_handler = ConversationHandler(
             CallbackQueryHandler(confirm_reward, pattern="^confirm_reward$"),
             CallbackQueryHandler(cancel_reward, pattern="^cancel_reward$"),
         ],
+
+        # Advertiser to Extend the reward demanded by the finder
+        State.CHOOSE_WALLET_TYPE: [
+            CallbackQueryHandler(advertiser_wallet_type_callback, pattern="^(SOL|USDT)$"),
+            CallbackQueryHandler(advertiser_wallet_selection_callback, pattern="^wallet_"),
+            CallbackQueryHandler(
+                advertiser_wallet_name_handler, pattern="^create_new_wallet$"
+            ),  # Handle create_new_wallet
+        ],
+        State.NAME_WALLET: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, advertiser_wallet_name_handler),
+        ],
+        
     },
     fallbacks=[
         CommandHandler("cancel", lambda update, context: State.END),

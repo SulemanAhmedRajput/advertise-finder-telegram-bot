@@ -8,16 +8,18 @@ import telegram
 from telegram.ext import (
     ContextTypes,
 )
+
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from config.config_manager import OWNER_TELEGRAM_ID
 from constant.language_constant import ITEMS_PER_PAGE
 from models.case_model import Case, CaseStatus
 from handlers.listing_handler import logger
+from models.extend_reward_model import ExtendReward, ExtendRewardStatus
 from models.finder_model import FinderStatus, RewardExtensionStatus
 from models.wallet_model import Wallet
 from services.case_service import get_case_by_id
 from services.wallet_service import WalletService
-from utils.cloudinary import upload_image
+from utils.cloudinary import CloudinaryError, upload_image, upload_video
 from utils.error_wrapper import catch_async
 from utils.helper import paginate_list
 from utils.wallet import load_user_wallet
@@ -418,7 +420,7 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
 
 async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handles uploaded proof and uploads it to Cloudinary."""
+    """Handles uploaded proof (image or video) and uploads it to Cloudinary."""
     print("handle_proof")
     try:
         user_id = update.effective_user.id
@@ -433,16 +435,39 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
         file_id = None
         file_extension = None
+        file_size = None
+        is_video = False  # Flag to check if the file is a video
 
+        # Check for photo or video
         if update.message.photo:
             file_id = update.message.photo[-1].file_id
-            file_extension = "jpg"
+            file_extension = "jpg"  # Telegram sends images in JPG format
         elif update.message.video:
             file_id = update.message.video.file_id
-            file_extension = "mp4"
+            file_extension = update.message.video.mime_type.split("/")[1]  # Get video format (e.g., mp4, mov, etc.)
+            file_size = update.message.video.file_size  # File size in bytes
+            is_video = True  # Mark this as a video upload
         else:
             await update.message.reply_text(get_text(user_id, "error_upload_proof"))
             return State.UPLOAD_PROOF
+
+        # Define supported formats for both images and videos
+        supported_image_formats = ["jpg", "jpeg", "png"]
+        supported_video_formats = ["mp4", "mov", "avi", "mkv", "webm"]
+
+        # Validate the file format
+        if is_video:
+            if file_extension not in supported_video_formats:
+                await update.message.reply_text("Unsupported video format. Please upload a valid video (mp4, mov, avi, mkv, webm).")
+                return State.UPLOAD_PROOF
+            # Check video file size (5MB max)
+            if file_size and file_size > 5 * 1024 * 1024:
+                await update.message.reply_text("The file is too large. Please upload a video smaller than 5 MB.")
+                return State.UPLOAD_PROOF
+        else:
+            if file_extension not in supported_image_formats:
+                await update.message.reply_text("Unsupported image format. Please upload a valid image (jpg, jpeg, png).")
+                return State.UPLOAD_PROOF
 
         # Generate unique filename
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
@@ -453,13 +478,20 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         file = await context.bot.get_file(file_id)
         await file.download_to_drive(file_path)
 
-        # Upload the image to Cloudinary
-        upload_result = await upload_image(
-            file_path
-        )  # Pass file path instead of File object
+        # Upload to Cloudinary
+        try:
+            if is_video:
+                upload_result = await upload_video(file_path)
+            else:
+                upload_result = await upload_image(file_path)
+
+            print(f"Uploaded File URL: {upload_result}")
+        except CloudinaryError as e:
+            print(f"Cloudinary upload error: {e}")
+            await update.message.reply_text("There was an error uploading the file. Please try again.")
+            return State.END
+
         await FinderService.update_or_create_finder(user_id, proof_url=[upload_result])
-        if upload_result:
-            print(f"Uploaded Image URL: {upload_result}")
 
         # Store proof path in context
         context.user_data["proof_path"] = file_path
@@ -504,36 +536,11 @@ async def handle_enter_location(
         await update.message.reply_text(get_text(user_id, "error_sending_notification"))
         return State.END
 
+  
 
-async def handle_extend_reward(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    case_id = context.user_data.get("found_case_no")
-    user_id = update.effective_user.id
 
-    if query.data == "yes_extend":
-        await query.message.reply_text("Please enter the new reward amount:")
-        return State.EXTEND_REWARD_AMOUNT  # Transition to reward amount input
-    else:
-        # Handle "No" response
-        case = await get_case_by_id(PydanticObjectId(case_id))
 
-        kb = InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton(
-                        get_text(user_id, "usdt_wallet"), callback_data="USDT"
-                    ),
-                    InlineKeyboardButton(
-                        get_text(user_id, "sol_wallet"), callback_data="SOL"
-                    ),
-                ]
-            ]
-        )
-        await query.edit_message_text(
-            get_text(user_id, "choose_wallet"), reply_markup=kb
-        )
-        return State.FINDER_CHOOSE_WALLET_TYPE
+# ------------------------------------- FINDER  LOGIC  START ------------------------------------
 
 
 @catch_async
@@ -733,6 +740,8 @@ async def finder_wallet_name_handler(
             get_text(user_id, "wallet_create_err"), parse_mode="HTML"
         )
         return State.END
+    
+    
 
 
 @catch_async
@@ -752,79 +761,24 @@ async def finder_handle_transaction_confirmation(
         await FinderService.update_or_create_finder(user_id, case=case_id)
         # TODO: Add a check to see if the user has already been notified
 
-        # await context.bot.send_message(
-        #     chat_id=case.user_id,
-        #     text=f"🚨 Reward Extension Request 🚨\n\n"
-        #     f"Finder is demanding {case.reward} {wallet.wallet_type}\n"
-        #     f"Additional amount needed: {context.user_data['reward_difference']} {wallet.wallet_type}\n\n"
-        #     f"Do you want to accept this extension?",
-        #     reply_markup=InlineKeyboardMarkup(keyboard),
-        # )
+        await context.bot.send_message(
+            chat_id=case.user_id,
+            text=f"🚨 Reward Extension Request 🚨\n\n"
+            f"Finder is demanding {case.reward} {wallet.wallet_type}\n"
+            f"Additional amount needed: {context.user_data['reward_difference']} {wallet.wallet_type}\n\n"
+            f"Do you want to accept this extension?",
+            # reply_markup=InlineKeyboardMarkup(keyboard),
+        )
         await query.edit_message_text(
             f"Congratulate you finder request is send to the advertiser you will receive the reward when you accepted the request 🚀"
         )
         return State.END
 
 
-#  FOR THE EXTEND REWARD
+# ------------------------------- FINDER LOGIC END ------------------------------------
 
+#  ---------------------------- Extend Reward ---------------------------
 
-@catch_async
-async def handle_extend_reward_amount(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
-    user_id = update.effective_user.id
-    new_reward_str = update.message.text.strip()
-    context.user_data["extend_flow"] = True
-
-    demanded_reward = float(new_reward_str)
-    case_id = context.user_data.get("found_case_no")
-
-    # Fetch the case with linked documents (wallet)
-    case = await Case.find_one(
-        {"_id": ObjectId(case_id)}, fetch_links=True  # Ensure wallet is fetched
-    )
-    case = case.model_dump_json()
-    print(f"Case: {case}")
-
-    wallet = await WalletService.get_wallet_by_id(case["wallet"]["id"])
-
-    print(f"Case: {case}")
-    print(f"Wallet: {wallet}")
-
-    # Validate wallet
-    if not wallet or not hasattr(wallet, "wallet_type"):
-        await update.message.reply_text("Wallet configuration error")
-        return State.END
-
-    current_reward = case.reward or 0
-    if demanded_reward <= current_reward:
-        await update.message.reply_text(
-            f"Please enter an amount greater than current reward ({current_reward})"
-        )
-        return State.EXTEND_REWARD_AMOUNT
-
-    context.user_data["demanded_reward"] = demanded_reward
-    context.user_data["reward_difference"] = demanded_reward - current_reward
-
-    # Notify advertiser
-    await context.bot.send_message(
-        chat_id=case.user_id,
-        text=f"🚨 Reward Extension Request 🚨\n\n"
-        f"Finder is demanding {demanded_reward} {wallet.wallet_type}\n"
-        f"Additional amount needed: {context.user_data['reward_difference']} {wallet.wallet_type}\n\n"
-        f"Do you want to accept this extension?",
-        reply_markup=InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton("Accept", callback_data="accept_extend"),
-                    InlineKeyboardButton("Reject", callback_data="reject_extend"),
-                ]
-            ]
-        ),
-    )
-    await update.message.reply_text("Extension request sent to case owner")
-    return State.ADVERTISER_RESPONSE
 
 
 async def handle_advertiser_response(
@@ -840,10 +794,14 @@ async def handle_advertiser_response(
 
     # Get case details from context
     case_id = context.user_data.get("found_case_no")
-    case = await get_case_by_id(PydanticObjectId(case_id))
+    case = await Case.find_one({"_id": PydanticObjectId(case_id)}, fetch_links=True)
 
     # Get advertiser's wallets
-    wallets = await WalletService.get_wallet_by_user(user_id)
+    wallets = await WalletService.get_sol_wallet_of_user(case.user_id) \
+        if case.wallet.wallet_type == "SOL" else \
+        await WalletService.get_usdt_wallet_of_user(case.user_id)
+
+    print(f"Wallets: {wallets}")
 
     if not wallets:
         # No wallets found, prompt to create one
@@ -863,10 +821,11 @@ async def handle_advertiser_response(
     # Show existing wallets
     keyboard = []
     for wallet in wallets:
+        print(f"Wallet: {wallet}")
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    f"{wallet.name} ({wallet.wallet_type})",
+                    f"{wallet.name}",
                     callback_data=f"select_extend_wallet_{wallet.id}",
                 )
             ]
@@ -1017,3 +976,109 @@ async def handle_found_case(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         logger.error(f"Error handling found case: {e}")
         await query.edit_message_text(get_text(user_id, "error_processing_proof"))
         return State.END
+
+
+
+
+# ---------------------------- Extend Reward ---------------------------
+
+
+
+
+@catch_async
+async def handle_extend_reward_amount(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    print("I'm Inside the Handle Extend Reward Amount")
+
+    user_id = update.effective_user.id
+    new_reward_str = update.message.text.strip()
+    context.user_data["extend_flow"] = True
+
+    demanded_reward = float(new_reward_str)
+    case_id = context.user_data.get("found_case_no")
+
+    # Fetch the case with linked documents (wallet)
+    case = await Case.find_one(
+        {"_id": ObjectId(case_id)}, fetch_links=True  # Ensure wallet is fetched
+    )
+    # print(f"Case: {case}")
+
+    print(f"Demand reward: {demanded_reward}")
+
+   
+   
+    current_reward = float(case.reward )
+    print(f"Current Reward: {current_reward}")
+    
+    if demanded_reward <= current_reward:
+        await update.message.reply_text(
+            f"Please enter an amount greater than current reward ({current_reward})"
+        )
+        return State.EXTEND_REWARD_AMOUNT
+
+    context.user_data["demanded_reward"] = demanded_reward
+    context.user_data["reward_difference"] = demanded_reward - current_reward
+
+    extend_reward = ExtendReward(user_id=user_id, case=case, status=ExtendRewardStatus.PENDING,  extend_reward_amount=context.user_data['reward_difference'], reason="Just for the testing Purpose.")
+
+    await extend_reward.save()
+
+    # Notify advertiser
+    await context.bot.send_message(
+        chat_id=case.user_id,
+        text=f"🚨 Reward Extension Request 🚨\n\n"
+        f"Finder is demanding {demanded_reward} {case.wallet.wallet_type}\n"
+        f"Additional amount needed: {context.user_data['reward_difference']} {case.wallet.wallet_type}\n\n"
+        f"Do you want to accept this extension?",
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("Accept", callback_data="accept_extend"),
+                    InlineKeyboardButton("Reject", callback_data="reject_extend"),
+                ]
+            ]
+        ),
+    )
+    await update.message.reply_text("Extension request sent to case owner")
+    return State.ADVERTISER_RESPONSE
+
+
+
+#  ---------------------------- ADVERTISER LOGIC START ---------------------------
+
+
+
+async def handle_extend_reward(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    case_id = context.user_data.get("found_case_no")
+    user_id = update.effective_user.id
+
+    if query.data == "yes_extend":
+        await query.message.reply_text("Please enter the new reward amount:")
+        return State.EXTEND_REWARD_AMOUNT  # Transition to reward amount input
+    else:
+        # Handle "No" response
+        case = await get_case_by_id(PydanticObjectId(case_id))
+
+        kb = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        get_text(user_id, "usdt_wallet"), callback_data="USDT"
+                    ),
+                    InlineKeyboardButton(
+                        get_text(user_id, "sol_wallet"), callback_data="SOL"
+                    ),
+                ]
+            ]
+        )
+        await query.edit_message_text(
+            get_text(user_id, "choose_wallet"), reply_markup=kb
+        )
+        return State.FINDER_CHOOSE_WALLET_TYPE
+    
+    
+    
+    

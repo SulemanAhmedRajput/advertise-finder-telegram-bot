@@ -1,6 +1,7 @@
 import asyncio
 import logging
 
+from models.extend_reward_model import ExtendReward
 from models.finder_model import Finder
 from models.mobile_number_model import MobileNumber
 from models.user_model import User
@@ -53,7 +54,7 @@ async def init_db():
         client = AsyncIOMotorClient(MONGODB_URI)
         await init_beanie(
             database=client[MONGODB_NAME],
-            document_models=[User, Case, Wallet, MobileNumber, Finder],
+            document_models=[User, Case, Wallet, MobileNumber, Finder, ExtendReward],
         )
         print("Database Connected Successfully 🚀.")
         await main_setup()

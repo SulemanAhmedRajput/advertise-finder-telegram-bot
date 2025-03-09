@@ -1,8 +1,9 @@
-from typing import Any, Dict, List, Optional
+from typing import  List
 from beanie import PydanticObjectId
 from solders.pubkey import Pubkey
 from spl.token.client import Token
 from spl.token.constants import TOKEN_PROGRAM_ID
+from tronpy import Tron
 from config.config_manager import CLIENT
 from constant.language_constant import USDT_MINT_ADDRESS
 from models.wallet_model import Wallet
@@ -14,7 +15,10 @@ from solders.system_program import transfer, TransferParams
 from solders.transaction import Transaction
 from solders.message import Message
 from solders.keypair import Keypair
-from solana.rpc.types import MemcmpOpts, TokenAccountOpts
+
+# Connect to the Tron Shasta testnet
+client = Tron(network='shasta')
+
 
 from solana.rpc.async_api import AsyncClient
 
@@ -127,6 +131,14 @@ class WalletService:
         if not include_deleted:
             query = query.find(Wallet.deleted == False)
         return await query.to_list()
+
+    @staticmethod
+    async def get_sol_wallet_of_user(user_id: int) -> list[Wallet]:  # Return a list, not a FindMany object
+        return await Wallet.find({"user_id": user_id, "wallet_type": "SOL"}).to_list()
+
+    @staticmethod
+    async def get_usdt_wallet_of_user(user_id: int) -> list[Wallet]:
+        return await Wallet.find({"user_id": user_id, "wallet_type": "USDT"}).to_list()
 
     @staticmethod
     async def get_wallet_by_type(user_id: int, wallet_type: str) -> List[Wallet]:

@@ -68,6 +68,21 @@ LISTING_CONSTANT = {
         "error_deleting_case": "⚠️ An error occurred while deleting the case. Please try again.",
         # ----- Delete End ------
 
+       #----------- Extend Reward Constants ----------
+        "extend_reward_button": "Extend Reward ➕",
+        "extend_reward_not_found": "❌ No active reward extension request found.",
+        "insufficient_funds": "❌ Insufficient funds in your {wallet_type} wallet. Required: {required_amount}",
+        "extend_reward_confirmation": (
+            "🔄 *Confirm Reward Extension*\n\n"
+            "💰 Amount: {amount} {wallet_type}\n"
+            "📤 From: `{from_wallet}`\n"
+            "📥 To: `{to_wallet}`\n"
+            "Are you sure you want to proceed?"
+        ),
+        "extend_success": "✅ Successfully extended {amount} {wallet_type} reward!",
+        "extend_cancelled": "❌ Reward extension cancelled.",
+        "transfer_failed": "❌ Transfer failed. Please check wallet balances and try again.",
+        "case_or_extend_not_found": "❌ Case or extension request not found.",
     },
     "zh": {
         "no_advertise_cases": "未找到广告案例。",
@@ -137,5 +152,21 @@ LISTING_CONSTANT = {
         "delete_cancelled": "❌ 案例删除已取消。",
         "error_deleting_case": "⚠️ 删除案例时发生错误。请重试。",
         # ----- Delete End ------
+        
+         #----------- 扩展奖励相关常量 ----------
+        "extend_reward_button": "扩展奖励 ➕",
+        "extend_reward_not_found": "❌ 未找到有效的奖励扩展请求。",
+        "insufficient_funds": "❌ {wallet_type}钱包余额不足，需要：{required_amount}",
+        "extend_reward_confirmation": (
+            "🔄 *确认扩展奖励*\n\n"
+            "💰 金额：{amount} {wallet_type}\n"
+            "📤 来源钱包：`{from_wallet}`\n"
+            "📥 目标钱包：`{to_wallet}`\n"
+            "确定要继续吗？"
+        ),
+        "extend_success": "✅ 成功扩展了{amount} {wallet_type}奖励！",
+        "extend_cancelled": "❌ 奖励扩展已取消。",
+        "transfer_failed": "❌ 转账失败，请检查钱包余额后重试。",
+        "case_or_extend_not_found": "❌ 未找到案例或扩展请求。",
     },
 }
