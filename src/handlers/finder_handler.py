@@ -105,7 +105,7 @@ async def choose_province(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         context.user_data["province"] = selected_province  # Save province in context
 
         # Fetch cases from DB where last_seen_location matches province
-        cases = await Case.find({"last_seen_location": selected_province}).to_list()
+        cases = await Case.find({"last_seen_location": selected_province, "status": CaseStatus.ADVERTISE}).to_list()
 
         if not cases:
             await update.message.reply_text(
