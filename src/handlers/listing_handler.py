@@ -759,6 +759,7 @@ async def cancel_edit_callback(
         return State.END
 
 
+# ---------------------------- Reward the Finder By Owner ---------------------------
 @catch_async
 async def reward_case_callback(
     update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -776,33 +777,33 @@ async def reward_case_callback(
             await query.message.edit_text(get_text(user_id, "case_not_found"))
             return State.END
 
-        # if case.user_id != user_id:
-        #     await query.message.edit_text(get_text(user_id, "not_authorized_reward"))
-        #     return State.END
-
-        # Get all finders for this case
         finders = await Finder.find({"case.$id": PydanticObjectId(case.id)}).to_list()
         if not finders:
             await query.message.edit_text(get_text(user_id, "no_finders_for_case"))
             return State.END
 
-        # Show finders with details
-        message = get_text(user_id, "finder_list_header") + "\n\n"
+        # Construct case details message
+        case_details = get_text(user_id, "case_details_template").format(
+            person_name=case.person_name,
+            last_seen_location=case.last_seen_location,
+            reward=case.reward,
+            reward_type=case.reward_type,
+            wallet=case.wallet,
+            gender=case.gender,
+            age=case.age,
+            height=case.height,
+        )
+
+        # Show finders list below case details
+        message = case_details + "\n\n" + get_text(user_id, "finder_list_header") + "\n\n"
         keyboard = []
 
         for finder in finders:
-            proof_text = (
-                "\n".join(f"[Proof]({url})" for url in finder.proof_url)
-                if finder.proof_url
-                else "No proof available"
-            )
-            message += f"👤 *Finder ID:* `{finder.user_id}`\n📍 *Location:* {finder.reported_location}\n📎 *Proof:* {proof_text}\n\n"
-
             keyboard.append(
                 [
                     InlineKeyboardButton(
-                        get_text(user_id, "reward_this_finder"),
-                        callback_data=f"send_reward_{finder.user_id}_{case.id}",
+                        f"👤 Finder ID: {finder.user_id}",
+                        callback_data=f"finder_details_{finder.user_id}_{case.id}",
                     )
                 ]
             )
@@ -821,6 +822,78 @@ async def reward_case_callback(
         )
         await query.message.edit_text(get_text(user_id, "error_processing_reward"))
         return State.END
+
+
+@catch_async
+async def finder_details_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    """Displays details of the selected finder along with case details."""
+    query = update.callback_query
+    await query.answer()
+
+    user_id = update.effective_user.id
+    data = query.data.removeprefix("finder_details_")
+    finder_id, case_id = data.split("_")
+
+    try:
+        case = await Case.find_one({"_id": ObjectId(case_id)})
+        finder = await Finder.find_one({"user_id": int(finder_id), "case.$id": PydanticObjectId(case.id)})
+
+        if not case or not finder:
+            await query.message.edit_text(get_text(user_id, "case_or_finder_not_found"))
+            return State.END
+
+        # Construct case details message
+        case_details = get_text(user_id, "case_details_template").format(
+            person_name=case.person_name,
+            last_seen_location=case.last_seen_location,
+            reward=case.reward,
+            reward_type=case.reward_type,
+            wallet=case.wallet,
+            gender=case.gender,
+            age=case.age,
+            height=case.height,
+        )
+
+        # Finder details
+        proof_text = (
+            "\n".join(f"[Proof]({url})" for url in finder.proof_url)
+            if finder.proof_url
+            else get_text(user_id, "no_proof_available")
+        )
+        finder_details = (
+            f"👤 *Finder ID:* `{finder.user_id}`\n"
+            f"📍 *Location:* {finder.reported_location}\n"
+            f"📎 *Proof:* {proof_text}\n"
+        )
+
+        message = case_details + "\n\n" + finder_details
+        keyboard = [
+            [
+                InlineKeyboardButton(
+                    get_text(user_id, "reward_this_finder"),
+                    callback_data=f"send_reward_{finder.user_id}_{case.id}",
+                )
+            ]
+        ]
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.message.edit_text(
+            message.strip(),
+            reply_markup=reply_markup,
+            parse_mode="Markdown",
+        )
+        return State.CASE_DETAILS
+
+    except Exception as e:
+        logger.error(
+            f"Error in finder_details_callback: {str(e)}\n{traceback.format_exc()}"
+        )
+        await query.message.edit_text(get_text(user_id, "error_fetching_finder"))
+        return State.END
+
+
 
 
 @catch_async
@@ -850,7 +923,7 @@ async def ask_reward_amount(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             get_text(user_id, "enter_reward_amount").format(max_amount=case.reward),
             parse_mode="Markdown",
         )
-        return State.EDIT_FIELD  # Next step: user enters amount
+        return State.REWARD_TRANSFER_PROCESS  # Next step: user enters amount
 
     except Exception as e:
         logger.error(f"Error in ask_reward_amount: {str(e)}\n{traceback.format_exc()}")

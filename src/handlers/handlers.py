@@ -47,6 +47,7 @@ from handlers.listing_handler import (
     delete_case_callback,
     edit_case_callback,
     edit_field_callback,
+    finder_details_callback,
     listing_command,
     pagination_callback,
     process_reward_transfer,
@@ -329,38 +330,37 @@ listing_handler = ConversationHandler(
     entry_points=[CommandHandler("listing", listing_command)],
     states={
         State.CASE_DETAILS: [
+            # Case details and pagination
             CallbackQueryHandler(case_details_callback, pattern="^case_.*$"),
-            CallbackQueryHandler(
-                pagination_callback, pattern="^(page_previous|page_next)$"
-            ),
+            CallbackQueryHandler(pagination_callback, pattern="^(page_previous|page_next)$"),
+
+            # Editing and deleting cases
             CallbackQueryHandler(edit_field_callback, pattern="^edit_field_.*$"),
             CallbackQueryHandler(edit_case_callback, pattern="^edit_.*$"),
             CallbackQueryHandler(cancel_edit_callback, pattern="^cancel_edit$"),
-            # For deleting the case
             CallbackQueryHandler(delete_case_callback, pattern="^delete_.*$"),
             CallbackQueryHandler(cancel_delete_callback, pattern="^delete_cancel$"),
 
-            CallbackQueryHandler(reward_case_callback, pattern="^reward_.*$"),
-            CallbackQueryHandler(ask_reward_amount, pattern="^send_reward_.*$"),
+            # Reward process
+            CallbackQueryHandler(reward_case_callback, pattern="^reward_.*$"),  # Show case & finders list
+            CallbackQueryHandler(finder_details_callback, pattern="^finder_details_.*$"),  # Show one finder details
+            CallbackQueryHandler(ask_reward_amount, pattern="^send_reward_.*$"),  # Ask for reward amount
         ],
         State.EDIT_FIELD: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, update_case_field)
-            # TODO: must be put to somewhere else
+            MessageHandler(filters.TEXT & ~filters.COMMAND, update_case_field),
         ],
         State.REWARD_TRANSFER_PROCESS: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, process_reward_transfer)
+            MessageHandler(filters.TEXT & ~filters.COMMAND, process_reward_transfer),
         ],
         State.CHOOSE_COUNTRY: [
-            CallbackQueryHandler(
-                country_callback, pattern="^(country_select_|country_page_)"
-            ),
+            CallbackQueryHandler(country_callback, pattern="^(country_select_|country_page_)"),
             MessageHandler(filters.TEXT & ~filters.COMMAND, update_choose_country),
         ],
         State.CHOOSE_CITY: [
             CallbackQueryHandler(city_callback, pattern="^(city_select_|city_page_)"),
             MessageHandler(filters.TEXT & ~filters.COMMAND, choose_city),
         ],
-        State.CONFIRM_REWARD: [  # New state for confirmation
+        State.CONFIRM_REWARD: [
             CallbackQueryHandler(confirm_reward, pattern="^confirm_reward$"),
             CallbackQueryHandler(cancel_reward, pattern="^cancel_reward$"),
         ],
@@ -370,6 +370,7 @@ listing_handler = ConversationHandler(
     ],
     allow_reentry=True,
 )
+
 
 
 # Settings conversation handler  -- TODO: Completed
