@@ -1,27 +1,32 @@
 import os
-import json
 import base58
 from solders.keypair import Keypair
 from solana.rpc.api import Client
 from solders.pubkey import Pubkey
 from telegram import Update
-from constants import WALLETS_DIR
+from tronpy import Tron
+from tronpy.keys import PrivateKey
 from solders.transaction import Transaction
 from solders.system_program import transfer
 from solana.rpc.types import TxOpts
 from telegram.ext import (
     ContextTypes,
 )
-from constant.language_constant import USDT_MINT_ADDRESS, user_data_store
-from spl.token.constants import TOKEN_PROGRAM_ID
+from config.config_manager import TRON_CLIENT_NETWORK
+from constant.language_constant import  user_data_store
 from spl.token.client import Token
+
+from constants import WALLETS_DIR
 
 # Initialize Solana client
 try:
     SOLANA_NETWORK = "https://api.devnet.solana.com"
     client = Client(SOLANA_NETWORK)
+    usdt_client =  Tron(network=TRON_CLIENT_NETWORK)  # Use 'mainnet' for live transactions
+
 except ImportError:
     client = None
+    
 
 
 async def transfer_solana_funds(
@@ -101,75 +106,35 @@ def create_sol_wallet(wallet_name):
         return None
 
 
+from tronpy import Tron
+from tronpy.keys import PrivateKey
+
+# Initialize Tron Client
+tron = Tron(network="mainnet")  # Use "shasta" for testnet
+
 def create_usdt_wallet(wallet_name):
+ 
     """
-    Create a USDT wallet with Keypair, store it as JSON, and return its details.
-    This function creates a Solana wallet and associates it with a USDT token account.
+    Creates a TRON Wallet and returns its details.
     """
-    if not client:
-        return None
+    private_key = PrivateKey.random()
+    address = private_key.public_key.to_base58check_address()
+    
+    # Check TRX Balance (Wallet must receive TRX to be on-chain)
     try:
-        # Generate a new Solana wallet (keypair)
-        keypair = Keypair()
-        public_key = str(keypair.pubkey())
-        secret_key = base58.b58encode(bytes(keypair.to_bytes_array())).decode("utf-8")
+        trx_balance = client.get_account_balance(address)
+    except Exception:
+        trx_balance = 0  # Wallet is new and unfunded
 
-        # Check SOL balance
-        balance_response = client.get_balance(Pubkey.from_string(public_key))
-        balance_lamports = balance_response.value if balance_response else 0
-        balance_sol = balance_lamports / 1e9
+    # Get USDT Balance
+    usdt_balance = get_usdt_balance(address)
 
-        # Minimum SOL required for transactions (e.g., 0.01 SOL)
-        min_sol_required = 0.01
-
-        if balance_sol < min_sol_required:
-            print(
-                f"Wallet has insufficient SOL balance: {balance_sol}. Funding with airdrop..."
-            )
-            # Request airdrop (1 SOL)
-            airdrop_response = client.request_airdrop(
-                Pubkey.from_string(public_key), int(1e9)
-            )  # 1 SOL
-            client.confirm_transaction(airdrop_response["result"])
-            print("Airdrop successful!")
-
-            # Re-check balance after airdrop
-            balance_response = client.get_balance(Pubkey.from_string(public_key))
-            balance_lamports = balance_response.value if balance_response else 0
-            balance_sol = balance_lamports / 1e9
-
-        # Initialize the USDT token client
-        usdt_token = Token(
-            conn=client,
-            pubkey=Pubkey.from_string(USDT_MINT_ADDRESS),
-            program_id=TOKEN_PROGRAM_ID,
-            payer=keypair,
-        )
-
-        # Create an associated token account for USDT
-        usdt_token_account = usdt_token.create_associated_token_account(
-            keypair.pubkey()
-        )
-        print(f"USDT Token Account created: {usdt_token_account}")
-
-        # Fetch USDT balance
-        usdt_balance_response = usdt_token.get_balance(usdt_token_account)
-        usdt_balance = usdt_balance_response["result"]["value"]["uiAmount"]
-
-        wallet = {
-            "name": wallet_name,
-            "public_key": public_key,
-            "secret_key": secret_key,
-            "balance_sol": balance_sol,
-            "usdt_balance": usdt_balance,
-            "usdt_token_account": str(usdt_token_account),
-        }
-
-        return wallet
-
-    except Exception as e:
-        print(f"Error creating USDT wallet: {e}")
-        return None
+    return {
+        "private_key": private_key.hex(),  # Keep this secret!
+        "public_key": address,
+        "trx_balance": trx_balance,
+        "usdt_balance": usdt_balance,
+    }
 
 
 def load_user_wallet(user_id):

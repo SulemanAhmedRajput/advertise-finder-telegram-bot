@@ -6,6 +6,7 @@ from spl.token.constants import TOKEN_PROGRAM_ID
 from tronpy import Tron
 from config.config_manager import CLIENT
 from constant.language_constant import USDT_MINT_ADDRESS
+from constants import USDT_CONTRACT
 from models.wallet_model import Wallet
 from utils.error_wrapper import catch_async
 from utils.wallet import create_sol_wallet, create_usdt_wallet
@@ -17,7 +18,7 @@ from solders.message import Message
 from solders.keypair import Keypair
 
 # Connect to the Tron Shasta testnet
-client = Tron(network='shasta')
+tron_client = Tron(network='shasta')
 
 
 from solana.rpc.async_api import AsyncClient
@@ -148,16 +149,31 @@ class WalletService:
         ).to_list()
 
     @staticmethod
-    async def get_usdt_balance(wallet_pubkey):
-        token_client = Token(
-            conn=solana_client,
-            pubkey=Pubkey.from_string(USDT_MINT_ADDRESS),
-            program_id=TOKEN_PROGRAM_ID,
-            payer=wallet_pubkey,
-        )
-
-        balance = token_client.get_balance(wallet_pubkey)
-        return balance
+    async def get_usdt_balance(address):
+        """
+        Fetches the USDT (TRC20) balance of a TRON wallet.
+        """
+        try:
+            # Load contract with ABI
+            contract = tron_client.get_contract(USDT_CONTRACT).with_abi([
+                {
+                    "constant": True,
+                    "inputs": [{"name": "_owner", "type": "address"}],
+                    "name": "balanceOf",
+                    "outputs": [{"name": "balance", "type": "uint256"}],
+                    "payable": False,
+                    "stateMutability": "View",
+                    "type": "Function",
+                }
+            ])
+            
+            # Call balanceOf function
+            balance = contract.functions.balanceOf(address)
+            
+            return balance / 10**6  # Convert from SUN to USDT
+        except Exception as e:
+            print(f"Error fetching USDT balance: {e}")
+            return 0
 
     @staticmethod
     async def get_sol_balance(public_key: str) -> float:

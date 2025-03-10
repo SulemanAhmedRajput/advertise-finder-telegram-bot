@@ -233,7 +233,7 @@ DUMMY_DATA = {
 WALLETS_DIR = "wallets"  # Directory to store user wallets
 PHOTOS_DIR = "photos"  # Directory to store uploaded photos
 PROOFS_DIR = "proofs"  # Directory to store proof uploads
-
+USDT_CONTRACT = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj"
 
 # ====================== Solana ======================
 
