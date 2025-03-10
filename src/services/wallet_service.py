@@ -8,10 +8,10 @@ from config.config_manager import CLIENT
 from constant.language_constant import USDT_MINT_ADDRESS
 from constants import USDT_CONTRACT
 from models.wallet_model import Wallet
+from services.tron_wallet_service import TronWallet
 from utils.error_wrapper import catch_async
-from utils.wallet import create_sol_wallet, create_usdt_wallet
+from utils.wallet import create_sol_wallet
 from utils.solana_config import solana_client
-from solana.rpc.api import Client
 from solders.system_program import transfer, TransferParams
 from solders.transaction import Transaction
 from solders.message import Message
@@ -46,10 +46,10 @@ class WalletService:
                     deleted=False,
                 )
             elif wallet_type == "USDT":
-                usdt_wallet = create_usdt_wallet(wallet_name)
+                usdt_wallet = TronWallet.create_wallet(wallet_name)
                 wallet = Wallet(
                     public_key=usdt_wallet["public_key"],
-                    private_key=usdt_wallet["secret_key"],
+                    private_key=usdt_wallet["private_key"],
                     user_id=user_id,
                     name=usdt_wallet["name"],
                     wallet_type="USDT",

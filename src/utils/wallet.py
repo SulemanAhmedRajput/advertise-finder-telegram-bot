@@ -112,29 +112,6 @@ from tronpy.keys import PrivateKey
 # Initialize Tron Client
 tron = Tron(network="mainnet")  # Use "shasta" for testnet
 
-def create_usdt_wallet(wallet_name):
- 
-    """
-    Creates a TRON Wallet and returns its details.
-    """
-    private_key = PrivateKey.random()
-    address = private_key.public_key.to_base58check_address()
-    
-    # Check TRX Balance (Wallet must receive TRX to be on-chain)
-    try:
-        trx_balance = client.get_account_balance(address)
-    except Exception:
-        trx_balance = 0  # Wallet is new and unfunded
-
-    # Get USDT Balance
-    usdt_balance = get_usdt_balance(address)
-
-    return {
-        "private_key": private_key.hex(),  # Keep this secret!
-        "public_key": address,
-        "trx_balance": trx_balance,
-        "usdt_balance": usdt_balance,
-    }
 
 
 def load_user_wallet(user_id):
