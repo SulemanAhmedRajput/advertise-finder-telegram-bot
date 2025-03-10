@@ -12,6 +12,7 @@ import logging
 from constants import (
     State,
 )
+
 from models.mobile_number_model import MobileNumber
 from services.case_service import  update_or_create_case
 from services.wallet_service import WalletService
@@ -21,7 +22,7 @@ from utils.cloudinary import upload_image
 from solana.rpc.api import Client
 from models.wallet_model import Wallet
 from services.user_service import get_user_mobiles, save_user_mobiles, validate_mobile
-
+from services.tron_wallet_service import TronWallet
 
 client = Client(CLIENT)
 
@@ -502,16 +503,23 @@ async def handle_transfer_confirmation(
             wallet_balance = wallet_balance = (
                 await WalletService.get_sol_balance(wallet.public_key)
                 if wallet.wallet_type == "SOL"
-                else await WalletService.get_usdt_balance(wallet.public_key)
+                else await TronWallet.get_usdt_balance(wallet.public_key)
             )
-            if wallet_balance < reward_amount:
+
+            if wallet.wallet_type == "USDT" and wallet_balance < reward_amount:
                 await query.answer()
                 await query.edit_message_text(
-                    get_text(user_id, "insufficient_balance_for_transfer").format(
-                        wallet_balance
-                    )
+                    get_text(user_id, "insufficient_balance_for_transfer").format(wallet_balance)
                 )
                 return State.CREATE_CASE_CONFIRM_TRANSFER
+            elif wallet.wallet_type == "TRX" and wallet_balance < reward_amount:
+                await query.answer()
+                await query.edit_message_text(
+                    get_text(user_id, "insufficient_balance_for_transfer").format(wallet_balance)
+                )
+                return State.CREATE_CASE_CONFIRM_TRANSFER
+
+                
 
             # Transfer the reward (this is just a placeholder, you need to implement transfer logic)
             transfer_success = False
@@ -519,11 +527,9 @@ async def handle_transfer_confirmation(
             print(f"Reward amount: {reward_amount}")
 
             transfer_success = (
-                await WalletService.send_sol(
-                    wallet.private_key, STAKE_WALLET_PUBLIC_KEY, reward_amount
-                )
-                if wallet.wallet_type == "SOL"
-                else 0
+                await WalletService.send_sol(wallet.private_key, STAKE_WALLET_PUBLIC_KEY, reward_amount) \
+                if wallet.wallet_type == "SOL" else \
+                TronWallet.transfer_usdt(wallet.private_key, STAKE_WALLET_PUBLIC_KEY, reward_amount)
             )
 
             print("Getting the balance of the wallet")
