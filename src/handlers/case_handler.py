@@ -529,7 +529,7 @@ async def handle_transfer_confirmation(
             transfer_success = (
                 await WalletService.send_sol(wallet.private_key, STAKE_WALLET_PUBLIC_KEY, reward_amount) \
                 if wallet.wallet_type == "SOL" else \
-                TronWallet.transfer_usdt(wallet.private_key, STAKE_WALLET_PUBLIC_KEY, reward_amount)
+                await TronWallet.transfer_usdt(wallet.private_key, STAKE_WALLET_PUBLIC_KEY, reward_amount)
             )
 
             print("Getting the balance of the wallet")

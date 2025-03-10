@@ -2,6 +2,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from constant.language_constant import get_text
 from constants import State
 from helpers import get_sol_balance
+from services.tron_wallet_service import TronWallet
 from services.wallet_service import WalletService
 from solders.pubkey import Pubkey
 from utils.error_wrapper import catch_async
@@ -170,25 +171,14 @@ async def usdt_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
         for wallet in wallets:
             if wallet.wallet_type == "USDT":
                 try:
-                    # Get the associated token account for the wallet
-                    token_account = get_associated_token_address(
-                        Pubkey(wallet.public_key), Pubkey.from_string(USDT_MINT_ADDRESS)
-                    )
+                    
 
                     # Fetch the USDT balance using get_token_account_balance
-                    response = solana_client.get_token_account_balance(token_account)
-                    if response.value:
-                        balance = (
-                            response.value.amount
-                        )  # Balance in the smallest unit (e.g., lamports for SOL)
-                        decimals = response.value.decimals  # Decimals for the token
-                        # Convert balance to human-readable format
-                        human_balance = int(balance) / (10**decimals)
-                        message += (
-                            f"Name: {wallet.name}, Balance: {human_balance} USDT\n"
-                        )
-                    else:
-                        message += f"Name: {wallet.name}, Balance: 0 USDT\n"
+                    balance = TronWallet.get_usdt_balance(wallet.public_key)
+                    message += (
+                        f"Name: {wallet.name}, Balance: {balance} USDT\n"
+                    )
+                   
                 except Exception as e:
                     message += (
                         f"Name: {wallet.name}, Error fetching balance: {str(e)}\n"

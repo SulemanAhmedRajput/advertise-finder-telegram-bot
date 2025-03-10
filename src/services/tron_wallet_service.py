@@ -11,7 +11,7 @@ class TronWallet:
     USDT_CONTRACT = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj"
 
     # Initialize Tron Client
-    client = Tron(network="mainnet")  # Use "shasta" for testnet
+    client = Tron(network="shasta")  # Use "shasta" for testnet
 
     @staticmethod
     def create_wallet(wallet_name):
@@ -96,22 +96,10 @@ class TronWallet:
             sender_private_key = PrivateKey(bytes.fromhex(sender_private_key))
             sender_address = sender_private_key.public_key.to_base58check_address()
 
-            contract = TronWallet.client.get_contract(TronWallet.USDT_CONTRACT).with_abi([
-                {
-                    "constant": False,
-                    "inputs": [
-                        {"name": "_to", "type": "address"},
-                        {"name": "_value", "type": "uint256"}
-                    ],
-                    "name": "transfer",
-                    "outputs": [{"name": "success", "type": "bool"}],
-                    "payable": False,
-                    "stateMutability": "Nonpayable",
-                    "type": "Function",
-                }
-            ])
+            contract = TronWallet.client.get_contract(TronWallet.USDT_CONTRACT)
 
-            amount_in_sun = int(amount_in_usdt * 1_000_000)  # Convert to 6 decimal places
+            # Convert the USDT amount to SUN (6 decimal places)
+            amount_in_sun = int(amount_in_usdt * 1_000_000)
 
             txn = (
                 contract.functions.transfer(recipient_address, amount_in_sun)
