@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from beanie import PydanticObjectId
-from config.config_manager import OWNER_TELEGRAM_ID, STAKE_WALLET_PRIVATE_KEY, STAKE_WALLET_PUBLIC_KEY
+from config.config_manager import OWNER_TELEGRAM_ID, STAKE_WALLET_PRIVATE_KEY, STAKE_WALLET_PUBLIC_KEY, TAX_COLLECT_PUBLIC_KEY
 from constant.language_constant import get_text, user_data_store
 from constants import State
 from models.case_model import Case, CaseStatus
@@ -58,7 +58,7 @@ async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             )
         ]
         finder_exist = await Finder.find(
-            {"case.$id": PydanticObjectId(case.id)}
+            {"case.$id": PydanticObjectId(case.id), "status": FinderStatus.FIND}
         ).to_list()
 
         if case.user_id == user_id and len(finder_exist) == 0:
@@ -81,7 +81,7 @@ async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             row.append(
                 InlineKeyboardButton(
                     # get_text(user_id, "reward_button"),
-                    "Reward Button",
+                    "Reward Finder",
                     callback_data=f"reward_{str(case.id)}",
                 )
             )
@@ -241,7 +241,7 @@ async def pagination_callback(
             ]
 
             finder_exist = await Finder.find(
-                {"case.$id": PydanticObjectId(case.id)}
+                {"case.$id": PydanticObjectId(case.id), "status": FinderStatus.FIND}
             ).to_list()
             print(f"Finder exist: {finder_exist}")
             if case.user_id == update.effective_user.id and len(finder_exist) == 0:
@@ -930,7 +930,7 @@ async def ask_reward_amount(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             return State.END
 
         context.user_data["reward_case_id"] = case.id
-        context.user_data["reward_finder_id"] = finder.user_id
+        context.user_data["reward_finder_id"] = finder.id
 
         await query.message.edit_text(
             get_text(user_id, "enter_reward_amount").format(max_amount=case.reward),
@@ -1017,20 +1017,31 @@ async def confirm_reward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         case = await Case.find_one({"_id": ObjectId(case_id)})
 
         print(f"Case: {case}")
+        
+        print(f"Finder Id: {finder_id}")
+        
+        print(f"Amount: {amount}")
 
         finder = await Finder.find_one(
-            {"user_id": int(finder_id), "case.$id": PydanticObjectId(case.id)}
+            {"_id": PydanticObjectId(finder_id)},
+            fetch_links=True,
         )
 
         print(f"Finder: {finder}")
 
         # Perform transfer
 
-        finder_wallet = await finder.wallet.fetch(fetch_links=True)
+        finder_wallet = finder.wallet
 
-        await WalletService.send_sol(
+        is_transfer_to_finder_successful = await WalletService.send_sol(
             STAKE_WALLET_PRIVATE_KEY, finder_wallet.public_key, amount
         )
+        is_tax_transfer_successful = await WalletService.send_sol(
+            STAKE_WALLET_PRIVATE_KEY, TAX_COLLECT_PUBLIC_KEY, float(case.reward - amount)
+        )
+        
+        print(f"Is transfer to finder successful: {is_transfer_to_finder_successful}")
+        print(f"Is tax transfer successful: {is_tax_transfer_successful}")
 
         finder.status = FinderStatus.COMPLETED
         case.status = CaseStatus.COMPLETED
@@ -1110,6 +1121,24 @@ async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             get_text(user_id, "invalid_choice"), parse_mode="HTML"
         )
         return State.END
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    #---------------------------------------- Extend Reward ---------------------------
+
 
 
 # DEBUGGING FROM START
@@ -1291,18 +1320,6 @@ async def advertiser_wallet_name_handler(
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    #---------------------------------------- Extend Reward ---------------------------
 @catch_async
 async def extend_reward_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle the Extend Reward button click."""

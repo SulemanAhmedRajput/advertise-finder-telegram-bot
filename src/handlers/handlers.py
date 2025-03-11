@@ -326,6 +326,7 @@ wallet_handler = ConversationHandler(
         State.DELETE_WALLET: [
             CallbackQueryHandler(process_delete_wallet, pattern="^delete_wallet_"),
         ],
+        State.END: [CommandHandler("wallet", wallet_command)],
     },
     fallbacks=[CommandHandler("cancel", cancel)],
     allow_reentry=True,

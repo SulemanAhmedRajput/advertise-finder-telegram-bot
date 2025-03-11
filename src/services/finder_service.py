@@ -170,8 +170,7 @@ class FinderService:
 
                 elif key == "case" and isinstance(value, str):
                     case = await Case.get(PydanticObjectId(value))
-                    if case:
-                        value = case
+                    value = case
 
                 setattr(finder, key, value)
 
