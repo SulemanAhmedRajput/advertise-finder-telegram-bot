@@ -42,9 +42,10 @@ class TronWallet:
     async def get_usdt_balance(address):
         try:
             balance = TronWallet.client.get_account_balance(address)
-            real_balance = balance / 10**6  # Convert from SUN to TRX
-            print(f"Balance: {real_balance} TRX")
-            return real_balance  # Balance is in TRX
+            # real_balance = balance / 10**6  # Convert from SUN to TRX
+            # print(f"Balance: {real_balance} TRX")
+            # return real_balance  # Balance is in TRX
+            return balance
         except Exception:
             return 0  # Wallet may be new and unfunded
 
@@ -79,21 +80,41 @@ class TronWallet:
         Transfers USDT from one wallet to another.
         """
         try:
+            print(
+                f"DEBUG - 1: {sender_private_key} {recipient_address} {amount_in_usdt}"
+            )
+
             sender_private_key = PrivateKey(bytes.fromhex(sender_private_key))
             sender_address = sender_private_key.public_key.to_base58check_address()
 
             destination_address = recipient_address
 
-            amount_in_sun = float(1_000_000 * amount_in_usdt)
+            print(
+                f"DEBUG - 2: {sender_private_key} {recipient_address} {amount_in_usdt}"
+            )
+
+            amount_in_sun = int(1_000_000 * amount_in_usdt)
+
+            print(
+                f"DEBUG - 3: {sender_private_key} {recipient_address} {amount_in_usdt}"
+            )
 
             # Convert the USDT amount to SUN (6 decimal places)
             txn = TronWallet.client.trx.transfer(
                 sender_address, destination_address, amount_in_sun
             ).build()
 
+            print(
+                f"DEBUG - 4: {sender_private_key} {recipient_address} {amount_in_usdt}"
+            )
+
             signed_txn = txn.sign(sender_private_key)
 
+            print(f"DEBUG - 5: {signed_txn}")
+
             result = signed_txn.broadcast()
+
+            print(f"DEBUG - 6: {result}")
 
             return result
         except Exception as e:

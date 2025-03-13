@@ -1,5 +1,11 @@
 import re
-from config.config_manager import CLIENT, OWNER_TELEGRAM_ID, STAKE_WALLET_PUBLIC_KEY
+from config.config_manager import (
+    CLIENT,
+    OWNER_TELEGRAM_ID,
+    STAKE_WALLET_PUBLIC_KEY,
+    TRON_WALLET_PRIVATE_KEY,
+    TRON_WALLET_PUBLIC_KEY,
+)
 from constant.language_constant import get_text
 from models.case_model import Case, CaseStatus
 import os
@@ -418,6 +424,8 @@ async def handle_reason_for_finding(
     case.reason = reason
     await case.save()
 
+    print(f"Case: {case}")
+
     # Ask for reward amount based on the wallet type (SOL or USDT)
     wallet = case.wallet
     if wallet.wallet_type == "SOL":
@@ -502,9 +510,11 @@ async def handle_transfer_confirmation(
     user_input = query.data.strip().lower()
 
     # Fetch the case to retrieve reward amount and wallet info
+    print("Calling in handle transfer confirmation")
     case = await Case.find_one(
         {"user_id": user_id, "status": CaseStatus.DRAFT}, fetch_links=True
     )
+    print(case)
     wallet = case.wallet
     reward_amount = case.reward
     wallet_type = wallet.wallet_type
@@ -547,14 +557,14 @@ async def handle_transfer_confirmation(
                 )
                 if wallet.wallet_type == "SOL"
                 else await TronWallet.transfer_usdt(
-                    wallet.private_key, STAKE_WALLET_PUBLIC_KEY, reward_amount
+                    wallet.private_key, TRON_WALLET_PUBLIC_KEY, reward_amount
                 )
             )
 
             print("Getting the balance of the wallet")
             print(f"Transfer_success: {transfer_success}")
 
-            print(f"Debug No: 1")
+            print(f"Debug No: 1", transfer_success)
             if transfer_success:
                 # Notify the advertiser
                 advertiser_message = (
