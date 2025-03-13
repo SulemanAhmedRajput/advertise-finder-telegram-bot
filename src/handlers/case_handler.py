@@ -399,7 +399,9 @@ async def handle_reason_for_finding(
     reason = update.message.text.strip()
 
     # Fetch the case for the user
-    case = await Case.find_one({"user_id": user_id, "status": CaseStatus.DRAFT})
+    case = await Case.find_one(
+        {"user_id": user_id, "status": CaseStatus.DRAFT}, fetch_links=True
+    )
 
     if not case:
         await update.message.reply_text(get_text(user_id, "case_not_found"))
@@ -410,7 +412,7 @@ async def handle_reason_for_finding(
     await case.save()
 
     # Ask for reward amount based on the wallet type (SOL or USDT)
-    wallet = await case.wallet.fetch()
+    wallet = case.wallet
     if wallet.wallet_type == "SOL":
         await update.message.reply_text(get_text(user_id, "enter_reward_amount_sol"))
     elif wallet.wallet_type == "USDT":
@@ -493,10 +495,16 @@ async def handle_transfer_confirmation(
     user_input = query.data.strip().lower()
 
     # Fetch the case to retrieve reward amount and wallet info
-    case = await Case.find_one({"user_id": user_id, "status": CaseStatus.DRAFT})
-    wallet = await case.wallet.fetch()
+    case = await Case.find_one(
+        {"user_id": user_id, "status": CaseStatus.DRAFT}, fetch_links=True
+    )
+    wallet = case.wallet
     reward_amount = case.reward
     wallet_type = wallet.wallet_type
+    print("------------------------------------")
+    print(f"Wallet: {wallet}")
+    print(f"Case: {case}")
+    print(f"Wallet Type: {wallet_type}")
 
     if user_input == "confirm_transfer":
         # Proceed with the transfer
@@ -507,6 +515,8 @@ async def handle_transfer_confirmation(
                 if wallet.wallet_type == "SOL"
                 else await TronWallet.get_usdt_balance(wallet.public_key)
             )
+
+            print(f"Wallet Balance: {wallet_balance}")
 
             if wallet.wallet_type in ["USDT", "TRX"] and wallet_balance < reward_amount:
                 await query.answer()
@@ -556,7 +566,7 @@ async def handle_transfer_confirmation(
                     f"📢 New Advertisement Notification\n\n"
                     f"An advertiser has successfully advertised a case:\n\n"
                     f"Advertiser ID: {user_id}\n"
-                    f"Case ID: {case.case_id}\n"
+                    f"Case ID: {case.id}\n"
                     f"Reward Amount: {reward_amount} {wallet_type}\n"
                     f"Wallet Type: {wallet_type}\n\n"
                     f"The funds have been transferred successfully."
