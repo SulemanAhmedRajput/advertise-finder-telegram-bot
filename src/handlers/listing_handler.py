@@ -1,7 +1,12 @@
 import logging
 from datetime import datetime
 from beanie import PydanticObjectId
-from config.config_manager import OWNER_TELEGRAM_ID, STAKE_WALLET_PRIVATE_KEY, STAKE_WALLET_PUBLIC_KEY, TAX_COLLECT_PUBLIC_KEY
+from config.config_manager import (
+    OWNER_TELEGRAM_ID,
+    STAKE_WALLET_PRIVATE_KEY,
+    STAKE_WALLET_PUBLIC_KEY,
+    TAX_COLLECT_PUBLIC_KEY,
+)
 from constant.language_constant import get_text, user_data_store
 from constants import State
 from models.case_model import Case, CaseStatus
@@ -86,9 +91,11 @@ async def listing_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 )
             )
         keyboard.append(row)
-        
-            # In the listing_command function, after checking for edit/delete buttons:
-        extend_reward = await ExtendReward.find_one({"case.$id": PydanticObjectId(case.id)})
+
+        # In the listing_command function, after checking for edit/delete buttons:
+        extend_reward = await ExtendReward.find_one(
+            {"case.$id": PydanticObjectId(case.id)}
+        )
         if case.status == CaseStatus.ADVERTISE and extend_reward:
             if case.user_id == user_id:  # Ensure only the owner sees the button
                 row.append(
@@ -134,7 +141,9 @@ async def case_details_callback(
 
     try:
         case_id = query.data.removeprefix("case_")  # Extract case ID
-        case = await Case.find_one({"_id": PydanticObjectId(case_id), "deleted": False}, fetch_links=True)
+        case = await Case.find_one(
+            {"_id": PydanticObjectId(case_id), "deleted": False}, fetch_links=True
+        )
         print("THIS IS THE CASE", case)
 
         if not case:
@@ -383,16 +392,28 @@ async def edit_field_callback(
     # Extract field and case ID from callback data
     callback_data = query.data.removeprefix("edit_field_")
     last_underscore_index = callback_data.rfind("_")
-    field_name = callback_data[:last_underscore_index]  # Extract field name correctly
-    case_id = callback_data[last_underscore_index + 1 :]  # Extract case ID
+    field_name = callback_data[:last_underscore_index]
+    case_id = callback_data[last_underscore_index + 1 :]
 
     print("Field name:", field_name, "Case ID:", case_id)
 
-    # Store the case ID and field name in user_data for later use
     context.user_data["editing_case_id"] = case_id
-    context.user_data["editing_field"] = field_name  # Keep full field name
+    context.user_data["editing_field"] = field_name
 
-    # Prompt the user to enter a new value for the field
+    # If editing country, prompt for country first
+    if field_name == "country":
+        await query.message.edit_text("🌍 Please enter your country:")
+        return State.ENTER_COUNTRY
+
+    # If editing city, first ensure country is set
+    if field_name == "city":
+        if "country" not in context.user_data:
+            await query.message.edit_text("🌍 Please enter your country first:")
+            return State.ENTER_COUNTRY
+        await query.message.edit_text("🏙️ Please enter your city:")
+        return State.ENTER_CITY
+
+    # For other fields
     await query.message.edit_text(
         get_text(user_id, "enter_new_value").format(
             field_name=field_name.replace("_", " ").title()
@@ -407,7 +428,7 @@ async def update_case_field(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     """Update the specified field in the case document."""
     print("I'm Calling :smile")
     case_id = context.user_data.get("editing_case_id")
-    field_name = context.user_data.get("editing_field")  # Use full field name
+    field_name = context.user_data.get("editing_field")
     user_id = update.effective_user.id
     new_value = update.message.text.strip()
 
@@ -423,25 +444,19 @@ async def update_case_field(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         await update.message.reply_text(get_text(user_id, "case_not_found"))
         return State.END
 
-    # Handle different types of fields
     try:
-        if field_name in ["age", "height", "weight", "reward"]:
-            new_value = float(new_value)
-            if new_value < 0:
-                raise ValueError("Value cannot be negative.")
-        elif field_name == "status" and new_value.lower() not in ["draft", "advertise"]:
-            raise ValueError("Status must be either 'draft' or 'advertise'.")
-        elif field_name == "gender" and new_value.lower() not in [
-            "male",
-            "female",
-            "other",
-        ]:
-            raise ValueError(
-                "Invalid gender. Choose from 'male', 'female', or 'other'."
-            )
+        if field_name == "country":
+            country_matches = get_country_matches(new_value)
+            if not country_matches:
+                raise ValueError("Invalid country. Please provide a valid country.")
+            new_value = country_matches[0]
+        elif field_name == "city":
+            country = context.user_data.get("country")
+            if not get_city_matches(country, new_value):
+                raise ValueError(f"Invalid city for country {country}.")
 
         # Update the case document
-        setattr(case, field_name, new_value)  # Ensure it updates correctly
+        setattr(case, field_name, new_value)
         case.updated_at = datetime.utcnow()
         await case.save()
 
@@ -465,9 +480,69 @@ async def update_case_field(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 
 @catch_async
+async def enter_country(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Ask the user to enter the country."""
+    await update.message.reply_text("🌍 Please enter your country:")
+    return State.ENTER_COUNTRY
+
+
+@catch_async
+async def process_country(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Process and validate the country. Prompt for city if valid."""
+    country = update.message.text.strip()
+    country_matches = get_country_matches(country)
+
+    if country_matches:
+        context.user_data["country"] = country_matches[0]
+        await update.message.reply_text(
+            f"✅ You've entered **{country_matches[0]}**. Now, please enter your city:"
+        )
+        return State.ENTER_CITY
+    else:
+        await update.message.reply_text(
+            "❌ Invalid country. Please enter a valid country from the list:\n"
+            "- United States\n- Pakistan\n- Canada\n- United Kingdom"
+        )
+        return State.ENTER_COUNTRY
+
+
+@catch_async
+async def process_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Validate the city based on the previously entered country."""
+    city = update.message.text.strip()
+    country = context.user_data.get("country")
+
+    cities = get_city_matches(country, city)
+
+    if cities:
+        case_id = context.user_data.get("editing_case_id")
+        case = await Case.find_one({"_id": PydanticObjectId(case_id)})
+
+        if case:
+            setattr(case, "country", country)
+            setattr(case, "city", city)
+            case.updated_at = datetime.utcnow()
+            await case.save()
+
+        await update.message.reply_text(
+            f"✅ Great! You've successfully added:\n\n"
+            f"🌍 Country: **{country}**\n"
+            f"🏙️ City: **{cities[0]}**"
+        )
+        return State.END
+    else:
+        await update.message.reply_text(
+            f"❌ The city **{city}** is not valid for **{country}**.\n"
+            "Please enter a valid city:"
+        )
+        return State.ENTER_CITY
+
+
+@catch_async
 async def update_choose_country(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
+    
     user_id = update.effective_user.id
     txt = update.message.text.strip()
     matches = get_country_matches(txt)
@@ -672,7 +747,9 @@ async def city_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 
 
 @catch_async
-async def delete_case_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def delete_case_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
     """Handler for confirming and soft deleting a case."""
     query = update.callback_query
     await query.answer()
@@ -685,22 +762,23 @@ async def delete_case_callback(update: Update, context: ContextTypes.DEFAULT_TYP
         if case_id.startswith("confirm_"):
             case_id = case_id.removeprefix("confirm_")
             case = await Case.find_one({"_id": PydanticObjectId(case_id)})
-            
+
             if not case:
                 await query.edit_message_text(get_text(user_id, "case_not_found"))
                 return State.END
 
             if case.user_id != user_id:
-                await query.edit_message_text(get_text(user_id, "not_authorized_delete"))
+                await query.edit_message_text(
+                    get_text(user_id, "not_authorized_delete")
+                )
                 return State.END
 
             # Soft delete: update `deleted` field to `True`
-            await update_case(
-                case_id = PydanticObjectId(case_id),
-                deleted = True                  
-            )
+            await update_case(case_id=PydanticObjectId(case_id), deleted=True)
 
-            await query.edit_message_text(get_text(user_id, "case_deleted_successfully"))
+            await query.edit_message_text(
+                get_text(user_id, "case_deleted_successfully")
+            )
 
             # Refresh listing after deletion
             return await listing_command(update, context)
@@ -708,44 +786,66 @@ async def delete_case_callback(update: Update, context: ContextTypes.DEFAULT_TYP
         # Ask for confirmation before soft deleting
         keyboard = [
             [
-                InlineKeyboardButton(get_text(user_id, "yes"), callback_data=f"delete_confirm_{case_id}"),
-                InlineKeyboardButton(get_text(user_id, "no"), callback_data="delete_cancel"),
+                InlineKeyboardButton(
+                    get_text(user_id, "yes"), callback_data=f"delete_confirm_{case_id}"
+                ),
+                InlineKeyboardButton(
+                    get_text(user_id, "no"), callback_data="delete_cancel"
+                ),
             ]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         # Check if message exists before editing
         if query.message:
-            await query.edit_message_text(get_text(user_id, "confirm_delete"), reply_markup=reply_markup)
+            await query.edit_message_text(
+                get_text(user_id, "confirm_delete"), reply_markup=reply_markup
+            )
         else:
-            await context.bot.send_message(chat_id=user_id, text=get_text(user_id, "confirm_delete"), reply_markup=reply_markup)
+            await context.bot.send_message(
+                chat_id=user_id,
+                text=get_text(user_id, "confirm_delete"),
+                reply_markup=reply_markup,
+            )
 
         return State.CASE_DETAILS
 
     except Exception as e:
-        logger.error(f"Error in delete_case_callback: {str(e)}\n{traceback.format_exc()}")
-        await query.edit_message_text(get_text(update.effective_user.id, "error_deleting_case"))
+        logger.error(
+            f"Error in delete_case_callback: {str(e)}\n{traceback.format_exc()}"
+        )
+        await query.edit_message_text(
+            get_text(update.effective_user.id, "error_deleting_case")
+        )
         return State.END
 
 
 @catch_async
-async def cancel_delete_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def cancel_delete_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
     """Handler to cancel delete request."""
     query = update.callback_query
     await query.answer()
 
     try:
         if query.message:
-            await query.edit_message_text(get_text(update.effective_user.id, "delete_cancelled"))
+            await query.edit_message_text(
+                get_text(update.effective_user.id, "delete_cancelled")
+            )
         else:
-            await context.bot.send_message(chat_id=update.effective_user.id, text=get_text(update.effective_user.id, "delete_cancelled"))
+            await context.bot.send_message(
+                chat_id=update.effective_user.id,
+                text=get_text(update.effective_user.id, "delete_cancelled"),
+            )
     except Exception as e:
         logger.error(f"Error in cancel_delete_callback: {str(e)}")
 
     return State.END
-    
-    
+
+
 # ------------------------ Delete Case End ------------------------
+
 
 @catch_async
 async def cancel_edit_callback(
@@ -808,7 +908,9 @@ async def reward_case_callback(
         )
 
         # Show finders list below case details
-        message = case_details + "\n\n" + get_text(user_id, "finder_list_header") + "\n\n"
+        message = (
+            case_details + "\n\n" + get_text(user_id, "finder_list_header") + "\n\n"
+        )
         keyboard = []
 
         for finder in finders:
@@ -851,7 +953,9 @@ async def finder_details_callback(
 
     try:
         case = await Case.find_one({"_id": ObjectId(case_id)})
-        finder = await Finder.find_one({"user_id": int(finder_id), "case.$id": PydanticObjectId(case.id)})
+        finder = await Finder.find_one(
+            {"user_id": int(finder_id), "case.$id": PydanticObjectId(case.id)}
+        )
 
         if not case or not finder:
             await query.message.edit_text(get_text(user_id, "case_or_finder_not_found"))
@@ -905,8 +1009,6 @@ async def finder_details_callback(
         )
         await query.message.edit_text(get_text(user_id, "error_fetching_finder"))
         return State.END
-
-
 
 
 @catch_async
@@ -1017,9 +1119,9 @@ async def confirm_reward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         case = await Case.find_one({"_id": ObjectId(case_id)})
 
         print(f"Case: {case}")
-        
+
         print(f"Finder Id: {finder_id}")
-        
+
         print(f"Amount: {amount}")
 
         finder = await Finder.find_one(
@@ -1037,9 +1139,11 @@ async def confirm_reward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             STAKE_WALLET_PRIVATE_KEY, finder_wallet.public_key, amount
         )
         is_tax_transfer_successful = await WalletService.send_sol(
-            STAKE_WALLET_PRIVATE_KEY, TAX_COLLECT_PUBLIC_KEY, float(case.reward - amount)
+            STAKE_WALLET_PRIVATE_KEY,
+            TAX_COLLECT_PUBLIC_KEY,
+            float(case.reward - amount),
         )
-        
+
         print(f"Is transfer to finder successful: {is_transfer_to_finder_successful}")
         print(f"Is tax transfer successful: {is_tax_transfer_successful}")
 
@@ -1081,11 +1185,7 @@ async def cancel_reward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 # ---------------------------- Reward the Finder By Owner Finished ---------------------------
 
 
-
-
 # -------------------------- Extend Reward By Advertiser Start ---------------------------
-
-
 
 
 @catch_async
@@ -1122,23 +1222,7 @@ async def action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         )
         return State.END
 
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    #---------------------------------------- Extend Reward ---------------------------
-
+    # ---------------------------------------- Extend Reward ---------------------------
 
 
 # DEBUGGING FROM START
@@ -1316,12 +1400,12 @@ async def advertiser_wallet_name_handler(
             get_text(user_id, "wallet_create_err"), parse_mode="HTML"
         )
         return State.END
-    
-    
-    
-    
+
+
 @catch_async
-async def extend_reward_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def extend_reward_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
     """Handle the Extend Reward button click."""
     query = update.callback_query
     await query.answer()
@@ -1353,8 +1437,10 @@ async def extend_reward_callback(update: Update, context: ContextTypes.DEFAULT_T
     print(f"Wallet Type: {wallet_type}")
 
     # Get all user wallets of the given type
-    wallets = await Wallet.find({"user_id": user_id, "wallet_type": wallet_type, "deleted": False}).to_list()
-    
+    wallets = await Wallet.find(
+        {"user_id": user_id, "wallet_type": wallet_type, "deleted": False}
+    ).to_list()
+
     if not wallets:
         await query.message.edit_text(get_text(user_id, "no_wallet_found"))
         return State.END
@@ -1366,7 +1452,7 @@ async def extend_reward_callback(update: Update, context: ContextTypes.DEFAULT_T
             balance = await WalletService.get_sol_balance(wallet.public_key)
         else:
             balance = await WalletService.get_usdt_balance(wallet.public_key)
-        
+
         wallet_balances.append((wallet, balance))
         print(f"Wallet {wallet.public_key} has balance: {balance}")
 
@@ -1381,70 +1467,84 @@ async def extend_reward_callback(update: Update, context: ContextTypes.DEFAULT_T
     print(f"Selected Wallet: {best_wallet.public_key} with balance {best_balance}")
 
     # Show confirmation
-    keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton(get_text(user_id, "confirm"), callback_data=f"confirm_extend_{case_id}")],
-        [InlineKeyboardButton(get_text(user_id, "cancel"), callback_data="cancel_extend")]
-    ])
-    
+    keyboard = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton(
+                    get_text(user_id, "confirm"),
+                    callback_data=f"confirm_extend_{case_id}",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    get_text(user_id, "cancel"), callback_data="cancel_extend"
+                )
+            ],
+        ]
+    )
+
     message = get_text(user_id, "extend_reward_confirmation").format(
         amount=extend_reward.extend_reward_amount,
         wallet_type=wallet_type,
         from_wallet=best_wallet.public_key,
-        to_wallet=STAKE_WALLET_PUBLIC_KEY  # Derived from private key
+        to_wallet=STAKE_WALLET_PUBLIC_KEY,  # Derived from private key
     )
-    
+
     await query.message.edit_text(message, reply_markup=keyboard, parse_mode="Markdown")
     return State.CONFIRM_EXTEND
 
+
 @catch_async
-async def confirm_extend_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def confirm_extend_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
     """Confirm and process the reward extension."""
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
     case_id = query.data.removeprefix("confirm_extend_")
-    
+
     case = await Case.find_one({"_id": PydanticObjectId(case_id)}, fetch_links=True)
     extend_reward = await ExtendReward.find_one({"case.$id": PydanticObjectId(case_id)})
     if not case or not extend_reward:
         await query.message.edit_text(get_text(user_id, "case_or_extend_not_found"))
         return State.END
-    
+
     wallet_type = case.wallet.wallet_type
     user_wallet = await WalletService.get_wallet_by_type(user_id, wallet_type)
-    
+
     try:
         if wallet_type == "SOL":
-            await WalletService.send_sol(user_wallet.private_key, STAKE_WALLET_PUBLIC_KEY, extend_reward.amount)
+            await WalletService.send_sol(
+                user_wallet.private_key, STAKE_WALLET_PUBLIC_KEY, extend_reward.amount
+            )
         else:
-            await WalletService.send_usdt(user_wallet.private_key, STAKE_WALLET_PUBLIC_KEY, extend_reward.amount)
+            await WalletService.send_usdt(
+                user_wallet.private_key, STAKE_WALLET_PUBLIC_KEY, extend_reward.amount
+            )
     except Exception as e:
         logger.error(f"Transfer failed: {e}")
         await query.message.edit_text(get_text(user_id, "transfer_failed"))
         return State.END
-    
+
     # Update case and extend reward
     case.reward += extend_reward.amount
     await case.save()
     extend_reward.status = "completed"  # Update status
     await extend_reward.save()
-    
+
     await query.message.edit_text(get_text(user_id, "extend_success"))
     return State.END
-    
-    
-    
-    
+
+
 @catch_async
-async def cancel_extend_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def cancel_extend_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
     """Cancel the extend reward process."""
     query = update.callback_query
     await query.answer()
-    await query.message.edit_text(get_text(update.effective_user.id, "extend_cancelled"))
+    await query.message.edit_text(
+        get_text(update.effective_user.id, "extend_cancelled")
+    )
     return State.END
-    
-    
-    
-    
-    
-    

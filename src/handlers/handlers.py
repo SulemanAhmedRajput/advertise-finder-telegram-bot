@@ -56,6 +56,8 @@ from handlers.listing_handler import (
     finder_details_callback,
     listing_command,
     pagination_callback,
+    process_city,
+    process_country,
     process_reward_transfer,
     reward_case_callback,
     update_case_field,
@@ -339,37 +341,48 @@ listing_handler = ConversationHandler(
         State.CASE_DETAILS: [
             # Case details and pagination
             CallbackQueryHandler(case_details_callback, pattern="^case_.*$"),
-            CallbackQueryHandler(pagination_callback, pattern="^(page_previous|page_next)$"),
-
+            CallbackQueryHandler(
+                pagination_callback, pattern="^(page_previous|page_next)$"
+            ),
             # Editing and deleting cases
             CallbackQueryHandler(edit_field_callback, pattern="^edit_field_.*$"),
             CallbackQueryHandler(edit_case_callback, pattern="^edit_.*$"),
             CallbackQueryHandler(cancel_edit_callback, pattern="^cancel_edit$"),
             CallbackQueryHandler(delete_case_callback, pattern="^delete_.*$"),
             CallbackQueryHandler(cancel_delete_callback, pattern="^delete_cancel$"),
-
             # Reward process
-            CallbackQueryHandler(reward_case_callback, pattern="^reward_.*$"),  # Show case & finders list
-            CallbackQueryHandler(finder_details_callback, pattern="^finder_details_.*$"),  # Show one finder details
-            CallbackQueryHandler(ask_reward_amount, pattern="^send_reward_.*$"),  # Ask for reward amount
-
+            CallbackQueryHandler(
+                reward_case_callback, pattern="^reward_.*$"
+            ),  # Show case & finders list
+            CallbackQueryHandler(
+                finder_details_callback, pattern="^finder_details_.*$"
+            ),  # Show one finder details
+            CallbackQueryHandler(
+                ask_reward_amount, pattern="^send_reward_.*$"
+            ),  # Ask for reward amount
             # New Extend handlers
             CallbackQueryHandler(extend_reward_callback, pattern=r"^extend_reward_"),
- 
-            
+        ],
+        State.ENTER_COUNTRY: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, process_country),
+        ],
+        State.ENTER_CITY: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, process_city),
+        ],
+        State.EDIT_FIELD: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, update_case_field),
         ],
         State.CONFIRM_EXTEND: [
             CallbackQueryHandler(confirm_extend_callback, pattern=r"^confirm_extend_"),
             CallbackQueryHandler(cancel_extend_callback, pattern=r"^cancel_extend"),
         ],
-        State.EDIT_FIELD: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, update_case_field),
-        ],
         State.REWARD_TRANSFER_PROCESS: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, process_reward_transfer),
         ],
         State.CHOOSE_COUNTRY: [
-            CallbackQueryHandler(country_callback, pattern="^(country_select_|country_page_)"),
+            CallbackQueryHandler(
+                country_callback, pattern="^(country_select_|country_page_)"
+            ),
             MessageHandler(filters.TEXT & ~filters.COMMAND, update_choose_country),
         ],
         State.CHOOSE_CITY: [
@@ -380,26 +393,29 @@ listing_handler = ConversationHandler(
             CallbackQueryHandler(confirm_reward, pattern="^confirm_reward$"),
             CallbackQueryHandler(cancel_reward, pattern="^cancel_reward$"),
         ],
-
         # Advertiser to Extend the reward demanded by the finder
         State.CHOOSE_WALLET_TYPE: [
-            CallbackQueryHandler(advertiser_wallet_type_callback, pattern="^(SOL|USDT)$"),
-            CallbackQueryHandler(advertiser_wallet_selection_callback, pattern="^wallet_"),
+            CallbackQueryHandler(
+                advertiser_wallet_type_callback, pattern="^(SOL|USDT)$"
+            ),
+            CallbackQueryHandler(
+                advertiser_wallet_selection_callback, pattern="^wallet_"
+            ),
             CallbackQueryHandler(
                 advertiser_wallet_name_handler, pattern="^create_new_wallet$"
             ),  # Handle create_new_wallet
         ],
         State.NAME_WALLET: [
-            MessageHandler(filters.TEXT & ~filters.COMMAND, advertiser_wallet_name_handler),
+            MessageHandler(
+                filters.TEXT & ~filters.COMMAND, advertiser_wallet_name_handler
+            ),
         ],
-        
     },
     fallbacks=[
         CommandHandler("cancel", lambda update, context: State.END),
     ],
     allow_reentry=True,
 )
-
 
 
 # Settings conversation handler  -- TODO: Completed
