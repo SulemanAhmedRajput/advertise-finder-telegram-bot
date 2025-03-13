@@ -87,7 +87,7 @@ WALLET_LANG_DATA = {
             "在继续之前，请确保已转移所有资金。"
         ),
     },
-    "ms": {  # Malay (Malaysia)
+    "ms": {
         "choose_wallet": "Sila pilih jenis dompet:",
         "sol_wallet": "Solana (SOL)",
         "usdt_wallet": "USD Tether (USDT)",
