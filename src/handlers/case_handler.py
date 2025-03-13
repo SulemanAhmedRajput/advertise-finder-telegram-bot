@@ -1,5 +1,5 @@
 import re
-from config.config_manager import CLIENT, STAKE_WALLET_PUBLIC_KEY
+from config.config_manager import CLIENT, OWNER_TELEGRAM_ID, STAKE_WALLET_PUBLIC_KEY
 from constant.language_constant import get_text
 from models.case_model import Case, CaseStatus
 import os
@@ -14,8 +14,9 @@ from constants import (
 )
 
 from models.mobile_number_model import MobileNumber
-from services.case_service import  update_or_create_case
+from services.case_service import update_or_create_case
 from services.wallet_service import WalletService
+from utils.error_wrapper import catch_async
 from utils.twilio import generate_tac
 from utils.wallet import load_user_wallet
 from utils.cloudinary import upload_image
@@ -482,6 +483,7 @@ async def handle_ask_reward_amount(
     return State.CREATE_CASE_CONFIRM_TRANSFER
 
 
+@catch_async
 async def handle_transfer_confirmation(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
@@ -496,30 +498,26 @@ async def handle_transfer_confirmation(
     reward_amount = case.reward
     wallet_type = wallet.wallet_type
 
-    if user_input == "confirm_transfer":
+    if user_id == "confirm_transfer":
         # Proceed with the transfer
         try:
             # Check if wallet has sufficient balance
-            wallet_balance = wallet_balance = (
+            wallet_balance = (
                 await WalletService.get_sol_balance(wallet.public_key)
                 if wallet.wallet_type == "SOL"
                 else await TronWallet.get_usdt_balance(wallet.public_key)
             )
 
-            if wallet.wallet_type == "USDT" and wallet_balance < reward_amount:
+            if wallet.wallet_type in ["USDT", "TRX"] and wallet_balance < reward_amount:
                 await query.answer()
                 await query.edit_message_text(
-                    get_text(user_id, "insufficient_balance_for_transfer").format(wallet_balance)
+                    get_text(user_id, "insufficient_balance_for_transfer").format(
+                        wallet_balance=wallet_balance,
+                        reward_amount=reward_amount,
+                        wallet_type=wallet_type,
+                    )
                 )
                 return State.CREATE_CASE_CONFIRM_TRANSFER
-            elif wallet.wallet_type == "TRX" and wallet_balance < reward_amount:
-                await query.answer()
-                await query.edit_message_text(
-                    get_text(user_id, "insufficient_balance_for_transfer").format(wallet_balance)
-                )
-                return State.CREATE_CASE_CONFIRM_TRANSFER
-
-                
 
             # Transfer the reward (this is just a placeholder, you need to implement transfer logic)
             transfer_success = False
@@ -527,24 +525,48 @@ async def handle_transfer_confirmation(
             print(f"Reward amount: {reward_amount}")
 
             transfer_success = (
-                await WalletService.send_sol(wallet.private_key, STAKE_WALLET_PUBLIC_KEY, reward_amount) \
-                if wallet.wallet_type == "SOL" else \
-                await TronWallet.transfer_usdt(wallet.private_key, STAKE_WALLET_PUBLIC_KEY, reward_amount)
+                await WalletService.send_sol(
+                    wallet.private_key, STAKE_WALLET_PUBLIC_KEY, reward_amount
+                )
+                if wallet.wallet_type == "SOL"
+                else await TronWallet.transfer_usdt(
+                    wallet.private_key, STAKE_WALLET_PUBLIC_KEY, reward_amount
+                )
             )
 
             print("Getting the balance of the wallet")
             print(f"Transfer_success: {transfer_success}")
 
             if transfer_success:
-                await query.answer()
-                await query.edit_message_text(get_text(user_id, "transfer_successful"))
+                # Notify the advertiser
+                advertiser_message = (
+                    f"🎉 Congratulations! Your advertisement has been successfully processed.\n\n"
+                    f"Case ID: {case.case_id}\n"
+                    f"Reward Amount: {reward_amount} {wallet_type}\n"
+                    f"Wallet Type: {wallet_type}\n\n"
+                    f"Thank you for choosing our platform!"
+                )
+                await query.message.reply_text(advertiser_message)
+
+                # Notify the owner
+                owner_message = (
+                    f"📢 New Advertisement Notification\n\n"
+                    f"An advertiser has successfully advertised a case:\n\n"
+                    f"Advertiser ID: {user_id}\n"
+                    f"Case ID: {case.case_id}\n"
+                    f"Reward Amount: {reward_amount} {wallet_type}\n"
+                    f"Wallet Type: {wallet_type}\n\n"
+                    f"The funds have been transferred successfully."
+                )
+                await context.bot.send_message(
+                    chat_id=OWNER_TELEGRAM_ID, text=owner_message
+                )
+
+                # Update case status
                 case.status = CaseStatus.ADVERTISE
                 await case.save()
 
-                await query.message.reply_text(
-                    "Congratulate you case has been advertise 🚀"  # TODO: would be replace to
-                )
-
+                # Clear user data
                 context.user_data["case"] = None
 
                 return State.END

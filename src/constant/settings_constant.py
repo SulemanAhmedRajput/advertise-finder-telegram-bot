@@ -1,4 +1,3 @@
-# Updated Constants
 SETTINGS_CONSTANT = {
     "en": {
         "btn_language": "🌍 Change Language",
@@ -39,5 +38,25 @@ SETTINGS_CONSTANT = {
         "selected_mobile_options": "已选手机号码：{mobile}\n您想做什么？",
         "mobile_removed": "✅ 已移除手机号码：{mobile}",
         "mobile_verified_and_saved": "✅ 手机号码验证并保存成功！\n您的保存的手机号码：",
+    },
+    "ms": {  # Malay (Malaysia)
+        "btn_language": "🌍 Tukar Bahasa",
+        "btn_mobile_number": "📱 Urus Nombor Telefon",
+        "btn_close_menu": "❌ Tutup Menu",
+        "menu_settings_title": "⚙️ Menu Tetapan",
+        "choose_language": "🌍 Pilih bahasa pilihan anda:",
+        "saved_mobile_numbers": "📱 Nombor telefon yang disimpan:",
+        "enter_mobile": "📞 Sila masukkan nombor telefon anda:",
+        "invalid_mobile_number": "❌ Nombor telefon tidak sah. Sila cuba lagi.",
+        "enter_tac": "🔢 Masukkan kod TAC (pengesahan) yang dihantar ke telefon anda:",
+        "tac_invalid": "❌ Kod TAC tidak sah. Sila cuba lagi.",
+        "lang_updated": "✅ Bahasa berjaya dikemaskini!",
+        "invalid_choice": "❌ Pilihan tidak sah. Sila cuba lagi.",
+        "btn_add_new": "➕ Tambah Baru",
+        "remove_mobile": "❌ Buang",
+        "back_to_mobile_menu": "🔙 Kembali ke Menu Telefon",
+        "selected_mobile_options": "Nombor telefon dipilih: {mobile}\nApa yang ingin anda lakukan?",
+        "mobile_removed": "✅ Nombor telefon telah dibuang: {mobile}",
+        "mobile_verified_and_saved": "✅ Nombor telefon berjaya disahkan dan disimpan!\nNombor telefon yang disimpan:",
     },
 }
