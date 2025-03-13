@@ -444,7 +444,7 @@ async def handle_ask_reward_amount(
     wallet_balance = (
         await WalletService.get_sol_balance(wallet.public_key)
         if wallet.wallet_type == "SOL"
-        else await WalletService.get_usdt_balance(wallet.public_key)
+        else await TronWallet.get_usdt_balance(wallet.public_key)
     )
 
     print(f"Wallet balance: {wallet_balance}")
@@ -498,7 +498,7 @@ async def handle_transfer_confirmation(
     reward_amount = case.reward
     wallet_type = wallet.wallet_type
 
-    if user_id == "confirm_transfer":
+    if user_input == "confirm_transfer":
         # Proceed with the transfer
         try:
             # Check if wallet has sufficient balance
@@ -537,16 +537,19 @@ async def handle_transfer_confirmation(
             print("Getting the balance of the wallet")
             print(f"Transfer_success: {transfer_success}")
 
+            print(f"Debug No: 1")
             if transfer_success:
                 # Notify the advertiser
                 advertiser_message = (
                     f"🎉 Congratulations! Your advertisement has been successfully processed.\n\n"
-                    f"Case ID: {case.case_id}\n"
+                    f"Case ID: {case.id}\n"
                     f"Reward Amount: {reward_amount} {wallet_type}\n"
                     f"Wallet Type: {wallet_type}\n\n"
                     f"Thank you for choosing our platform!"
                 )
                 await query.message.reply_text(advertiser_message)
+
+                print(f"Debug No: 2")
 
                 # Notify the owner
                 owner_message = (

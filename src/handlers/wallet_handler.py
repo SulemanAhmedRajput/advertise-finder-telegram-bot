@@ -171,14 +171,11 @@ async def usdt_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
         for wallet in wallets:
             if wallet.wallet_type == "USDT":
                 try:
-                    
 
                     # Fetch the USDT balance using get_token_account_balance
                     balance = TronWallet.get_usdt_balance(wallet.public_key)
-                    message += (
-                        f"Name: {wallet.name}, Balance: {balance} USDT\n"
-                    )
-                   
+                    message += f"Name: {wallet.name}, Balance: {balance} USDT\n"
+
                 except Exception as e:
                     message += (
                         f"Name: {wallet.name}, Error fetching balance: {str(e)}\n"

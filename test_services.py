@@ -25,7 +25,7 @@ sender_private_key = PrivateKey(
 sender_address = sender_private_key.public_key.to_base58check_address()
 
 # Destination address for the transaction (another test wallet)
-destination_address = "TNuqZLMsHjxzpSvibFUo3aCbAyyKxW5BbW"
+destination_address = "TBHggziQ4MEwyVoRCucP3t7WxxaLcba5uF"
 
 # Define the transfer amount in Sun (1 TRX = 1,000,000 Sun)
 amount_in_sun = 1_000_000

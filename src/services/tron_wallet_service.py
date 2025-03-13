@@ -2,6 +2,7 @@ from tronpy import Tron
 from tronpy.keys import PrivateKey
 from tronpy.contract import Contract
 
+
 class TronWallet:
     """
     Service for managing TRON wallets and transactions, including USDT (TRC20) operations.
@@ -24,8 +25,7 @@ class TronWallet:
         return {
             "private_key": private_key.hex(),  # Keep this secret!
             "public_key": address,
-            "name": wallet_name
-            
+            "name": wallet_name,
         }
 
     @staticmethod
@@ -39,30 +39,14 @@ class TronWallet:
             return 0  # Wallet may be new and unfunded
 
     @staticmethod
-    def get_usdt_balance(address):
-        """
-        Fetches the USDT (TRC20) balance of a TRON wallet.
-        """
+    async def get_usdt_balance(address):
         try:
-            # Load contract with ABI
-            contract = TronWallet.client.get_contract(TronWallet.USDT_CONTRACT).with_abi([
-                {
-                    "constant": True,
-                    "inputs": [{"name": "_owner", "type": "address"}],
-                    "name": "balanceOf",
-                    "outputs": [{"name": "balance", "type": "uint256"}],
-                    "payable": False,
-                    "stateMutability": "View",
-                    "type": "Function",
-                }
-            ])
-            
-            # Call balanceOf function
-            balance = contract.functions.balanceOf(address)
-            return balance / 10**6  # Convert from SUN to USDT
-        except Exception as e:
-            print(f"Error fetching USDT balance: {e}")
-            return 0
+            balance = TronWallet.client.get_account_balance(address)
+            real_balance = balance / 10**6  # Convert from SUN to TRX
+            print(f"Balance: {real_balance} TRX")
+            return real_balance  # Balance is in TRX
+        except Exception:
+            return 0  # Wallet may be new and unfunded
 
     @staticmethod
     def transfer_trx(sender_private_key, recipient_address, amount_in_trx):
@@ -77,7 +61,9 @@ class TronWallet:
             amount_in_sun = int(amount_in_trx * 1_000_000)
 
             txn = (
-                TronWallet.client.trx.transfer(sender_address, recipient_address, amount_in_sun)
+                TronWallet.client.trx.transfer(
+                    sender_address, recipient_address, amount_in_sun
+                )
                 .build()
                 .sign(sender_private_key)
             )
@@ -88,7 +74,7 @@ class TronWallet:
             return None
 
     @staticmethod
-    def transfer_usdt(sender_private_key, recipient_address, amount_in_usdt):
+    async def transfer_usdt(sender_private_key, recipient_address, amount_in_usdt):
         """
         Transfers USDT from one wallet to another.
         """
@@ -96,24 +82,23 @@ class TronWallet:
             sender_private_key = PrivateKey(bytes.fromhex(sender_private_key))
             sender_address = sender_private_key.public_key.to_base58check_address()
 
-            contract = TronWallet.client.get_contract(TronWallet.USDT_CONTRACT)
+            destination_address = recipient_address
+
+            amount_in_sun = float(1_000_000 * amount_in_usdt)
 
             # Convert the USDT amount to SUN (6 decimal places)
-            amount_in_sun = int(amount_in_usdt * 1_000_000)
+            txn = TronWallet.client.trx.transfer(
+                sender_address, destination_address, amount_in_sun
+            ).build()
 
-            txn = (
-                contract.functions.transfer(recipient_address, amount_in_sun)
-                .with_owner(sender_address)
-                .fee_limit(10_000_000)
-                .build()
-                .sign(sender_private_key)
-            )
+            signed_txn = txn.sign(sender_private_key)
 
-            return txn.broadcast()
+            result = signed_txn.broadcast()
+
+            return result
         except Exception as e:
             print(f"Error sending USDT: {e}")
             return None
-
 
     def create_usdt_wallet(wallet_name):
         """
@@ -121,18 +106,16 @@ class TronWallet:
         """
         private_key = PrivateKey.random()
         address = private_key.public_key.to_base58check_address()
-        
-        try :
+
+        try:
             balance = TronWallet.get_usdt_balance(address)
         except Exception as e:
             print(f"Error creating wallet: {e}")
             balance = 0
-            
+
         return {
             "private_key": private_key.hex(),  # Keep this secret!
             "public_key": address,
             "name": wallet_name,
             "balance": balance,
         }
-        
-        
