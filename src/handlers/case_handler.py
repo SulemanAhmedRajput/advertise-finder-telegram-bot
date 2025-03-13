@@ -15,6 +15,7 @@ from constants import (
 
 from models.mobile_number_model import MobileNumber
 from services.case_service import update_or_create_case
+from services.otp_service import send_otp, verify_otp
 from services.wallet_service import WalletService
 from utils.error_wrapper import catch_async
 from utils.twilio import generate_tac
@@ -126,6 +127,10 @@ async def handle_new_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         context.user_data["tac"] = tac
         print(f"Tac are: {tac}")
 
+        res = await send_otp(mobile_number)
+
+        context.user_data["case"]["otp_id"] = res["otp_id"]
+
         await update.message.reply_text(
             f"Mobile number {mobile_number} added. A TAC has been sent to your number."
         )
@@ -147,8 +152,9 @@ async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     selected_number = context.user_data.get(
         "selected_number"
     )  # Get the mobile number reference
-
-    if user_tac == stored_tac:
+    # TODO: Neeed to be fix
+    otp_verify = await verify_otp(context.user_data["case"]["otp_id"], user_tac)
+    if otp_verify["success"]:
         await update.message.reply_text(get_text(user_id, "tac_verified"))
 
         # After TAC verification, update the case with the mobile reference
