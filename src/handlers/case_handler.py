@@ -96,9 +96,11 @@ async def handle_select_mobile(
             selected_mobile  # Save the MobileNumber reference
         )
 
-        res = await send_otp(selected_mobile)
+        # TODO: MUST BE UNCOMMITED
 
-        context.user_data["case"]["otp_id"] = res["otp_id"]
+        # res = await send_otp(selected_mobile)
+
+        # context.user_data["case"]["otp_id"] = res["otp_id"]
 
         # Notify the user that the mobile number was selected
         await query.edit_message_text(
@@ -126,9 +128,10 @@ async def handle_new_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         context.user_data["tac"] = tac
         print(f"Tac are: {tac}")
 
-        res = await send_otp(mobile_number)
+        # TODO: MUST BE UNCOMMITED
+        # res = await send_otp(mobile_number)
 
-        context.user_data["case"]["otp_id"] = res["otp_id"]
+        # context.user_data["case"]["otp_id"] = res["otp_id"]
 
         await update.message.reply_text(
             f"Mobile number {mobile_number} added. A TAC has been sent to your number."
@@ -149,8 +152,10 @@ async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_tac = update.message.text.strip()
     stored_tac = context.user_data.get("tac")
     selected_number = context.user_data.get("selected_number")
-    otp_verify = await verify_otp(context.user_data["case"]["otp_id"], user_tac)
-    if otp_verify["success"]:
+    # TODO: MUST BE UNCOMMITED
+    # otp_verify = await verify_otp(context.user_data["case"]["otp_id"], user_tac)
+    # if otp_verify["success"]:
+    if True:
         await update.message.reply_text(get_text(user_id, "tac_verified"))
 
         # After TAC verification, update the case with the mobile reference
