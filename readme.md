@@ -1,4 +1,3 @@
-````md
 # 🚀 People Finder Bot
 
 A Telegram bot designed to help users find people by creating and managing cases. This bot supports multiple languages and includes features like wallet creation, case submission, and user settings.
@@ -28,7 +27,6 @@ Make sure you have the following installed before running the bot:
 git clone https://github.com/SulemanAhmedRajput/advertise-finder-telegram-bot.git
 cd advertise-finder-telegram-bot
 ```
-````
 
 ### 2️⃣ Create a Virtual Environment (Recommended)
 
@@ -137,7 +135,7 @@ This project is licensed under the MIT License.
 
 ### ⚠️ Important Security Notice
 
-**DO NOT** expose private keys, tokens, or API credentials in your code. Always store them in environment variables and use `.env` files.  
+**DO NOT** expose private keys, tokens, or API credentials in your code. Always store them in environment variables and use `.env` files.
 **Ensure that you add `.env` to your `.gitignore` file** to prevent accidental exposure.
 
 ```
@@ -152,4 +150,8 @@ This project is licensed under the MIT License.
 ✅ **Improved readability** with **proper sectioning and spacing**.
 
 Now your `README.md` is well-structured, clear, and ready to use. Let me know if you need any more tweaks! 🚀🔥
+```
+
+```
+
 ```
