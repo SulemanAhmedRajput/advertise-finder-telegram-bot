@@ -563,14 +563,16 @@ async def handle_transfer_confirmation(
 
                 # Notify the owner
                 owner_message = (
-                    f"📢 New Advertisement Notification\n\n"
-                    f"An advertiser has successfully advertised a case:\n\n"
-                    f"Advertiser ID: {user_id}\n"
-                    f"Case ID: {case.id}\n"
-                    f"Reward Amount: {reward_amount} {wallet_type}\n"
-                    f"Wallet Type: {wallet_type}\n\n"
-                    f"The funds have been transferred successfully."
+                    f"📢 **New Advertisement Notification**\n\n"
+                    f"🎯 **A new case has been successfully advertised!**\n\n"
+                    f"🆔 **Advertiser ID:** {user_id}\n"
+                    f"📄 **Case ID:** {case.id}\n"
+                    f"💰 **Reward Amount:** {reward_amount} {wallet_type}\n"
+                    f"🔒 **Wallet Type:** {wallet_type}\n\n"
+                    f"✅ **The funds have been securely transferred.**\n"
+                    f"📋 Use `/listing` to view all available cases."
                 )
+
                 await context.bot.send_message(
                     chat_id=OWNER_TELEGRAM_ID, text=owner_message
                 )
