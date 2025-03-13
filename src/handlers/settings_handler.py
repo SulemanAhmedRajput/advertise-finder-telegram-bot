@@ -2,6 +2,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 from constants import State
 from constant.language_constant import get_text, user_data_store, LANG_DATA
+from services.otp_service import send_otp, verify_otp
 from services.user_service import (
     delete_user_mobile,
     get_user_lang,
@@ -184,14 +185,19 @@ async def handle_setting_mobile(update: Update, context: ContextTypes.DEFAULT_TY
 
     # Generate TAC
     tac = generate_tac()
-    context.user_data["tac"] = tac
     context.user_data["mobile"] = mobile
 
     # Save TAC and mobile in user data store
     if user_id not in user_data_store:
         user_data_store[user_id] = {}
-    user_data_store[user_id]["tac"] = tac
     user_data_store[user_id]["mobile"] = mobile
+
+    # Notify the user that your VERIFICATION CODE IS THIS NUMBER
+    res = await send_otp(mobile)
+
+    user_data_store[user_id]["otp_id"] = res["otp_id"]
+
+    print(f"Response: {res}")
 
     # Simulate sending TAC via SMS
     print(f"Sending TAC {tac} to mobile {mobile}")
@@ -211,7 +217,8 @@ async def handle_setting_tac(update: Update, context: ContextTypes.DEFAULT_TYPE)
     print(f"Getting the number which is: {mobile}")
 
     # Verify TAC
-    if user_tac == stored_tac:
+    otp_verify = await verify_otp(user_data_store[user_id]["otp_id"], user_tac)
+    if otp_verify["success"]:
         # Save the verified mobile number
         mobiles = await get_user_mobiles(user_id)
         if mobile not in mobiles:
