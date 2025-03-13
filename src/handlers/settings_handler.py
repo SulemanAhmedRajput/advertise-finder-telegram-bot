@@ -65,6 +65,9 @@ async def settings_menu_callback(update: Update, context: ContextTypes.DEFAULT_T
                 InlineKeyboardButton(
                     LANG_DATA["zh"]["lang_button"], callback_data="setlang_zh"
                 ),
+                InlineKeyboardButton(
+                    LANG_DATA["ms"]["lang_button"], callback_data="setlang_ms"
+                ),
             ],
         ]
         await query.edit_message_text(

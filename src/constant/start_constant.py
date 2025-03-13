@@ -111,4 +111,60 @@ START_LANG_DATA = {
             "转账成功后，{wallet_type} 将显示在您的钱包余额中。"
         ),
     },
+    "ms": {  # Malay (Malaysia)
+        "lang_choice": "Melayu",
+        "lang_button": "Melayu",
+        "start_msg": "Halo! Selamat datang ke Bot Penemuan Orang.\nSila pilih bahasa anda:",
+        "choose_country": "Sila masukkan nama negara anda (nama separa dibenarkan):",
+        "country_not_found": "Tiada negara yang sepadan ditemui. Sila cuba lagi:",
+        "country_multi": "Beberapa negara ditemui (Halaman {page} daripada {total}):",
+        "country_selected": "Anda telah memilih",
+        "disclaimer_title": "Penafian\n\n",
+        "disclaimer_text": (
+            "1. Semua ganjaran disimpan dalam penyimpanan amanah.\n"
+            "2. Kandungan palsu hasil AI adalah dilarang.\n"
+            "3. Hanya untuk kegunaan sah dan etika.\n"
+            "4. Laporkan kepada pihak berkuasa terlebih dahulu apabila mencari seseorang.\n"
+            "5. Kami tidak bertanggungjawab atas penyalahgunaan.\n"
+            "6. Pendekatan komuniti; semak dengan teliti.\n"
+            "7. Kami tidak menguruskan pertikaian ganjaran.\n\n"
+            "Dengan menggunakan bot ini, anda bersetuju dengan terma ini."
+        ),
+        "agree_btn": "Saya Setuju ✅",
+        "disagree_btn": "Saya Tidak Setuju ❌",
+        "disagree_end": "Anda tidak bersetuju. Perbualan tamat.",
+        "enter_city": "Sila masukkan nama bandar anda (nama separa dibenarkan):",
+        "city_not_found": "Tiada bandar yang sepadan ditemui. Sila cuba lagi:",
+        "city_multi": "Beberapa bandar ditemui (Halaman {page} daripada {total}):",
+        "city_selected": "Bandar direkodkan:",
+        "choose_action": "Adakah anda ingin Mengiklankan atau Mencari Orang?",
+        "advertise_btn": "Iklankan 📢",
+        "find_btn": "Cari Orang 👥",
+        "find_dev": "Fungsi Cari Orang masih dalam pembangunan.",
+        "btn_language": "Tukar Bahasa",
+        "create_new_wallet": "➕ Buat Dompet Baru",
+        "btn_mobile_number": "Nombor Telefon",
+        "btn_close_menu": "Tutup Menu",
+        "enter_mobile": "Masukkan nombor telefon anda (TAC akan dihantar ke sini):",
+        "lang_updated": "Bahasa telah dikemaskini.",
+        "invalid_choice": "Pilihan tidak sah. Perbualan tamat.",
+        "invalid_mobile_number": "❌ Nombor telefon tidak sah. Sila masukkan nombor 10 digit yang sah.",
+        "menu_settings_title": "Menu Tetapan",
+        "enter_tac": "Masukkan TAC yang dihantar ke telefon anda:",
+        "verify_tac": "Mengesahkan TAC...",
+        "tac_verified": "✅ TAC berjaya disahkan.",
+        "tac_invalid": "❌ TAC tidak sah. Sila cuba lagi.",
+        "choose_existing_mobile": "Sila pilih nombor sedia ada atau tambah satu yang baru.",
+        # Transfer Instructions
+        "transfer_instructions": (
+            "\n\n<b>Cara Memindahkan {wallet_type} ke Dompet Anda:</b>\n\n"
+            "1️⃣ Buka aplikasi dompet {wallet_type} atau mana-mana dompet yang serasi.\n"
+            "2️⃣ Pergi ke bahagian <b>Hantar</b> atau <b>Pindah</b> di dalam dompet.\n"
+            "3️⃣ Tampalkan <b>Kunci Awam</b> anda ke dalam medan alamat penerima. Kunci awam anda adalah:\n"
+            "<code>{public_key}</code>\n\n"
+            "4️⃣ Masukkan jumlah {wallet_type} yang ingin dipindahkan.\n"
+            "5️⃣ Semak butiran transaksi dan sahkan pemindahan.\n\n"
+            "Setelah pemindahan berjaya, {wallet_type} akan muncul dalam baki dompet anda."
+        ),
+    },
 }
