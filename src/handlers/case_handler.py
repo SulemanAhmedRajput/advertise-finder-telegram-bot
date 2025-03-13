@@ -96,10 +96,9 @@ async def handle_select_mobile(
             selected_mobile  # Save the MobileNumber reference
         )
 
-        tac = generate_tac()  # Generate TAC for the selected mobile number
-        context.user_data["tac"] = tac
+        res = await send_otp(selected_mobile)
 
-        print("TAC:", tac)
+        context.user_data["case"]["otp_id"] = res["otp_id"]
 
         # Notify the user that the mobile number was selected
         await query.edit_message_text(
@@ -149,10 +148,7 @@ async def handle_tac(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = update.effective_user.id
     user_tac = update.message.text.strip()
     stored_tac = context.user_data.get("tac")
-    selected_number = context.user_data.get(
-        "selected_number"
-    )  # Get the mobile number reference
-    # TODO: Neeed to be fix
+    selected_number = context.user_data.get("selected_number")
     otp_verify = await verify_otp(context.user_data["case"]["otp_id"], user_tac)
     if otp_verify["success"]:
         await update.message.reply_text(get_text(user_id, "tac_verified"))

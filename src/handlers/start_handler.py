@@ -1,5 +1,6 @@
 import logging
 from services.case_service import update_or_create_case
+from services.tron_wallet_service import TronWallet
 from services.wallet_service import WalletService
 from telegram import (
     Update,
@@ -467,7 +468,7 @@ async def wallet_selection_callback(
         total_sol = (
             await WalletService.get_sol_balance(wallet_details["public_key"])
             if wallet_type == "SOL"
-            else await WalletService.get_usdt_balance(wallet_details["public_key"])
+            else await TronWallet.get_usdt_balance(wallet_details["public_key"])
         )
 
         print(f"Total {wallet_type}: {total_sol}")
@@ -537,7 +538,7 @@ async def wallet_name_handler(
         if wallet_type == "SOL":
             total_sol = await WalletService.get_sol_balance(wallet.public_key)
         elif wallet_type == "USDT":
-            total_sol = await WalletService.get_usdt_balance(wallet.public_key)
+            total_sol = await TronWallet.get_usdt_balance(wallet.public_key)
 
         print(f"Total SOL: {total_sol}")
         print(f"This is the wallet type: {wallet_type}")

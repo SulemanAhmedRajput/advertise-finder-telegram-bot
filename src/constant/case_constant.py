@@ -51,7 +51,7 @@ CASE_CONSTANT = {
         "enter_person_name": "请输入您要寻找的人的姓名：",
         "relationship": "您与该人的关系：",
         "upload_photo": "上传清晰的人物照片：",
-        "last_seen_location": "请输入最后出现的位置（省份）：",  # TODO-Important: Must be change into chinese text
+        "last_seen_location": "请输入最后出现的位置（省份）：",
         "sex": "性别（男/女）：",
         "age": "年龄：",
         "hair_color": "发色：",
@@ -59,7 +59,7 @@ CASE_CONSTANT = {
         "height": "身高（厘米）：",
         "weight": "体重（公斤）：",
         "distinctive_features": "显著的身体特征（例如，鹰形纹身）：",
-        "reason_for_finding": "寻找原因：",  # TODO-Important: Must be change into chinese text
+        "reason_for_finding": "寻找原因：",
         "enter_reward_amount_sol": "请输入以SOL为单位的奖励金额。",
         "enter_reward_amount_usdt": "请输入以USDT为单位的奖励金额。",
         "enter_reward_amount_unknown": "请输入奖励金额（未知钱包类型）。",
@@ -76,5 +76,44 @@ CASE_CONSTANT = {
         "case_submitted": "您的案件已成功提交。",
         "case_completed": "您的案件已完成。",
         "reward_amount_negative": "奖励金额不能为负。",
+    },
+    "ms": {
+        "create_case_title": "Buat Kes Baharu",
+        "enter_name": "Masukkan nama anda:",
+        "disclaimer_2": (
+            "Penafian 2:\n\n"
+            "1. Jumlah ganjaran akan ditahan dalam escrow sehingga kes diselesaikan.\n"
+            "2. Penyalahgunaan perkhidmatan ini adalah dilarang.\n"
+            "3. Semua maklumat yang diberikan akan dapat dilihat oleh umum.\n\n"
+            "Adakah anda bersetuju?"
+        ),
+        "enter_person_name": "Masukkan nama orang yang anda cari:",
+        "relationship": "Apakah hubungan anda dengan orang itu? (cth: Rakan, Keluarga, Pasangan, dsb.):",
+        "upload_photo": "Muat naik gambar jelas orang itu (maks. 5 MB):",
+        "last_seen_location": "Di manakah lokasi terakhir orang ini dilihat?",
+        "sex": "Apakah jantina orang itu? (Lelaki/Perempuan):",
+        "age": "Apakah umur orang itu?",
+        "hair_color": "Apakah warna rambut orang itu? (cth: Blonde, Perang, dll.):",
+        "eye_color": "Apakah warna mata orang itu? (cth: Biru, Hijau, dll.):",
+        "height": "Apakah ketinggian orang itu (cm):",
+        "weight": "Apakah berat orang itu (kg):",
+        "distinctive_features": "Apakah ciri-ciri fizikal khas orang itu? (cth: Tatu burung helang):",
+        "reason_for_finding": "Mengapa anda mencari orang ini?",
+        "enter_reward_amount_sol": "Sila masukkan jumlah ganjaran dalam SOL.",
+        "enter_reward_amount_usdt": "Sila masukkan jumlah ganjaran dalam USDT.",
+        "enter_reward_amount_unknown": "Sila masukkan jumlah ganjaran (jenis dompet tidak diketahui).",
+        "insufficient_balance": "Baki anda tidak mencukupi. Anda mempunyai {0} tersedia.",
+        "refresh_wallet_balance": "Sila kemas kini baki dompet anda.",
+        "reward_amount_confirmed": "Jumlah ganjaran anda sebanyak {0} telah disahkan.",
+        "insufficient_balance_for_transfer": "Anda tidak mempunyai baki yang mencukupi untuk dipindahkan. Baki anda adalah {0}.",
+        "transfer_successful": "Pemindahan berjaya.",
+        "transfer_failed": "Pemindahan gagal. Sila cuba lagi.",
+        "transfer_error": "Ralat berlaku semasa memproses pemindahan. Sila cuba lagi.",
+        "transfer_canceled": "Pemindahan telah dibatalkan.",
+        "invalid_confirmation": "Jawapan tidak sah. Sila sahkan dengan 'yes' atau 'no'.",
+        "enter_reason_for_finding": "Sila berikan sebab mencari.",
+        "case_submitted": "Kes anda telah berjaya dihantar.",
+        "case_completed": "Kes anda telah selesai.",
+        "reward_amount_negative": "Jumlah ganjaran tidak boleh negatif.",
     },
 }
