@@ -4,6 +4,7 @@ from typing import List, Optional
 from datetime import datetime
 from pydantic import Field
 from models.case_model import Case
+from models.extend_reward_model import ExtendReward
 from models.wallet_model import Wallet
 
 

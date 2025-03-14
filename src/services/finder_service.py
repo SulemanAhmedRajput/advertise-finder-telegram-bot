@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional, List
 from beanie import PydanticObjectId
+from models.extend_reward_model import ExtendReward
 from models.finder_model import Finder, FinderStatus, RewardExtensionStatus
 from models.case_model import Case, CaseStatus
 from models.wallet_model import Wallet
@@ -171,6 +172,9 @@ class FinderService:
                 elif key == "case" and isinstance(value, str):
                     case = await Case.get(PydanticObjectId(value))
                     value = case
+                elif key == "extend_reward_ref" and isinstance(value, str):
+                    extend_reward = await ExtendReward.get(PydanticObjectId(value))
+                    value = finder.extend_reward_ref.append(extend_reward)
 
                 setattr(finder, key, value)
 

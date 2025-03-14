@@ -60,7 +60,9 @@ async def fetch_cases_by_province(location):
     Fetch cases from the database based on the province.
     """
     # Implement this function
-    case = await Case.find({"last_seen_location": location, "status": CaseStatus.ADVERTISE}).to_list()
+    case = await Case.find(
+        {"last_seen_location": location, "status": CaseStatus.ADVERTISE}
+    ).to_list()
     print(f"These are the cases for {location}: {case}")
 
     return case
@@ -107,7 +109,9 @@ async def choose_province(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         context.user_data["province"] = selected_province  # Save province in context
 
         # Fetch cases from DB where last_seen_location matches province
-        cases = await Case.find({"last_seen_location": selected_province, "status": CaseStatus.ADVERTISE}).to_list()
+        cases = await Case.find(
+            {"last_seen_location": selected_province, "status": CaseStatus.ADVERTISE}
+        ).to_list()
 
         if not cases:
             await update.message.reply_text(
@@ -371,13 +375,11 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
         wallet = await case.wallet.fetch() if case.wallet else None
 
-
         proof_text = (
             f"[Proof]({case.case_photo})"
             if case.case_photo and case.case_photo.startswith("http")
             else "No proof available"
         )
-        
 
         details = (
             f"📌 **Case Details**\n"
@@ -388,9 +390,8 @@ async def case_details(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             f"🧒 **Age:** {case.age}\n"
             f"📏 **Height:** {case.height} cm\n"
         )
-        
-        details +=  f"\n\n**Proof:** {proof_text}"
 
+        details += f"\n\n**Proof:** {proof_text}"
 
         keyboard = [
             [
@@ -444,7 +445,9 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             file_extension = "jpg"  # Telegram sends images in JPG format
         elif update.message.video:
             file_id = update.message.video.file_id
-            file_extension = update.message.video.mime_type.split("/")[1]  # Get video format (e.g., mp4, mov, etc.)
+            file_extension = update.message.video.mime_type.split("/")[
+                1
+            ]  # Get video format (e.g., mp4, mov, etc.)
             file_size = update.message.video.file_size  # File size in bytes
             is_video = True  # Mark this as a video upload
         else:
@@ -458,15 +461,21 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         # Validate the file format
         if is_video:
             if file_extension not in supported_video_formats:
-                await update.message.reply_text("Unsupported video format. Please upload a valid video (mp4, mov, avi, mkv, webm).")
+                await update.message.reply_text(
+                    "Unsupported video format. Please upload a valid video (mp4, mov, avi, mkv, webm)."
+                )
                 return State.UPLOAD_PROOF
             # Check video file size (5MB max)
             if file_size and file_size > 5 * 1024 * 1024:
-                await update.message.reply_text("The file is too large. Please upload a video smaller than 5 MB.")
+                await update.message.reply_text(
+                    "The file is too large. Please upload a video smaller than 5 MB."
+                )
                 return State.UPLOAD_PROOF
         else:
             if file_extension not in supported_image_formats:
-                await update.message.reply_text("Unsupported image format. Please upload a valid image (jpg, jpeg, png).")
+                await update.message.reply_text(
+                    "Unsupported image format. Please upload a valid image (jpg, jpeg, png)."
+                )
                 return State.UPLOAD_PROOF
 
         # Generate unique filename
@@ -488,7 +497,9 @@ async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             print(f"Uploaded File URL: {upload_result}")
         except CloudinaryError as e:
             print(f"Cloudinary upload error: {e}")
-            await update.message.reply_text("There was an error uploading the file. Please try again.")
+            await update.message.reply_text(
+                "There was an error uploading the file. Please try again."
+            )
             return State.END
 
         await FinderService.update_or_create_finder(user_id, proof_url=[upload_result])
@@ -535,9 +546,6 @@ async def handle_enter_location(
         logger.error(f"Error notifying advertiser: {e}")
         await update.message.reply_text(get_text(user_id, "error_sending_notification"))
         return State.END
-
-  
-
 
 
 # ------------------------------------- FINDER  LOGIC  START ------------------------------------
@@ -607,7 +615,7 @@ async def finder_wallet_selection_callback(
     wallet_type = context.user_data.get("wallet_type")  # 'sol' or 'usdt'
 
     case_id = context.user_data.get("found_case_no")
-    case = await Case.find_one({"_id": PydanticObjectId(case_id)}, fetch_links=True)    
+    case = await Case.find_one({"_id": PydanticObjectId(case_id)}, fetch_links=True)
 
     # Fetch wallet details by name and type
     wallet_details = await WalletService.get_wallet_by_id(wallet_id)
@@ -633,7 +641,6 @@ async def finder_wallet_selection_callback(
         )
 
         print("\n\n DEBUGGING -002 \n\n")
-        
 
         msg = get_text(user_id, "wallet_create_details").format(
             name=wallet_details["name"],
@@ -643,27 +650,35 @@ async def finder_wallet_selection_callback(
             wallet_type=wallet_type,
         )
 
-        await query.edit_message_text(msg, parse_mode="HTML")
+        # Send wallet details as a new message
+        await query.message.reply_text(msg, parse_mode="HTML")
 
-        # Show confirmation
+        # Send confirmation as a new message
+        confirmation_message = (
+            f"❗ <b>Confirmation Required</b> ❗\n\n"
+            f"Are you sure you want to receive the reward of <b>{case.reward} {wallet_details['wallet_type']}</b> in this wallet?\n"
+            f"🔑 <b>Wallet Address:</b> <code>{wallet_details['public_key']}</code>"
+        )
+
         keyboard = [
             [
                 InlineKeyboardButton(
-                    "Confirm Transfer", callback_data="confirm_transfer"
+                    "✅ Confirm Transfer", callback_data="confirm_transfer"
                 ),
-                InlineKeyboardButton("Cancel", callback_data="cancel_transfer"),
+                InlineKeyboardButton("❌ Cancel", callback_data="cancel_transfer"),
             ]
         ]
 
-        await query.edit_message_text(
-            f"Are you Confirm you want the reward to {case.reward} {wallet_details["wallet_type"]} this Wallet ?\n"
-            f"Wallet address: {wallet_details['public_key']}",
+        await query.message.reply_text(
+            confirmation_message,
             reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode="HTML",
         )
+
         return State.FINDER_CONFIRM_TRANSACTION
 
     else:
-        await query.edit_message_text(
+        await query.message.reply_text(
             get_text(user_id, "wallet_not_found"), parse_mode="HTML"
         )
         return State.END
@@ -736,9 +751,11 @@ async def finder_wallet_name_handler(
                 InlineKeyboardButton("Cancel", callback_data="cancel_transfer"),
             ]
         ]
-        
-        print(f"Confirm transfer of {case.reward} {wallet.wallet_type} from {wallet.name}?\n"
-            f"Wallet address: {wallet.public_key}")
+
+        print(
+            f"Confirm transfer of {case.reward} {wallet.wallet_type} from {wallet.name}?\n"
+            f"Wallet address: {wallet.public_key}"
+        )
 
         await query.edit_message_text(
             f"Confirm transfer of {case.reward} {wallet.wallet_type} from {wallet.name}?\n"
@@ -752,8 +769,6 @@ async def finder_wallet_name_handler(
             get_text(user_id, "wallet_create_err"), parse_mode="HTML"
         )
         return State.END
-    
-    
 
 
 @catch_async
@@ -766,35 +781,72 @@ async def finder_handle_transaction_confirmation(
     user_id = update.effective_user.id
     case_id = context.user_data.get("found_case_no")
     case = await Case.find_one({"_id": PydanticObjectId(case_id)}, fetch_links=True)
+    isExtendedFlow = context.user_data.get("extend_flow", False)
     print("Case: ", case)
-    wallet =  case.wallet
+    wallet = case.wallet
     print(f"Wallet: {wallet}")
     print(f"Case: {case}")
     if case.status == CaseStatus.ADVERTISE:
-        finder = await FinderService.update_or_create_finder(user_id, case=case_id,  status = FinderStatus.FIND)
+        if isExtendedFlow:
+            extend_reward = ExtendReward(
+                user_id=user_id,
+                case=case,
+                status=ExtendRewardStatus.PENDING,
+                extend_reward_amount=context.user_data["reward_difference"],
+                reason="Just for the testing Purpose.",
+            )
+
+            await extend_reward.save()
+
+        finder = await FinderService.update_or_create_finder(
+            user_id,
+            case=case_id,
+            status=FinderStatus.FIND,
+        )
         # TODO: Add a check to see if the user has already been notified
 
+        # Message to the OWNER (Advertiser)
         await context.bot.send_message(
-        chat_id=OWNER_TELEGRAM_ID,
-        text=(
-            "🚨 *Finder Alert!* 🚨\n\n"
-            f"🔎 Someone with user ID `{finder.user_id}` has reported finding the person for *Case #{case.id}*.\n"
-            f"📍 Finder's contact number: `{"----"}`\n\n"
-            "You can now review the case and confirm the reward. If everything is correct, please proceed with the payment.\n"
-            "Do you want to accept this extension?"
-        ),
-    )
-
-        await query.edit_message_text(
-            f"Congratulate you finder request is send to the advertiser you will receive the reward when you accepted the request 🚀"
+            chat_id=case.user_id,
+            text=(
+                "📢 *Finder Request Submitted!* 📢\n\n"
+                f"🔎 **User ID:** `{finder.user_id}`\n"
+                f"📂 **Has added a 'Find' request for your advertisement (Case ID:** `#{case.id}`)\n"
+                f"📞 **Finder's Contact Number:** `{"----"}`\n\n"
+                "🔔 Please review the details and confirm the reward if everything is accurate.\n"
+                "💰 Once confirmed, proceed with the payment.\n\n"
+                "**📝 Type `/listing` to view all complaints.**"
+            ),
         )
+
+        # Message to the FINDER (Confirmation)
+        await query.edit_message_text(
+            "🎯 *Request Submitted Successfully!* 🎯\n"
+            "Your finder request has been sent to the advertiser. 🚀\n"
+            "They will review the details, and you will receive your reward once accepted.\n\n"
+            "**💬 Type `/listing` to view all cases.**"
+        )
+
+        # Message to the THIRD ROLE (e.g., Moderator/Admin)
+        await context.bot.send_message(
+            chat_id=OWNER_TELEGRAM_ID,
+            text=(
+                "🛑 *Attention Required!* 🛑\n\n"
+                "🚨 A new 'Finder' request has been submitted.\n"
+                f"📂 **Case ID:** `#{case.id}`\n"
+                f"👤 **Finder User ID:** `{finder.user_id}`\n"
+                f"📞 **Finder's Contact Number:** `{"----"}`\n\n"
+                "🔍 Please review the case and assist in the verification process if needed.\n"
+                "**📝 Type `/listing` to view all active complaints.**"
+            ),
+        )
+
         return State.END
 
 
 # ------------------------------- FINDER LOGIC END ------------------------------------
 
 #  ---------------------------- Extend Reward ---------------------------
-
 
 
 async def handle_advertiser_response(
@@ -813,9 +865,11 @@ async def handle_advertiser_response(
     case = await Case.find_one({"_id": PydanticObjectId(case_id)}, fetch_links=True)
 
     # Get advertiser's wallets
-    wallets = await WalletService.get_sol_wallet_of_user(case.user_id) \
-        if case.wallet.wallet_type == "SOL" else \
-        await WalletService.get_usdt_wallet_of_user(case.user_id)
+    wallets = (
+        await WalletService.get_sol_wallet_of_user(case.user_id)
+        if case.wallet.wallet_type == "SOL"
+        else await WalletService.get_usdt_wallet_of_user(case.user_id)
+    )
 
     print(f"Wallets: {wallets}")
 
@@ -994,18 +1048,14 @@ async def handle_found_case(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         return State.END
 
 
-
-
 # ---------------------------- Extend Reward ---------------------------
-
-
 
 
 @catch_async
 async def handle_extend_reward_amount(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
-    print("I'm Inside the Handle Extend Reward Amount")
+    print("I'm Inside the Handle Extend Reward Amount ---- 01")
 
     user_id = update.effective_user.id
     new_reward_str = update.message.text.strip()
@@ -1016,17 +1066,15 @@ async def handle_extend_reward_amount(
 
     # Fetch the case with linked documents (wallet)
     case = await Case.find_one(
-        {"_id": ObjectId(case_id)}, fetch_links=True  # Ensure wallet is fetched
+        {"_id": PydanticObjectId(case_id)}, fetch_links=True  # Ensure wallet is fetched
     )
     # print(f"Case: {case}")
 
     print(f"Demand reward: {demanded_reward}")
 
-   
-   
-    current_reward = float(case.reward )
+    current_reward = float(case.reward)
     print(f"Current Reward: {current_reward}")
-    
+
     if demanded_reward <= current_reward:
         await update.message.reply_text(
             f"Please enter an amount greater than current reward ({current_reward})"
@@ -1036,34 +1084,48 @@ async def handle_extend_reward_amount(
     context.user_data["demanded_reward"] = demanded_reward
     context.user_data["reward_difference"] = demanded_reward - current_reward
 
-    extend_reward = ExtendReward(user_id=user_id, case=case, status=ExtendRewardStatus.PENDING,  extend_reward_amount=context.user_data['reward_difference'], reason="Just for the testing Purpose.")
+    wallet_type = case.wallet.wallet_type
 
-    await extend_reward.save()
+    context.user_data["wallet_type"] = wallet_type
 
-    # Notify advertiser
-    await context.bot.send_message(
-        chat_id=case.user_id,
-        text=f"🚨 Reward Extension Request 🚨\n\n"
-        f"Finder is demanding {demanded_reward} {case.wallet.wallet_type}\n"
-        f"Additional amount needed: {context.user_data['reward_difference']} {case.wallet.wallet_type}\n\n"
-        f"Do you want to accept this extension?",
-        reply_markup=InlineKeyboardMarkup(
+    print(f"Wallet type: {wallet_type}")
+
+    existing_wallets = await WalletService.get_wallet_by_type(user_id, wallet_type)
+
+    if existing_wallets:
+        kb = [
             [
-                [
-                    InlineKeyboardButton("Accept", callback_data="accept_extend"),
-                    InlineKeyboardButton("Reject", callback_data="reject_extend"),
-                ]
+                InlineKeyboardButton(
+                    wallet.name, callback_data=f"wallet_{str(wallet.id)}"
+                )
             ]
-        ),
-    )
-    await update.message.reply_text("Extension request sent to case owner")
-    return State.ADVERTISER_RESPONSE
+            for wallet in existing_wallets
+        ]
+        kb.append(
+            [
+                InlineKeyboardButton(
+                    get_text(user_id, "create_new_wallet"),
+                    callback_data="create_new_wallet",
+                )
+            ]
+        )
+        await update.message.reply_text(
+            get_text(user_id, "choose_existing_or_new_wallet"),
+            reply_markup=InlineKeyboardMarkup(kb),
+            parse_mode="HTML",
+        )
+        return State.FINDER_CHOOSE_WALLET_TYPE
+    else:
+        msg = get_text(user_id, "wallet_name_prompt")
+        if update.message:
+            await update.message.reply_text(msg, parse_mode="HTML")
+        elif update.callback_query:
+            await update.callback_query.message.reply_text(msg, parse_mode="HTML")
 
+        return State.FINDER_NAME_WALLET
 
 
 #  ---------------------------- ADVERTISER LOGIC START ---------------------------
-
-
 
 
 async def handle_extend_reward(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -1071,31 +1133,47 @@ async def handle_extend_reward(update: Update, context: ContextTypes.DEFAULT_TYP
     await query.answer()
     case_id = context.user_data.get("found_case_no")
     user_id = update.effective_user.id
+    case = await Case.find_one({"_id": PydanticObjectId(case_id)}, fetch_links=True)
 
     if query.data == "yes_extend":
         await query.message.reply_text("Please enter the new reward amount:")
         return State.EXTEND_REWARD_AMOUNT  # Transition to reward amount input
     else:
-        #  --------------- If user not extended the  reward --------------- 
+        #  --------------- If user not extended the  reward ---------------
         # Handle "No" response
 
-        kb = InlineKeyboardMarkup(
-            [
+        existing_wallets = await WalletService.get_wallet_by_type(
+            user_id, case.wallet.wallet_type
+        )
+
+        if existing_wallets:
+            kb = [
                 [
                     InlineKeyboardButton(
-                        get_text(user_id, "usdt_wallet"), callback_data="USDT"
-                    ),
-                    InlineKeyboardButton(
-                        get_text(user_id, "sol_wallet"), callback_data="SOL"
-                    ),
+                        wallet.name, callback_data=f"wallet_{str(wallet.id)}"
+                    )
                 ]
+                for wallet in existing_wallets
             ]
-        )
-        await query.edit_message_text(
-            get_text(user_id, "choose_wallet"), reply_markup=kb
-        )
-        return State.FINDER_CHOOSE_WALLET_TYPE
-    
-    
-    
-    
+            kb.append(
+                [
+                    InlineKeyboardButton(
+                        get_text(user_id, "create_new_wallet"),
+                        callback_data="create_new_wallet",
+                    )
+                ]
+            )
+            await query.edit_message_text(
+                get_text(user_id, "choose_existing_or_new_wallet"),
+                reply_markup=InlineKeyboardMarkup(kb),
+                parse_mode="HTML",
+            )
+            return State.FINDER_CHOOSE_WALLET_TYPE
+        else:
+            msg = get_text(user_id, "wallet_name_prompt")
+            if update.message:
+                await update.message.reply_text(msg, parse_mode="HTML")
+            elif update.callback_query:
+                await update.callback_query.message.reply_text(msg, parse_mode="HTML")
+
+            return State.FINDER_NAME_WALLET
