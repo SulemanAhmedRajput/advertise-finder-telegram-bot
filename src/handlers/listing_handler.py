@@ -6,6 +6,9 @@ from config.config_manager import (
     STAKE_WALLET_PRIVATE_KEY,
     STAKE_WALLET_PUBLIC_KEY,
     TAX_COLLECT_PUBLIC_KEY,
+    TRON_TAX_COLLECT_PRIVATE_KEY,
+    TRON_TAX_COLLECT_PUBLIC_KEY,
+    TRON_WALLET_PRIVATE_KEY,
 )
 from constant.language_constant import get_text, user_data_store
 from constants import State
@@ -25,6 +28,7 @@ from models.finder_model import Finder, FinderStatus
 from models.wallet_model import Wallet
 from services.case_service import update_case
 from services.finder_service import FinderService
+from services.tron_wallet_service import TronWallet
 from services.user_service import get_user_lang
 from services.wallet_service import WalletService
 from utils.logger import logger
@@ -542,7 +546,7 @@ async def process_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def update_choose_country(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
-    
+
     user_id = update.effective_user.id
     txt = update.message.text.strip()
     matches = get_country_matches(txt)
@@ -1135,13 +1139,27 @@ async def confirm_reward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
         finder_wallet = finder.wallet
 
-        is_transfer_to_finder_successful = await WalletService.send_sol(
-            STAKE_WALLET_PRIVATE_KEY, finder_wallet.public_key, amount
+        is_transfer_to_finder_successful = (
+            await WalletService.send_sol(
+                STAKE_WALLET_PRIVATE_KEY, finder_wallet.public_key, amount
+            )
+            if finder_wallet.wallet_type == "SOL"
+            else await TronWallet.transfer_usdt(
+                TRON_WALLET_PRIVATE_KEY, finder_wallet.public_key, amount
+            )
         )
-        is_tax_transfer_successful = await WalletService.send_sol(
-            STAKE_WALLET_PRIVATE_KEY,
-            TAX_COLLECT_PUBLIC_KEY,
-            float(case.reward - amount),
+        is_tax_transfer_successful = (
+            await WalletService.send_sol(
+                STAKE_WALLET_PRIVATE_KEY,
+                TAX_COLLECT_PUBLIC_KEY,
+                float(case.reward - amount),
+            )
+            if finder_wallet.wallet_type == "SOL"
+            else await TronWallet.transfer_usdt(
+                TRON_WALLET_PRIVATE_KEY,
+                TRON_TAX_COLLECT_PUBLIC_KEY,
+                float(case.reward - amount),
+            )
         )
 
         print(f"Is transfer to finder successful: {is_transfer_to_finder_successful}")

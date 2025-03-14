@@ -57,7 +57,7 @@ LISTING_CONSTANT = {
         "reward_cancelled": "Reward process cancelled",
         "confirm_button": "✅ Confirm",
         "cancel_button": "❌ Cancel",
-         # ----- Delete Start ------
+        # ----- Delete Start ------
         "case_not_found": "⚠️ Case not found.",
         "not_authorized_delete": "🚫 You are not authorized to delete this case.",
         "case_deleted_successfully": "✅ Case has been successfully deleted.",
@@ -67,8 +67,7 @@ LISTING_CONSTANT = {
         "delete_cancelled": "❌ Case deletion has been cancelled.",
         "error_deleting_case": "⚠️ An error occurred while deleting the case. Please try again.",
         # ----- Delete End ------
-
-       #----------- Extend Reward Constants ----------
+        # ----------- Extend Reward Constants ----------
         "extend_reward_button": "Extend Reward ➕",
         "extend_reward_not_found": "❌ No active reward extension request found.",
         "insufficient_funds": "❌ Insufficient funds in your {wallet_type} wallet. Required: {required_amount}",
@@ -144,7 +143,7 @@ LISTING_CONSTANT = {
         "cancel_button": "❌ 取消",
         # ----- Delete Start ------
         "case_not_found": "⚠️ 案例未找到。",
-        "not_authorized_delete": "🚫 您无权删除此案例。",       
+        "not_authorized_delete": "🚫 您无权删除此案例。",
         "case_deleted_successfully": "✅ 案例已成功删除。",
         "confirm_delete": "❗ 您确定要删除此案例吗？",
         "yes": "✅ 是",
@@ -152,8 +151,7 @@ LISTING_CONSTANT = {
         "delete_cancelled": "❌ 案例删除已取消。",
         "error_deleting_case": "⚠️ 删除案例时发生错误。请重试。",
         # ----- Delete End ------
-        
-         #----------- 扩展奖励相关常量 ----------
+        # ----------- 扩展奖励相关常量 ----------
         "extend_reward_button": "扩展奖励 ➕",
         "extend_reward_not_found": "❌ 未找到有效的奖励扩展请求。",
         "insufficient_funds": "❌ {wallet_type}钱包余额不足，需要：{required_amount}",
